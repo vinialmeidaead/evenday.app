@@ -63,7 +63,7 @@ const createICSContent = (event: Event): string => {
     return [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Hi.Events//NONSGML Event Calendar//EN',
+        'PRODID:-//Evenday//NONSGML Event Calendar//EN',
         'CALSCALE:GREGORIAN',
         'BEGIN:VEVENT',
         `DTSTART:${formatDate(event.start_date)}`,

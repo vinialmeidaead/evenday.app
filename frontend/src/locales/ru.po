@@ -6027,7 +6027,7 @@ msgstr ""
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:84
 msgid "Thanks for your support as we continue to grow and improve Hi.Events!"
-msgstr "Спасибо за вашу поддержку, пока мы продолжаем расти и улучшать Hi.Events!"
+msgstr "Спасибо за вашу поддержку, пока мы продолжаем расти и улучшать Evenday!"
 
 #: src/components/routes/product-widget/SelectProducts/index.tsx:176
 #: src/components/routes/product-widget/SelectProducts/index.tsx:224

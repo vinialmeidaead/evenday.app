@@ -303,14 +303,14 @@ const EventHomepage = ({colors, continueButtonText, backgroundType, ...loaderDat
                                 <div className={classes.footerContent}>
                                     <div className={classes.footerLinks}>
                                         <Anchor
-                                            href={getConfig('VITE_TOS_URL', 'https://hi.events/terms-of-service?utm_source=event=homepage-footer') as string}
+                                            href={getConfig('VITE_TOS_URL', 'https://Evenday/terms-of-service?utm_source=event=homepage-footer') as string}
                                             className={classes.footerLink}
                                         >
                                             {t`Privacy Policy`}
                                         </Anchor>
                                         <span className={classes.footerSeparator}>•</span>
                                         <Anchor
-                                            href={getConfig('VITE_PRIVACY_URL', 'https://hi.events/privacy-policy?utm_source=event=homepage-footer') as string}
+                                            href={getConfig('VITE_PRIVACY_URL', 'https://Evenday/privacy-policy?utm_source=event=homepage-footer') as string}
                                             className={classes.footerLink}
                                         >
                                             {t`Terms of Service`}

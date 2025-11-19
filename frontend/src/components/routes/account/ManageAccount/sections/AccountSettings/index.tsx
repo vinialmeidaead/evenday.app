@@ -30,7 +30,10 @@ const AccountSettings = () => {
 
     useEffect(() => {
         if (accountQuery.data) {
-            form.setValues(accountQuery.data);
+            form.setValues({
+                ...accountQuery.data,
+                currency_code: accountQuery.data.currency_code || 'BRL',
+            });
         }
     }, [accountQuery.isFetched]);
 

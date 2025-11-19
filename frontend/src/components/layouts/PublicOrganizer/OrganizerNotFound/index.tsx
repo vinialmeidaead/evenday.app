@@ -10,7 +10,7 @@ export const OrganizerNotFound = () => {
             pageTitle={t`Organizer Not Found`}
             metaDescription={t`The organizer you're looking for could not be found. The page may have been moved, deleted, or the URL might be incorrect.`}
             buttonText={t`Create your own event`}
-            buttonUrl="https://app.hi.events/auth/register?utm_source=app.hi.events&utm_content=organizer-not-found/create-event"
+            buttonUrl="https://app.Evenday/auth/register?utm_source=app.Evenday&utm_content=organizer-not-found/create-event"
             buttonIcon={<IconCalendarPlus size={18}/>}
         >
 

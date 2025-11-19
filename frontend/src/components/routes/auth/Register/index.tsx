@@ -31,7 +31,7 @@ export const Register = () => {
                 : 'UTC',
             locale: getClientLocale(),
             invite_token: '',
-            currency_code: getUserCurrency(),
+            currency_code: 'BRL',
         },
         validate: {
             password: hasLength({min: 8}, t`Password must be at least 8 characters`),
@@ -65,7 +65,7 @@ export const Register = () => {
     return (
         <>
             <header className={classes.header}>
-                <h2>{t`Welcome to ${getConfig("VITE_APP_NAME", "Hi.Events")} 👋`}</h2>
+                <h2>{t`Welcome to ${getConfig("VITE_APP_NAME", "Evenday")} 👋`}</h2>
                 <p>
                     <Trans>
                         Create an account or <NavLink to={'/auth/login'}>
@@ -133,10 +133,10 @@ export const Register = () => {
                 <footer>
                     <Trans>
                         By registering you agree to our <NavLink target={'_blank'}
-                                                                 to={getConfig("VITE_TOS_URL", "https://hi.events/terms-of-service?utm_source=app-register-footer") as string}>Terms
+                                                                 to={getConfig("VITE_TOS_URL", "https://Evenday/terms-of-service?utm_source=app-register-footer") as string}>Terms
                         of Service</NavLink> and <NavLink
                         target={'_blank'}
-                        to={getConfig("VITE_PRIVACY_URL", 'https://hi.events/privacy-policy?utm_source=app-register-footer') as string}>Privacy Policy</NavLink>.
+                        to={getConfig("VITE_PRIVACY_URL", 'https://Evenday/privacy-policy?utm_source=app-register-footer') as string}>Privacy Policy</NavLink>.
                     </Trans>
                 </footer>
             </div>

@@ -69,7 +69,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
 
     useEffect(() => {
         if (isAccountFetched) {
-            form.setFieldValue('currency', account?.currency_code);
+            form.setFieldValue('currency', account?.currency_code || 'BRL');
             form.setFieldValue('timezone', account?.timezone);
         }
     }, [isAccountFetched]);
