@@ -79,17 +79,17 @@ class LiquidTemplateRenderer
             [
                 'token' => '{{ event.full_address }}',
                 'description' => __('The full event address'),
-                'example' => '3 Arena, North Wall Quay, Dublin 1, D01 T0X4, Ireland',
+                'example' => 'Av. Paulista, 1578, Bela Vista, São Paulo - SP, 01310-200, Brasil',
             ],
             [
                 'token' => '{{ event.location_details.venue_name }}',
                 'description' => __('The event venue name'),
-                'example' => '3 Arena',
+                'example' => 'Centro de Convenções Paulista',
             ],
             [
                 'token' => '{{ event.location_details.address_line_1 }}',
                 'description' => __('The venue address line 1'),
-                'example' => 'North Wall Quay',
+                'example' => 'Av. Paulista, 1578',
             ],
             [
                 'token' => '{{ event.location_details.address_line_2 }}',
@@ -99,22 +99,22 @@ class LiquidTemplateRenderer
             [
                 'token' => '{{ event.location_details.city }}',
                 'description' => __('The venue city'),
-                'example' => 'Dublin',
+                'example' => 'São Paulo',
             ],
             [
                 'token' => '{{ event.location_details.state_or_region }}',
                 'description' => __('The venue state or region'),
-                'example' => 'Dublin 1',
+                'example' => 'São Paulo - SP',
             ],
             [
                 'token' => '{{ event.location_details.zip_or_postal_code }}',
                 'description' => __('The venue ZIP or postal code'),
-                'example' => 'D01 T0X4',
+                'example' => '01310-200',
             ],
             [
                 'token' => '{{ event.location_details.country }}',
                 'description' => __('The venue country code'),
-                'example' => 'IE',
+                'example' => 'BR',
             ],
             [
                 'token' => '{{ event.description }}',

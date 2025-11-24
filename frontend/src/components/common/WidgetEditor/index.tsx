@@ -118,7 +118,7 @@ import HiEventsWidget from './HiEventsWidget';
 const App = () => {
   return (
     <div>
-      <h1>My Website</h1>
+      <h1>Meu site</h1>
       <HiEventsWidget 
         eventId="${eventId}"
         primaryColor="${form.values.primary_color}"
@@ -128,7 +128,7 @@ const App = () => {
         backgroundColor="${form.values.background_color}"
         widgetType="widget"
         widgetVersion="1.0"
-        locale="en"
+        locale="pt-BR"
       />
     </div>
   );

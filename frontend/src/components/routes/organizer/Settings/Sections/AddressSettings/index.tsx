@@ -90,12 +90,12 @@ export const AddressSettings = () => {
                         <TextInput
                             {...form.getInputProps('location_details.city')}
                             label={t`City`}
-                            placeholder={t`San Francisco`}
+                            placeholder={t`São Paulo`}
                         />
                         <TextInput
                             {...form.getInputProps('location_details.state_or_region')}
                             label={t`State or Region`}
-                            placeholder={t`California`}
+                            placeholder={t`São Paulo - SP`}
                         />
                     </InputGroup>
                     <InputGroup>

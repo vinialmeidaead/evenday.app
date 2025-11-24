@@ -132,11 +132,11 @@ export const Register = () => {
                 </form>
                 <footer>
                     <Trans>
-                        By registering you agree to our <NavLink target={'_blank'}
-                                                                 to={getConfig("VITE_TOS_URL", "https://Evenday/terms-of-service?utm_source=app-register-footer") as string}>Terms
-                        of Service</NavLink> and <NavLink
+                        Ao se registrar, você concorda com nossos <NavLink target={'_blank'}
+                                                                          to={getConfig("VITE_TOS_URL", "https://Evenday/terms-of-service?utm_source=app-register-footer") as string}>Termos
+                        de Uso</NavLink> e com nossa <NavLink
                         target={'_blank'}
-                        to={getConfig("VITE_PRIVACY_URL", 'https://Evenday/privacy-policy?utm_source=app-register-footer') as string}>Privacy Policy</NavLink>.
+                        to={getConfig("VITE_PRIVACY_URL", 'https://Evenday/privacy-policy?utm_source=app-register-footer') as string}>Política de Privacidade</NavLink>.
                     </Trans>
                 </footer>
             </div>

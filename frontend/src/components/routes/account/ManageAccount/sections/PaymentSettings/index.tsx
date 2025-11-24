@@ -28,7 +28,7 @@ interface FeePlanDisplayProps {
 }
 
 const formatPercentage = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('pt-BR', {
         style: 'percent',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2

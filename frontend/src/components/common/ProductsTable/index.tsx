@@ -26,7 +26,7 @@ export const ProductCategoryList: React.FC<ProductCategoryListProps> = ({
     }, [initialCategories]);
 
     if (!categories || categories.length === 0 || !event) {
-        return <>no categories or event</>;
+        return <>sem categorias ou evento</>;
     }
 
     useEffect(() => {

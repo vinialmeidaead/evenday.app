@@ -122,7 +122,7 @@ const LogEntry = ({log}: { log: WebhookLog }) => {
 
                     {log.response_body && (
                         <div>
-                            <Text size="sm" fw={500} mb={8} c="dimmed">Response:</Text>
+                            <Text size="sm" fw={500} mb={8} c="dimmed">Resposta:</Text>
                             <Code block p="md" style={{
                                 borderRadius: '6px',
                                 maxHeight: '300px',

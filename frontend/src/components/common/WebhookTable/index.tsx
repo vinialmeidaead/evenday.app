@@ -93,7 +93,7 @@ export const WebhookTable = ({webhooks, openCreateModal}: WebhookTableProps) => 
                 </Menu.Target>
 
                 <Menu.Dropdown>
-                    <Menu.Label>Manage</Menu.Label>
+                    <Menu.Label>Gerenciar</Menu.Label>
                     <Menu.Item
                         leftSection={<IconPencil size={14}/>}
                         onClick={() => {
@@ -146,7 +146,7 @@ export const WebhookTable = ({webhooks, openCreateModal}: WebhookTableProps) => 
 
         const isSuccess = (webhook.last_response_code >= 200 && webhook.last_response_code < 300) && webhook.last_response_code !== 0;
         const statusColor = isSuccess ? 'green' : 'red';
-        const statusText = isSuccess ? 'Success' : 'Error';
+        const statusText = isSuccess ? 'Sucesso' : 'Erro';
 
         return (
             <Popover width={400} position="bottom" withArrow>
@@ -165,7 +165,7 @@ export const WebhookTable = ({webhooks, openCreateModal}: WebhookTableProps) => 
                 <Popover.Dropdown>
                     <Stack gap="md">
                         <Group justify="space-between" align="center">
-                            <Text fw={500} size="sm">Response Details</Text>
+                            <Text fw={500} size="sm">Detalhes da resposta</Text>
                             <Badge
                                 variant="light"
                                 color={statusColor}

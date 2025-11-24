@@ -32,7 +32,7 @@ const ReportLayout = () => {
                     to={`/manage/event/${eventId}/reports`}
                     pl={0}
             >
-                Back to Reports
+                Voltar para Relatórios
             </Button>
             <div>
                 {renderReport(reportType as string)}

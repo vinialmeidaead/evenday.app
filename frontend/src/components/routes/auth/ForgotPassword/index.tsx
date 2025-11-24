@@ -41,7 +41,7 @@ export const ForgotPassword = () => {
                             password.`}
                     </p>
                     <p>
-                        <NavLink to={'/auth/login'}>Back to login</NavLink>
+                        <NavLink to={'/auth/login'}>Voltar para o login</NavLink>
                     </p>
                 </div>
             )}
