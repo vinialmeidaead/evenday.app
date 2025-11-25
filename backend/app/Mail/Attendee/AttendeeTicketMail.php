@@ -41,7 +41,7 @@ class AttendeeTicketMail extends BaseMail
 
     public function envelope(): Envelope
     {
-        $subject = $this->renderedTemplate?->subject ?? __('🎟️ Your Ticket for :event', [
+        $subject = $this->renderedTemplate?->subject ?? __('🎟️ Seu Ingresso para :event', [
             'event' => Str::limit($this->event->getTitle(), 50)
         ]);
 

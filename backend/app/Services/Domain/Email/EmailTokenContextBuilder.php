@@ -116,13 +116,13 @@ class EmailTokenContextBuilder
     {
         $baseContext = [
             'event' => [
-                'title' => __('Summer Music Festival 2024'),
+                'title' => __('Festival de Música de Verão 2024'),
                 'date' => 'April 25, 2029',
                 'time' => '7:00 PM',
                 'end_date' => 'April 26, 2029',
                 'end_time' => '11:00 PM',
                 'full_address' => __('Av. Paulista, 1578, Bela Vista, São Paulo - SP, 01310-200, Brasil'),
-                'description' => __('Join us for an unforgettable evening of live music featuring top artists from around the world.'),
+                'description' => __('Junte-se a nós para uma noite inesquecível de música ao vivo com os melhores artistas de todo o mundo.'),
                 'timezone' => 'UTC',
                 'location_details' => [
                     'venue_name' => 'Centro de Convenções Paulista',
@@ -153,8 +153,8 @@ class EmailTokenContextBuilder
             ],
             'settings' => [
                 'support_email' => 'support@example.com',
-                'offline_payment_instructions' => __('Please transfer the total amount to the following bank account within 5 business days.'),
-                'post_checkout_message' => __('Thank you for your purchase! We look forward to seeing you at the event.'),
+                'offline_payment_instructions' => __('Por favor, transfira o valor total para a seguinte conta bancária dentro de 5 dias úteis.'),
+                'post_checkout_message' => __('Obrigado pela sua compra! Estamos ansiosos para vê-lo no evento.'),
             ],
         ];
 

@@ -12,16 +12,16 @@ enum EmailTemplateType: string
     public function label(): string
     {
         return match ($this) {
-            self::ORDER_CONFIRMATION => __('Order Confirmation'),
-            self::ATTENDEE_TICKET => __('Attendee Ticket'),
+            self::ORDER_CONFIRMATION => __('Confirmação de Pedido'),
+            self::ATTENDEE_TICKET => __('Ingresso do Participante'),
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::ORDER_CONFIRMATION => __('Sent to the customer after placing an order'),
-            self::ATTENDEE_TICKET => __('Sent to each attendee with their ticket'),
+            self::ORDER_CONFIRMATION => __('Enviado ao cliente após realizar um pedido'),
+            self::ATTENDEE_TICKET => __('Enviado a cada participante com seu ingresso'),
         };
     }
 }

@@ -144,11 +144,11 @@ class EmailTemplateService
     {
         return [
             EmailTemplateType::ORDER_CONFIRMATION->value => [
-                'label' => __('View Order & Tickets'),
+                'label' => __('Ver Pedido e Ingressos'),
                 'url_token' => 'order.url',
             ],
             EmailTemplateType::ATTENDEE_TICKET->value => [
-                'label' => __('View Ticket'),
+                'label' => __('Ver Ingresso'),
                 'url_token' => 'ticket.url',
             ],
         ];
@@ -158,71 +158,71 @@ class EmailTemplateService
     {
         return [
             EmailTemplateType::ORDER_CONFIRMATION->value => [
-                'subject' => 'Your Order is Confirmed! 🎉',
+                'subject' => 'Seu Pedido foi Confirmado! 🎉',
                 'body' => <<<'LIQUID'
-<strong>Your Order is Confirmed! 🎉</strong><br>
+<strong>Seu Pedido foi Confirmado! 🎉</strong><br>
 
 {% if order.is_awaiting_offline_payment %}
-<strong>ℹ️ Payment Pending:</strong> Your order is pending payment. Tickets have been issued but will not be valid until payment is received.<br>
-<strong>Payment Instructions</strong><br>
-Please follow the instructions below to complete your payment:<br>
+<strong>ℹ️ Pagamento Pendente:</strong> Seu pedido está aguardando pagamento. Os ingressos foram emitidos, mas não serão válidos até que o pagamento seja recebido.<br>
+<strong>Instruções de Pagamento</strong><br>
+Por favor, siga as instruções abaixo para concluir seu pagamento:<br>
 {% if settings.offline_payment_instructions %}
 {{ settings.offline_payment_instructions }}<br>
 {% endif %}
 
 {% else %}
-Congratulations! Your order for <strong>{{ event.title }}</strong> on <strong>{{ event.date }}</strong> at <strong>{{ event.time }}</strong> was successful. Please find your order details below.<br>
+Parabéns! Seu pedido para <strong>{{ event.title }}</strong> no dia <strong>{{ event.date }}</strong> às <strong>{{ event.time }}</strong> foi realizado com sucesso. Por favor, confira os detalhes do seu pedido abaixo.<br>
 {% endif %}
 
-<strong>Event Details</strong><br>
-<strong>Event Name:</strong> {{ event.title }}<br>
-<strong>Date & Time:</strong> {{ event.date }} at {{ event.time }}<br>
-{% if event.full_address %}<strong>Location:</strong> {{ event.full_address }}<br>{% endif %}
+<strong>Detalhes do Evento</strong><br>
+<strong>Nome do Evento:</strong> {{ event.title }}<br>
+<strong>Data e Horário:</strong> {{ event.date }} às {{ event.time }}<br>
+{% if event.full_address %}<strong>Local:</strong> {{ event.full_address }}<br>{% endif %}
 <br>
 
 {% if settings.post_checkout_message %}
-<strong>Additional Information</strong><br>
+<strong>Informações Adicionais</strong><br>
 {{ settings.post_checkout_message }}<br>
 {% endif %}
 
-<strong>Order Summary</strong><br>
-<strong>Order Number:</strong> {{ order.number }}<br>
-<strong>Total Amount:</strong> {{ order.total }}<br>
+<strong>Resumo do Pedido</strong><br>
+<strong>Número do Pedido:</strong> {{ order.number }}<br>
+<strong>Valor Total:</strong> {{ order.total }}<br>
 
-If you have any questions or need assistance, please contact <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
+Se você tiver alguma dúvida ou precisar de assistência, entre em contato com <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
 
-Best regards,<br>
+Atenciosamente,<br>
 {{ organizer.name }}
 LIQUID
             ],
             EmailTemplateType::ATTENDEE_TICKET->value => [
-                'subject' => '🎟️ Your Ticket for {{ event.title }}',
+                'subject' => '🎟️ Seu Ingresso para {{ event.title }}',
                 'body' => <<<'LIQUID'
-<strong>You're going to {{ event.title }}! 🎉</strong><br>
+<strong>Você vai para {{ event.title }}! 🎉</strong><br>
 
 {% if order.is_awaiting_offline_payment %}
-<strong>ℹ️ Payment Pending:</strong> Your order is pending payment. Tickets have been issued but will not be valid until payment is received.<br>
+<strong>ℹ️ Pagamento Pendente:</strong> Seu pedido está aguardando pagamento. Os ingressos foram emitidos, mas não serão válidos até que o pagamento seja recebido.<br>
 {% endif %}
 
-Hi {{ attendee.name }},<br>
+Olá {{ attendee.name }},<br>
 
-Please find your ticket details below.<br>
+Por favor, confira os detalhes do seu ingresso abaixo.<br>
 
-<strong>Event Information</strong><br>
-<strong>Event:</strong> {{ event.title }}<br>
-<strong>Date:</strong> {{ event.date }}<br>
-<strong>Time:</strong> {{ event.time }}<br>
-{% if event.full_address %}<strong>Location:</strong> {{ event.full_address }}<br>{% endif %}
+<strong>Informações do Evento</strong><br>
+<strong>Evento:</strong> {{ event.title }}<br>
+<strong>Data:</strong> {{ event.date }}<br>
+<strong>Horário:</strong> {{ event.time }}<br>
+{% if event.full_address %}<strong>Local:</strong> {{ event.full_address }}<br>{% endif %}
 <br>
 
-<strong>Your Ticket</strong><br>
-<strong>Ticket Type:</strong> {{ ticket.name }}<br>
-<strong>Price:</strong> {{ ticket.price }}<br>
-<strong>Attendee:</strong> {{ attendee.name }}<br>
+<strong>Seu Ingresso</strong><br>
+<strong>Tipo de Ingresso:</strong> {{ ticket.name }}<br>
+<strong>Preço:</strong> {{ ticket.price }}<br>
+<strong>Participante:</strong> {{ attendee.name }}<br>
 
-<strong>💡Remember:</strong> Please have your ticket ready when you arrive at the event.<br>
+<strong>💡Lembre-se:</strong> Por favor, tenha seu ingresso pronto quando chegar ao evento.<br>
 
-If you have any questions or need assistance, please reply to this email or contact the event organizer at <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
+Se você tiver alguma dúvida ou precisar de assistência, responda este e-mail ou entre em contato com o organizador do evento em <a href="mailto:{{ settings.support_email }}">{{ settings.support_email }}</a>.<br>
 
 LIQUID
             ],

@@ -35,6 +35,6 @@ class DeleteOrganizerEmailTemplateAction extends BaseAction
             );
         }
 
-        return response()->json(['message' => 'Template deleted successfully'], ResponseCodes::HTTP_OK);
+        return response()->json(['message' => 'Template excluído com sucesso'], ResponseCodes::HTTP_OK);
     }
 }
