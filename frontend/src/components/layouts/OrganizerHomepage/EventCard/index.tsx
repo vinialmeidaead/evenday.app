@@ -1,16 +1,16 @@
 import React from 'react';
-import {Link} from "react-router";
-import {Event} from "../../../../types.ts";
+import { Link } from "react-router";
+import { Event } from "../../../../types.ts";
 import classes from './EventCard.module.scss';
-import {formatDate} from "../../../../utilites/dates.ts";
-import {t} from "@lingui/macro";
-import {isLightColor} from "@mantine/core";
-import {formatCurrency} from "../../../../utilites/currency.ts";
-import {eventHomepagePath, eventHomepageUrl} from "../../../../utilites/urlHelper.ts";
-import {getProductsFromEvent} from "../../../../utilites/helpers.ts";
-import {ShareComponent} from "../../../common/ShareIcon";
+import { formatDate } from "../../../../utilites/dates.ts";
+import { t } from "@lingui/macro";
+import { isLightColor } from "@mantine/core";
+import { formatCurrency } from "../../../../utilites/currency.ts";
+import { eventHomepagePath, eventHomepageUrl } from "../../../../utilites/urlHelper.ts";
+import { getProductsFromEvent } from "../../../../utilites/helpers.ts";
+import { ShareComponent } from "../../../common/ShareIcon";
 import dayjs from "dayjs";
-import {IconCalendar, IconClock, IconMapPin, IconTicket, IconWifi} from '@tabler/icons-react';
+import { IconCalendar, IconClock, IconMapPin, IconTicket, IconWifi } from '@tabler/icons-react';
 
 interface EventCardProps {
     event: Event;
@@ -19,7 +19,7 @@ interface EventCardProps {
 
 const placeholderEmojis = ['🎉', '🎪', '🎸', '🎨', '🌟'];
 
-export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5cf6'}) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, primaryColor = '#8b5cf6' }) => {
     const dateTextColor = isLightColor(primaryColor) ? '#000000' : '#ffffff';
 
     const emojiIndex = event.id ? Number(event.id) % placeholderEmojis.length : 0;
@@ -28,8 +28,8 @@ export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5
     // Format dates using the event's timezone
     const startMonth = formatDate(event.start_date, "MMM", event.timezone);
     const startDay = formatDate(event.start_date, "D", event.timezone);
-    const startTime = formatDate(event.start_date, "h:mm A", event.timezone);
-    const endTime = event.end_date ? formatDate(event.end_date, "h:mm A", event.timezone) : null;
+    const startTime = formatDate(event.start_date, "HH:mm", event.timezone);
+    const endTime = event.end_date ? formatDate(event.end_date, "HH:mm", event.timezone) : null;
     const prettyTimezone = formatDate(event.start_date, "z", event.timezone);
 
     const isSameDay = event.end_date && event.start_date.substring(0, 10) === event.end_date.substring(0, 10);
@@ -91,7 +91,7 @@ export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5
                             />
                         ) : (
                             <div className={classes.placeholderImage}
-                                 style={{'--date-text-color': dateTextColor} as React.CSSProperties}>
+                                style={{ '--date-text-color': dateTextColor } as React.CSSProperties}>
                                 <div className={classes.placeholderContent}>
                                     <span className={classes.placeholderIcon}>{placeholderEmoji}</span>
                                     <div className={classes.sparkles}>
@@ -124,7 +124,7 @@ export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5
                     </div>
 
                     <div className={classes.dateBadge}>
-                        <IconCalendar size={16}/>
+                        <IconCalendar size={16} />
                         <span>{startMonth} {startDay}</span>
                     </div>
                 </div>
@@ -135,7 +135,7 @@ export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5
                         <h3 className={classes.eventTitle}>{event.title}</h3>
 
                         <div className={classes.eventDateTime}>
-                            <IconClock size={14}/>
+                            <IconClock size={14} />
                             <span>
                                 {startTime}
                                 {endTime && (
@@ -164,9 +164,9 @@ export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5
                             {(location || isOnlineEvent) && (
                                 <div className={classes.location}>
                                     {isOnlineEvent ? (
-                                        <><IconWifi size={14}/><span>{t`Online Event`}</span></>
+                                        <><IconWifi size={14} /><span>{t`Online Event`}</span></>
                                     ) : (
-                                        <><IconMapPin size={14}/><span>{location}</span></>
+                                        <><IconMapPin size={14} /><span>{location}</span></>
                                     )}
                                 </div>
                             )}
@@ -174,7 +174,7 @@ export const EventCard: React.FC<EventCardProps> = ({event, primaryColor = '#8b5
 
                         {lowestPrice !== null && (
                             <div className={classes.priceSection}>
-                                <IconTicket size={14}/>
+                                <IconTicket size={14} />
                                 <span className={lowestPrice === 0 && highestPrice === 0 ? classes.free : classes.price}>
                                     {lowestPrice === 0 && highestPrice === 0 ? (
                                         t`Free`

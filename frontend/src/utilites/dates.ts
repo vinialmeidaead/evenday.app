@@ -8,16 +8,18 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import advanced from 'dayjs/plugin/advancedFormat';
-import {isSsr} from "./helpers.ts";
+import 'dayjs/locale/pt-br';
+import { isSsr } from "./helpers.ts";
 
 dayjs.extend(utc);
 dayjs.extend(relativeTime);
 dayjs.extend(timezone);
 dayjs.extend(advanced)
+dayjs.locale('pt-br');
 
 export const prettyDate = (date: string, tz: string, showTimezoneOffset: boolean = false): string => {
     // eslint-disable-next-line lingui/no-unlocalized-strings
-    return dayjs.utc(date).tz(tz).format('MMM D, YYYY h:mma' + (showTimezoneOffset ? ' (z)' : ''));
+    return dayjs.utc(date).tz(tz).format('dddd, D [de] MMMM, YYYY HH:mm' + (showTimezoneOffset ? ' [GMT]Z' : ''));
 };
 
 export const formatDate = (date: string, format: string, tz: string): string => {
@@ -55,7 +57,7 @@ export const dateToBrowserTz = (date: string, fallbackTz: string): string => {
         ? Intl.DateTimeFormat().resolvedOptions().timeZone
         : fallbackTz;
 
-    return dayjs.utc(date).tz(userTimezone).format('MMM D, YYYY h:mma z');
+    return dayjs.utc(date).tz(userTimezone).format('dddd, D [de] MMMM, YYYY HH:mm z');
 };
 
 export const isDateInFuture = (date: string): boolean => {

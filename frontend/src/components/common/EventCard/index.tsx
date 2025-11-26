@@ -1,8 +1,8 @@
-import {ActionIcon, Button,} from '@mantine/core';
-import {Event, IdParam} from "../../../types.ts";
+import { ActionIcon, Button, } from '@mantine/core';
+import { Event, IdParam } from "../../../types.ts";
 import classes from "./EventCard.module.scss";
-import {Card} from "../Card";
-import {NavLink, useNavigate} from "react-router";
+import { Card } from "../Card";
+import { NavLink, useNavigate } from "react-router";
 import {
     IconArchive,
     IconCash,
@@ -15,19 +15,19 @@ import {
     IconUsers,
     IconWorld,
 } from "@tabler/icons-react";
-import {t} from "@lingui/macro"
-import {eventHomepagePath} from "../../../utilites/urlHelper.ts";
-import {EventStatusBadge} from "../EventStatusBadge";
-import {useDisclosure} from "@mantine/hooks";
-import {DuplicateEventModal} from "../../modals/DuplicateEventModal";
-import {useState} from "react";
-import {ActionMenu, ActionMenuItemsGroup, MenuItem} from '../ActionMenu';
-import {confirmationDialog} from "../../../utilites/confirmationDialog.tsx";
-import {showError, showSuccess} from "../../../utilites/notifications.tsx";
-import {useUpdateEventStatus} from "../../../mutations/useUpdateEventStatus.ts";
-import {formatCurrency} from "../../../utilites/currency.ts";
-import {formatNumber} from "../../../utilites/helpers.ts";
-import {formatDate} from "../../../utilites/dates.ts";
+import { t } from "@lingui/macro"
+import { eventHomepagePath } from "../../../utilites/urlHelper.ts";
+import { EventStatusBadge } from "../EventStatusBadge";
+import { useDisclosure } from "@mantine/hooks";
+import { DuplicateEventModal } from "../../modals/DuplicateEventModal";
+import { useState } from "react";
+import { ActionMenu, ActionMenuItemsGroup, MenuItem } from '../ActionMenu';
+import { confirmationDialog } from "../../../utilites/confirmationDialog.tsx";
+import { showError, showSuccess } from "../../../utilites/notifications.tsx";
+import { useUpdateEventStatus } from "../../../mutations/useUpdateEventStatus.ts";
+import { formatCurrency } from "../../../utilites/currency.ts";
+import { formatNumber } from "../../../utilites/helpers.ts";
+import { formatDate } from "../../../utilites/dates.ts";
 
 const placeholderEmojis = ['🎉', '🎪', '🎸', '🎨', '🌟', '🎭', '🎯', '🎮', '🎲', '🎳'];
 
@@ -35,7 +35,7 @@ interface EventCardProps {
     event: Event;
 }
 
-export function EventCard({event}: EventCardProps) {
+export function EventCard({ event }: EventCardProps) {
     const navigate = useNavigate();
     const [isDuplicateModalOpen, duplicateModal] = useDisclosure(false);
     const [eventId, setEventId] = useState<IdParam>();
@@ -79,29 +79,29 @@ export function EventCard({event}: EventCardProps) {
             items: [
                 {
                     label: t`View event page`,
-                    icon: <IconEye size={14}/>,
+                    icon: <IconEye size={14} />,
                     onClick: () => window.location.href = eventHomepagePath(event),
                 },
                 {
                     label: t`Manage event`,
-                    icon: <IconSettings size={14}/>,
+                    icon: <IconSettings size={14} />,
                     onClick: () => navigate(`/manage/event/${event.id}`),
                 },
                 ((event.lifecycle_status === 'UPCOMING' || event.lifecycle_status === 'ONGOING')
                     && event.status === 'LIVE') && {
                     label: t`Check-in`,
-                    icon: <IconQrcode size={14}/>,
+                    icon: <IconQrcode size={14} />,
                     onClick: () => navigate(`/manage/event/${event.id}/check-in`),
                     visible: true,
                 },
                 {
                     label: t`Duplicate event`,
-                    icon: <IconCopy size={14}/>,
+                    icon: <IconCopy size={14} />,
                     onClick: () => handleDuplicate(event),
                 },
                 {
                     label: event?.status === 'ARCHIVED' ? t`Restore event` : t`Archive event`,
-                    icon: <IconArchive size={14}/>,
+                    icon: <IconArchive size={14} />,
                     onClick: handleStatusToggle(event)
                 },
             ].filter(Boolean) as MenuItem[],
@@ -113,7 +113,7 @@ export function EventCard({event}: EventCardProps) {
             <Card className={classes.eventCard}>
                 <div className={classes.cardHeader}>
                     <div className={classes.imageContainer}
-                         style={coverImage ? {backgroundImage: `url(${coverImage.url})`} : {}}>
+                        style={coverImage ? { backgroundImage: `url(${coverImage.url})` } : {}}>
                         {!coverImage && (
                             <div className={classes.placeholderImage}>
                                 <span className={classes.placeholderEmoji}>{placeholderEmoji}</span>
@@ -125,7 +125,7 @@ export function EventCard({event}: EventCardProps) {
                             <NavLink to={`/manage/event/${event.id}/dashboard`} className={classes.titleLink}>
                                 <h3 className={classes.eventTitle}>{event.title}</h3>
                             </NavLink>
-                            {event && <EventStatusBadge event={event}/>}
+                            {event && <EventStatusBadge event={event} />}
                         </div>
 
                         <div className={classes.organizerWrapper}>
@@ -142,10 +142,10 @@ export function EventCard({event}: EventCardProps) {
                             </div>
                             <div className={classes.timeInfo}>
                                 <span
-                                    className={classes.time}>{formatDate(event.start_date, 'h:mm A', event.timezone)}</span>
+                                    className={classes.time}>{formatDate(event.start_date, 'HH:mm', event.timezone)}</span>
                                 {event.end_date && (
                                     <span
-                                        className={classes.endTime}>- {formatDate(event.end_date, 'h:mm A', event.timezone)}</span>
+                                        className={classes.endTime}>- {formatDate(event.end_date, 'HH:mm', event.timezone)}</span>
                                 )}
                             </div>
                         </div>
@@ -155,7 +155,7 @@ export function EventCard({event}: EventCardProps) {
                             itemsGroups={menuItems}
                             target={
                                 <ActionIcon className={classes.actionButton} size={"lg"} variant={"subtle"}>
-                                    <IconDotsVertical/>
+                                    <IconDotsVertical />
                                 </ActionIcon>
                             }
                         />
@@ -166,7 +166,7 @@ export function EventCard({event}: EventCardProps) {
                     <div className={classes.statsGrid}>
                         {event.settings?.location_details?.venue_name && (
                             <div className={classes.statItem}>
-                                <IconMap size={14} className={classes.statIcon}/>
+                                <IconMap size={14} className={classes.statIcon} />
                                 <span className={classes.statText}>
                                     {event.settings?.location_details?.venue_name}
                                 </span>
@@ -174,18 +174,18 @@ export function EventCard({event}: EventCardProps) {
                         )}
                         {event.settings?.is_online_event && (
                             <div className={classes.statItem}>
-                                <IconWorld size={14} className={classes.statIcon}/>
+                                <IconWorld size={14} className={classes.statIcon} />
                                 <span className={classes.statText}>{t`Online event`}</span>
                             </div>
                         )}
                         <div className={classes.statItem}>
-                            <IconUsers size={14} className={classes.statIcon}/>
+                            <IconUsers size={14} className={classes.statIcon} />
                             <span
                                 className={classes.statValue}>{formatNumber(event?.statistics?.products_sold || 0)}</span>
                             <span className={classes.statLabel}>{t`sold`}</span>
                         </div>
                         <div className={classes.statItem}>
-                            <IconCash size={14} className={classes.statIcon}/>
+                            <IconCash size={14} className={classes.statIcon} />
                             <span
                                 className={classes.statValue}>{formatCurrency(event?.statistics?.sales_total_gross || 0, event?.currency)}</span>
                         </div>
@@ -207,7 +207,7 @@ export function EventCard({event}: EventCardProps) {
                     </div>
                 </div>
             </Card>
-            {isDuplicateModalOpen && <DuplicateEventModal eventId={eventId} onClose={duplicateModal.close}/>}
+            {isDuplicateModalOpen && <DuplicateEventModal eventId={eventId} onClose={duplicateModal.close} />}
         </>
     );
 }

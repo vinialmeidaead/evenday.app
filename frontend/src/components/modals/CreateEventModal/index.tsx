@@ -1,29 +1,29 @@
-import {useFormErrorResponseHandler} from "../../../hooks/useFormErrorResponseHandler.tsx";
-import {useNavigate} from "react-router";
-import {useGetAccount} from "../../../queries/useGetAccount.ts";
-import {Event, GenericModalProps, IdParam, Organizer} from "../../../types.ts";
-import React, {useEffect, useState} from "react";
-import {t} from "@lingui/macro";
-import {Anchor, Button, Select, TextInput} from "@mantine/core";
-import {hasLength, useForm} from "@mantine/form";
-import {useCreateEvent} from "../../../mutations/useCreateEvent.ts";
-import {Editor} from "../../common/Editor";
-import {useGetOrganizers} from "../../../queries/useGetOrganizers.ts";
-import {IconCalendarEvent, IconSparkles, IconUsers, IconX} from "@tabler/icons-react";
+import { useFormErrorResponseHandler } from "../../../hooks/useFormErrorResponseHandler.tsx";
+import { useNavigate } from "react-router";
+import { useGetAccount } from "../../../queries/useGetAccount.ts";
+import { Event, GenericModalProps, IdParam, Organizer } from "../../../types.ts";
+import React, { useEffect, useState } from "react";
+import { t } from "@lingui/macro";
+import { Anchor, Button, Select, TextInput } from "@mantine/core";
+import { hasLength, useForm } from "@mantine/form";
+import { useCreateEvent } from "../../../mutations/useCreateEvent.ts";
+import { Editor } from "../../common/Editor";
+import { useGetOrganizers } from "../../../queries/useGetOrganizers.ts";
+import { IconCalendarEvent, IconSparkles, IconUsers, IconX } from "@tabler/icons-react";
 import classes from "./CreateEventModal.module.scss";
-import {OrganizerCreateForm} from "../../forms/OrganizerForm";
+import { OrganizerCreateForm } from "../../forms/OrganizerForm";
 import dayjs from "dayjs";
-import {DateTimePicker} from "@mantine/dates";
-import {EventCategories} from "../../../constants/eventCategories.ts";
+import { DateTimePicker } from "@mantine/dates";
+import { EventCategories } from "../../../constants/eventCategories.ts";
 
 interface CreateEventModalProps extends GenericModalProps {
     organizerId?: IdParam;
 }
 
-export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) => {
+export const CreateEventModal = ({ onClose, organizerId }: CreateEventModalProps) => {
     const errorHandler = useFormErrorResponseHandler();
     const navigate = useNavigate();
-    const {data: account, isFetched: isAccountFetched} = useGetAccount();
+    const { data: account, isFetched: isAccountFetched } = useGetAccount();
     const organizersQuery = useGetOrganizers();
 
     const form = useForm<Partial<Event>>({
@@ -37,7 +37,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
             category: undefined,
         },
         validate: {
-            title: hasLength({max: 150}, t`Event name should be less than 150 characters`),
+            title: hasLength({ max: 150 }, t`Event name should be less than 150 characters`),
             end_date: (value, values) => {
                 if (value && values.start_date && dayjs(value).isBefore(dayjs(values.start_date))) {
                     return t`End date must be after start date`;
@@ -97,19 +97,19 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
         <div className={classes.modalOverlay} onClick={onClose}>
             {/* Floating background emojis */}
             <div className={classes.floatingEmojis}>
-                <span className={classes.floatingEmoji} style={{top: '10%', left: '15%', animationDelay: '0s'}}>🎉</span>
+                <span className={classes.floatingEmoji} style={{ top: '10%', left: '15%', animationDelay: '0s' }}>🎉</span>
                 <span className={classes.floatingEmoji}
-                      style={{top: '20%', right: '20%', animationDelay: '2s'}}>✨</span>
-                <span className={classes.floatingEmoji} style={{top: '60%', left: '10%', animationDelay: '4s'}}>🥳</span>
+                    style={{ top: '20%', right: '20%', animationDelay: '2s' }}>✨</span>
+                <span className={classes.floatingEmoji} style={{ top: '60%', left: '10%', animationDelay: '4s' }}>🥳</span>
                 <span className={classes.floatingEmoji}
-                      style={{bottom: '30%', right: '15%', animationDelay: '1s'}}>🎪</span>
+                    style={{ bottom: '30%', right: '15%', animationDelay: '1s' }}>🎪</span>
                 <span className={classes.floatingEmoji}
-                      style={{bottom: '15%', left: '25%', animationDelay: '3s'}}>🌟</span>
-                <span className={classes.floatingEmoji} style={{top: '40%', right: '8%', animationDelay: '5s'}}>🎭</span>
+                    style={{ bottom: '15%', left: '25%', animationDelay: '3s' }}>🌟</span>
+                <span className={classes.floatingEmoji} style={{ top: '40%', right: '8%', animationDelay: '5s' }}>🎭</span>
                 <span className={classes.floatingEmoji}
-                      style={{top: '70%', left: '70%', animationDelay: '2.5s'}}>🎨</span>
+                    style={{ top: '70%', left: '70%', animationDelay: '2.5s' }}>🎨</span>
                 <span className={classes.floatingEmoji}
-                      style={{top: '25%', left: '60%', animationDelay: '1.5s'}}>🎯</span>
+                    style={{ top: '25%', left: '60%', animationDelay: '1.5s' }}>🎯</span>
             </div>
 
             <div className={classes.modalContainer} onClick={(e) => e.stopPropagation()}>
@@ -118,7 +118,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                     onClick={onClose}
                     aria-label={t`Close modal`}
                 >
-                    <IconX size={20}/>
+                    <IconX size={20} />
                 </button>
 
                 <div className={classes.modalHeader}>
@@ -134,7 +134,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                         {showCreateOrganizer && (
                             <div className={classes.createOrganizerCard}>
                                 <h3 className={classes.createOrganizerHeading}>
-                                    <IconUsers size={20}/>
+                                    <IconUsers size={20} />
                                     {t`Create Organizer`}
                                 </h3>
                                 <OrganizerCreateForm
@@ -142,7 +142,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                     onSuccess={(organizer: Organizer) => {
                                         setShowCreateOrganizer(false);
                                         form.setFieldValue('organizer_id', String(organizer.id));
-                                    }}/>
+                                    }} />
                             </div>
                         )}
 
@@ -152,7 +152,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                     {...form.getInputProps('organizer_id')}
                                     label={t`Who is organizing this event?`}
                                     required
-                                    leftSection={<IconUsers size={18}/>}
+                                    leftSection={<IconUsers size={18} />}
                                     placeholder={t`Select organizer`}
                                     data={organizersQuery.data?.data?.map((organizer) => ({
                                         value: String(organizer.id),
@@ -163,7 +163,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                 <div className={classes.createOrganizerLink}>
                                     {t`or`} {'  '}
                                     <Anchor href={'#'} variant={'transparent'}
-                                            onClick={() => setShowCreateOrganizer(true)}>
+                                        onClick={() => setShowCreateOrganizer(true)}>
                                         {t`create an organizer`}
                                     </Anchor>
                                 </div>
@@ -177,7 +177,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                 placeholder={t`Summer Music Festival ${new Date().getFullYear()}`}
                                 required
                                 size="lg"
-                                leftSection={<IconSparkles size={18}/>}
+                                leftSection={<IconSparkles size={18} />}
                             />
 
                             <Select
@@ -212,11 +212,11 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                     required
                                     size="md"
                                     placeholder={t`Select start date and time`}
-                                    valueFormat="MMM DD, YYYY [at] h:mm A"
+                                    valueFormat="MMM DD, YYYY [às] HH:mm"
                                     clearable
                                     dropdownType="modal"
                                     timePickerProps={{
-                                        format: '12h',
+                                        format: '24h',
                                         withDropdown: true,
                                     }}
                                     onChange={(value) => {
@@ -233,11 +233,11 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                     {...form.getInputProps('end_date')}
                                     size="md"
                                     placeholder={t`Select end date and time`}
-                                    valueFormat="MMM DD, YYYY [at] h:mm A"
+                                    valueFormat="MMM DD, YYYY [às] HH:mm"
                                     clearable
                                     dropdownType="modal"
                                     timePickerProps={{
-                                        format: '12h',
+                                        format: '24h',
                                         withDropdown: true,
                                     }}
                                     minDate={form.values.start_date ?? undefined}
@@ -259,7 +259,7 @@ export const CreateEventModal = ({onClose, organizerId}: CreateEventModalProps) 
                                 type={'submit'}
                                 size="xl"
                                 className={classes.createButton}
-                                leftSection={<IconCalendarEvent size={24}/>}
+                                leftSection={<IconCalendarEvent size={24} />}
                             >
                                 {t`Continue Setup`}
                             </Button>

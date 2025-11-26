@@ -1,28 +1,28 @@
-import {useGetMe} from "../../../queries/useGetMe.ts";
-import {useGetOrganizers} from "../../../queries/useGetOrganizers.ts";
-import {t, Trans} from "@lingui/macro";
-import {Card} from "../../common/Card";
-import {Button, Center, Container, PinInput, Select, Stack, Text, TextInput} from "@mantine/core";
+import { useGetMe } from "../../../queries/useGetMe.ts";
+import { useGetOrganizers } from "../../../queries/useGetOrganizers.ts";
+import { t, Trans } from "@lingui/macro";
+import { Card } from "../../common/Card";
+import { Button, Center, Container, PinInput, Select, Stack, Text, TextInput } from "@mantine/core";
 import classes from "./Welcome.module.scss";
-import {useForm} from "@mantine/form";
-import {useDebouncedValue, useMediaQuery} from "@mantine/hooks";
-import {Event} from "../../../types.ts";
-import {useCreateEvent} from "../../../mutations/useCreateEvent.ts";
-import {NavLink, useNavigate} from "react-router";
-import {useEffect, useState} from "react";
-import {useGetEvents} from "../../../queries/useGetEvents.ts";
-import {LoadingContainer} from "../../common/LoadingContainer";
-import {OrganizerCreateForm} from "../../forms/OrganizerForm";
-import {useConfirmEmailWithCode} from "../../../mutations/useConfirmEmailWithCode.ts";
-import {useResendEmailConfirmation} from "../../../mutations/useResendEmailConfirmation.ts";
-import {IconClock, IconMailCheck, IconSparkles} from "@tabler/icons-react";
-import {showError, showSuccess} from "../../../utilites/notifications.tsx";
-import {DateTimePicker} from "@mantine/dates";
+import { useForm } from "@mantine/form";
+import { useDebouncedValue, useMediaQuery } from "@mantine/hooks";
+import { Event } from "../../../types.ts";
+import { useCreateEvent } from "../../../mutations/useCreateEvent.ts";
+import { NavLink, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useGetEvents } from "../../../queries/useGetEvents.ts";
+import { LoadingContainer } from "../../common/LoadingContainer";
+import { OrganizerCreateForm } from "../../forms/OrganizerForm";
+import { useConfirmEmailWithCode } from "../../../mutations/useConfirmEmailWithCode.ts";
+import { useResendEmailConfirmation } from "../../../mutations/useResendEmailConfirmation.ts";
+import { IconClock, IconMailCheck, IconSparkles } from "@tabler/icons-react";
+import { showError, showSuccess } from "../../../utilites/notifications.tsx";
+import { DateTimePicker } from "@mantine/dates";
 import dayjs from "dayjs";
-import {EventCategories} from "../../../constants/eventCategories.ts";
-import {getConfig} from "../../../utilites/config.ts";
+import { EventCategories } from "../../../constants/eventCategories.ts";
+import { getConfig } from "../../../utilites/config.ts";
 
-export const CreateOrganizer = ({progressInfo}: {
+export const CreateOrganizer = ({ progressInfo }: {
     progressInfo?: { currentStep: number, totalSteps: number, progressPercentage: number }
 }) => {
     return (
@@ -32,7 +32,7 @@ export const CreateOrganizer = ({progressInfo}: {
                     <div className={classes.progressContainer}>
                         <div className={classes.progressBar}>
                             <div className={classes.progressFill}
-                                 style={{width: `${progressInfo.progressPercentage}%`}}></div>
+                                style={{ width: `${progressInfo.progressPercentage}%` }}></div>
                         </div>
                     </div>
                 )}
@@ -44,16 +44,16 @@ export const CreateOrganizer = ({progressInfo}: {
                 </p>
             </div>
             <div className={classes.stepContent}>
-                <OrganizerCreateForm/>
+                <OrganizerCreateForm />
             </div>
         </div>
     );
 }
 
-const ConfirmVerificationPin = ({progressInfo}: {
+const ConfirmVerificationPin = ({ progressInfo }: {
     progressInfo: { currentStep: number, totalSteps: number, progressPercentage: number }
 }) => {
-    const {data: userData} = useGetMe();
+    const { data: userData } = useGetMe();
     const confirmEmailMutation = useConfirmEmailWithCode();
     const resendMutation = useResendEmailConfirmation();
     const [resendCooldown, setResendCooldown] = useState(0);
@@ -75,7 +75,7 @@ const ConfirmVerificationPin = ({progressInfo}: {
     // Auto-submit when debounced pin is complete
     useEffect(() => {
         if (debouncedPin.length === 5 && !confirmEmailMutation.isPending) {
-            handleSubmit({pin: debouncedPin});
+            handleSubmit({ pin: debouncedPin });
         }
     }, [debouncedPin]);
 
@@ -88,21 +88,21 @@ const ConfirmVerificationPin = ({progressInfo}: {
 
     const handleSubmit = (values: { pin: string }) => {
         confirmEmailMutation.mutate({
-                userId: userData?.id || '',
-                code: values.pin,
-            }, {
-                onSuccess: () => {
-                    showSuccess(t`Email verified successfully!`);
-                    form.reset();
-                    setCompletedPin('');
-                },
-                onError: (error) => {
-                    showError(error.response?.data?.message || t`Failed to verify email`);
-                    // Clear the pin on error so user can try again
-                    form.reset();
-                    setCompletedPin('');
-                }
+            userId: userData?.id || '',
+            code: values.pin,
+        }, {
+            onSuccess: () => {
+                showSuccess(t`Email verified successfully!`);
+                form.reset();
+                setCompletedPin('');
+            },
+            onError: (error) => {
+                showError(error.response?.data?.message || t`Failed to verify email`);
+                // Clear the pin on error so user can try again
+                form.reset();
+                setCompletedPin('');
             }
+        }
         );
     }
 
@@ -110,7 +110,7 @@ const ConfirmVerificationPin = ({progressInfo}: {
         if (!userData?.id) return;
 
         try {
-            await resendMutation.mutateAsync({userId: userData.id});
+            await resendMutation.mutateAsync({ userId: userData.id });
             showSuccess(t`A new verification code has been sent to your email`);
             setResendCooldown(30);
             form.reset();
@@ -132,7 +132,7 @@ const ConfirmVerificationPin = ({progressInfo}: {
                     <div className={classes.progressContainer}>
                         <div className={classes.progressBar}>
                             <div className={classes.progressFill}
-                                 style={{width: `${progressInfo.progressPercentage}%`}}></div>
+                                style={{ width: `${progressInfo.progressPercentage}%` }}></div>
                         </div>
                     </div>
                 )}
@@ -179,7 +179,7 @@ const ConfirmVerificationPin = ({progressInfo}: {
                             fullWidth
                             size="lg"
                             loading={confirmEmailMutation.isPending}
-                            leftSection={<IconMailCheck size={20}/>}
+                            leftSection={<IconMailCheck size={20} />}
                             className={classes.primaryButton}
                         >
                             {confirmEmailMutation.isPending ? t`Verifying...` : t`Verify Email`}
@@ -196,7 +196,7 @@ const ConfirmVerificationPin = ({progressInfo}: {
                                     onClick={handleResend}
                                     disabled={resendCooldown > 0 || resendMutation.isPending}
                                     loading={resendMutation.isPending}
-                                    leftSection={resendCooldown > 0 ? <IconClock size={16}/> : null}
+                                    leftSection={resendCooldown > 0 ? <IconClock size={16} /> : null}
                                 >
                                     {resendCooldown > 0
                                         ? t`Resend in ${resendCooldown}s`
@@ -215,7 +215,7 @@ const ConfirmVerificationPin = ({progressInfo}: {
     );
 }
 
-export const CreateEvent = ({progressInfo}: {
+export const CreateEvent = ({ progressInfo }: {
     progressInfo?: { currentStep: number, totalSteps: number, progressPercentage: number }
 }) => {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -238,8 +238,8 @@ export const CreateEvent = ({progressInfo}: {
     });
     const eventMutation = useCreateEvent();
     const navigate = useNavigate();
-    const {data: organizers, isFetched: organizersFetched} = useGetOrganizers();
-    const {data: events, isFetched: eventsFetched} = useGetEvents({
+    const { data: organizers, isFetched: organizersFetched } = useGetOrganizers();
+    const { data: events, isFetched: eventsFetched } = useGetEvents({
         pageNumber: 1,
     });
 
@@ -291,7 +291,7 @@ export const CreateEvent = ({progressInfo}: {
                         <div className={classes.progressContainer}>
                             <div className={classes.progressBar}>
                                 <div className={classes.progressFill}
-                                     style={{width: `${progressInfo.progressPercentage}%`}}></div>
+                                    style={{ width: `${progressInfo.progressPercentage}%` }}></div>
                             </div>
                         </div>
                     )}
@@ -313,9 +313,8 @@ export const CreateEvent = ({progressInfo}: {
                                         <button
                                             key={category.id}
                                             type="button"
-                                            className={`${classes.categoryCard} ${
-                                                selectedCategory === category.id ? classes.categoryCardSelected : ''
-                                            }`}
+                                            className={`${classes.categoryCard} ${selectedCategory === category.id ? classes.categoryCardSelected : ''
+                                                }`}
                                             onClick={() => handleCategorySelect(category.id)}
                                             disabled={eventMutation.isPending}
                                         >
@@ -360,12 +359,12 @@ export const CreateEvent = ({progressInfo}: {
                                     {...form.getInputProps('start_date')}
                                     label={t`Start date & time`}
                                     placeholder={t`Select start time`}
-                                    valueFormat="MMM DD, h:mm A"
+                                    valueFormat="MMM DD, HH:mm"
                                     size="lg"
                                     required
                                     dropdownType="modal"
                                     timePickerProps={{
-                                        format: '12h',
+                                        format: '24h',
                                         withDropdown: true,
                                     }}
                                     onChange={(value) => {
@@ -381,11 +380,11 @@ export const CreateEvent = ({progressInfo}: {
                                     {...form.getInputProps('end_date')}
                                     label={t`End time (optional)`}
                                     placeholder={t`Select end time`}
-                                    valueFormat="MMM DD, h:mm A"
+                                    valueFormat="MMM DD, HH:mm"
                                     size="lg"
                                     dropdownType="modal"
                                     timePickerProps={{
-                                        format: '12h',
+                                        format: '24h',
                                         withDropdown: true,
                                     }}
                                     minDate={form.values.start_date ?? undefined}
@@ -399,7 +398,7 @@ export const CreateEvent = ({progressInfo}: {
                             fullWidth
                             size="lg"
                             loading={eventMutation.isPending}
-                            leftSection={eventMutation.isPending ? null : <IconSparkles size={20}/>}
+                            leftSection={eventMutation.isPending ? null : <IconSparkles size={20} />}
                             className={classes.primaryButton}
                             disabled={eventMutation.isPending || !selectedCategory}
                             aria-label={eventMutation.isPending ? t`Creating your event, please wait` : t`Continue to next step`}
@@ -437,7 +436,7 @@ const getProgressInfo = (requiresVerification: boolean, organizerExists: boolean
 };
 
 const Welcome = () => {
-    const {data: userData} = useGetMe();
+    const { data: userData } = useGetMe();
     const organizersQuery = useGetOrganizers();
     const organizers = organizersQuery?.data?.data;
     const organizerExists = organizersQuery.isFetched && Number(organizers?.length) > 0;
@@ -451,7 +450,7 @@ const Welcome = () => {
             <Container size="sm" className={classes.welcomeContent}>
                 <div className={classes.welcomeHeader}>
                     <div className={classes.logo}>
-                        <img src={getConfig("VITE_APP_LOGO_LIGHT", "/logo branca.png")} alt={`${getConfig("VITE_APP_NAME", "Evenday")} logo`} className={classes.logo}/>
+                        <img src={getConfig("VITE_APP_LOGO_LIGHT", "/logo branca.png")} alt={`${getConfig("VITE_APP_NAME", "Evenday")} logo`} className={classes.logo} />
                     </div>
                     <h1 className={classes.welcomeTitle}>
                         <Trans>
@@ -462,11 +461,11 @@ const Welcome = () => {
 
                 <Card className={classes.welcomeCard}>
                     {requiresVerification && <ConfirmVerificationPin
-                        progressInfo={getProgressInfo(requiresVerification, organizerExists, 'verification')}/>}
+                        progressInfo={getProgressInfo(requiresVerification, organizerExists, 'verification')} />}
                     {(!requiresVerification && organizerExists) &&
-                        <CreateEvent progressInfo={getProgressInfo(requiresVerification, organizerExists, 'event')}/>}
+                        <CreateEvent progressInfo={getProgressInfo(requiresVerification, organizerExists, 'event')} />}
                     {(!requiresVerification && !organizerExists) && <CreateOrganizer
-                        progressInfo={getProgressInfo(requiresVerification, organizerExists, 'organizer')}/>}
+                        progressInfo={getProgressInfo(requiresVerification, organizerExists, 'organizer')} />}
                 </Card>
 
                 {(!requiresVerification && organizerExists) && (
