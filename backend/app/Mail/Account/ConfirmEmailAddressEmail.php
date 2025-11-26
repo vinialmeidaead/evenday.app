@@ -28,9 +28,7 @@ class ConfirmEmailAddressEmail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('Welcome to :app_name! Please confirm your email address', [
-                'app_name' => config('app.name'),
-            ]),
+            subject: 'Bem-vindo ao evenday! Confirme seu endereço de e-mail',
         );
     }
 

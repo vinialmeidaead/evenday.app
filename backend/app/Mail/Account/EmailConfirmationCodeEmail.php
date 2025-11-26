@@ -27,10 +27,7 @@ class EmailConfirmationCodeEmail extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('Your confirmation code for :app_name is :code', [
-                'app_name' => config('app.name'),
-                'code' => $this->code,
-            ]),
+            subject: 'Seu código de confirmação para evenday é ' . $this->code,
         );
     }
 

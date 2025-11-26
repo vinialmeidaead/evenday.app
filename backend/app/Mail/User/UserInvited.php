@@ -34,7 +34,7 @@ class UserInvited extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('You\'ve been invited to join :appName', ['appName' => $this->appName]),
+            subject: 'Você foi convidado para participar do evenday',
         );
     }
 

@@ -28,7 +28,7 @@ class ForgotPassword extends BaseMail
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('Password reset'),
+            subject: 'Redefinição de senha',
         );
     }
 

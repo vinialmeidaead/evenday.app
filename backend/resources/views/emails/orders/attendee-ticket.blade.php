@@ -10,27 +10,27 @@
 @php /** @see \HiEvents\Mail\Attendee\AttendeeTicketMail */ @endphp
 
 <x-mail::message>
-# {{ __('You\'re going to') }} {{ $event->getTitle() }}! 🎉
+# Você vai para {{ $event->getTitle() }}! 🎉
 <br>
 <br>
 @if($order->isOrderAwaitingOfflinePayment())
 <div style="border-radius: 4px; background-color: #f8d7da; color: #842029; margin-bottom: 1.5rem; padding: 1rem;">
 <p>
-{{ __('ℹ️ Your order is pending payment. Tickets have been issued but will not be valid until payment is received.') }}
+ℹ️ Seu pedido está aguardando pagamento. Os ingressos foram emitidos, mas não serão válidos até que o pagamento seja recebido.
 </p>
 </div>
 @endif
 
-{{ __('Please find your ticket details below.') }}
+Veja os detalhes do seu ingresso abaixo.
 
 <x-mail::button :url="$ticketUrl">
-{{ __('View Ticket') }}
+Ver Ingresso
 </x-mail::button>
 
-{{ __('If you have any questions or need assistance, please reply to this email or contact the event organizer') }}
-{{ __('at') }} <a href="mailto:{{$eventSettings->getSupportEmail()}}">{{$eventSettings->getSupportEmail()}}</a>.
+Se você tiver alguma dúvida ou precisar de assistência, responda a este e-mail ou entre em contato com o organizador do evento em <a href="mailto:{{$eventSettings->getSupportEmail()}}">{{$eventSettings->getSupportEmail()}}</a>.
 
-{{ __('Best regards,') }}<br>
-{{ $organizer->getName() ?: config('app.name') }}
+Atenciosamente,<br>
+{{ $organizer->getName() ?: 'evenday' }}
 
 </x-mail::message>
+

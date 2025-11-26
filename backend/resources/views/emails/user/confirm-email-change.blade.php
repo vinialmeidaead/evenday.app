@@ -2,13 +2,14 @@
 @php /** @var string $link */ @endphp
 
 <x-mail::message>
-{{ __('Hi :name', ['name' => $user->getFirstName()]) }},
+Olá {{ $user->getFirstName() }},
 
-{!! __('You have requested to change your email address to <b>:pendingEmail</b>. Please click the link below to confirm this change.', ['pendingEmail' => $user->getPendingEmail()]) !!}
+Você solicitou a alteração do seu endereço de e-mail para <b>{{ $user->getPendingEmail() }}</b>. Clique no link abaixo para confirmar esta alteração.
 
-<a href="{{ $link }}">{{ __('Confirm email change') }}</a>
+<a href="{{ $link }}">Confirmar alteração de e-mail</a>
 
-{{ __('If you did not request this change, please immediately change your password.') }}
+Se você não solicitou esta alteração, altere sua senha imediatamente.
 
-{{ __('Thanks,') }}
+Obrigado,
 </x-mail::message>
+

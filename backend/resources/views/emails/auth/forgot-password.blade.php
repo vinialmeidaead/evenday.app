@@ -2,16 +2,17 @@
 @php /** @var string $link */ @endphp
 
 <x-mail::message>
-{{ __('Hello') }},
+Olá,
 
-{{ __('You have requested to reset your password for your account on :appName.', ['appName' => config('app.name')]) }}
+Você solicitou a redefinição de senha para sua conta no evenday.
 
-{{ __('Please click the link below to reset your password.') }}
+Clique no link abaixo para redefinir sua senha.
 
-<a href="{{ $link }}">{{ __('Reset Password') }}</a>
+<a href="{{ $link }}">Redefinir Senha</a>
 
-{{ __('If you did not request a password reset, please ignore this email or reply to let us know.') }}
+Se você não solicitou a redefinição de senha, ignore este e-mail ou responda para nos informar.
 
-{{ __('Thank you') }}
+Obrigado
 
 </x-mail::message>
+

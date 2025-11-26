@@ -1,12 +1,13 @@
 <x-mail::message>
-{{ __('Hello') }},
+Olá,
 
-{{ __('Your password has been reset for your account on :appName.', ['appName' => config('app.name')]) }}
+Sua senha foi redefinida para sua conta no evenday.
 
-{{ __('If you did not request a password reset, please immediately reset your password.') }}
+Se você não solicitou a redefinição de senha, redefina sua senha imediatamente.
 
-{{ __('Thank you') }}
+Obrigado
 </x-mail::message>
+
 
 
 

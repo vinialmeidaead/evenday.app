@@ -2,16 +2,17 @@
 @php /** @var string $code */ @endphp
 
 <x-mail::message>
-{{ __('Hi :name', ['name' => $user->getFirstName()]) }},
+Olá {{ $user->getFirstName() }},
 
-{{ __('Welcome to :appName! We\'re excited to have you aboard!', ['appName' => config('app.name')]) }}
+Bem-vindo ao evenday! Estamos muito felizes em ter você conosco!
 
-{{ __('Your email confirmation code is:') }}
+Seu código de confirmação de e-mail é:
 
 <h2>{{ $code }}</h2>
 
-{{ __('If you did not create an account with us, no further action is required. Your email address will not be used without confirmation.') }}
+Se você não criou uma conta conosco, nenhuma ação adicional é necessária. Seu endereço de e-mail não será usado sem confirmação.
 
-{{ __('Best Regards,') }}<br>
-{{ __('The :appName Team', ['appName' => config('app.name')]) }}
+Atenciosamente,<br>
+Equipe evenday
 </x-mail::message>
+
