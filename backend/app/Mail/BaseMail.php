@@ -13,9 +13,17 @@ abstract class BaseMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct()
+    protected ?string $emailLocale = null;
+
+    public function __construct(?string $locale = null)
     {
+        $this->emailLocale = $locale ?? config('app.locale');
         $this->afterCommit();
+    }
+
+    public function locale($locale): static
+    {
+        return parent::locale($this->emailLocale);
     }
 
     abstract public function envelope(): Envelope;

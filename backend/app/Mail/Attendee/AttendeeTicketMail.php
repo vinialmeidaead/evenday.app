@@ -35,7 +35,7 @@ class AttendeeTicketMail extends BaseMail
         ?RenderedEmailTemplateDTO                 $renderedTemplate = null,
     )
     {
-        parent::__construct();
+        parent::__construct($attendee->getLocale());
         $this->renderedTemplate = $renderedTemplate;
     }
 

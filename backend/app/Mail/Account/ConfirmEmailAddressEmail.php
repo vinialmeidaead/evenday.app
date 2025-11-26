@@ -19,7 +19,7 @@ class ConfirmEmailAddressEmail extends BaseMail
 
     public function __construct(UserDomainObject $user, string $token)
     {
-        parent::__construct();
+        parent::__construct($user->getLocale());
 
         $this->userDomainObject = $user;
         $this->token = $token;

@@ -24,7 +24,7 @@ class UserInvited extends BaseMail
         string $inviteLink
     )
     {
-        parent::__construct();
+        parent::__construct($invitedUser->getLocale());
 
         $this->invitedUser = $invitedUser;
         $this->appName = $appName;

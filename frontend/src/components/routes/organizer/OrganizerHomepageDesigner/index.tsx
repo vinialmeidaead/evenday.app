@@ -1,27 +1,27 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import classes from './OrganizerHomepageDesigner.module.scss';
-import {useParams} from "react-router";
-import {useGetOrganizerSettings} from "../../../../queries/useGetOrganizerSettings.ts";
-import {useUpdateOrganizerSettings} from "../../../../mutations/useUpdateOrganizerSettings.ts";
-import {useFormErrorResponseHandler} from "../../../../hooks/useFormErrorResponseHandler.tsx";
-import {IdParam, OrganizerSettings, ColorTheme} from "../../../../types.ts";
-import {showSuccess} from "../../../../utilites/notifications.tsx";
-import {t} from "@lingui/macro";
-import {useForm} from "@mantine/form";
-import {Button, Collapse, ColorInput, Group, Text, UnstyledButton, Accordion, Stack} from "@mantine/core";
-import {IconCheck, IconChevronDown, IconChevronUp, IconColorPicker, IconHelp, IconPhoto, IconPalette} from "@tabler/icons-react";
-import {Tooltip} from "../../../common/Tooltip";
-import {LoadingMask} from "../../../common/LoadingMask";
-import {CustomSelect} from "../../../common/CustomSelect";
-import {GET_ORGANIZER_QUERY_KEY, useGetOrganizer} from "../../../../queries/useGetOrganizer.ts";
-import {ImageUploadDropzone} from "../../../common/ImageUploadDropzone";
-import {organizerPreviewPath} from "../../../../utilites/urlHelper.ts";
-import {queryClient} from "../../../../utilites/queryClient.ts";
-import {GET_ORGANIZER_PUBLIC_QUERY_KEY} from "../../../../queries/useGetOrganizerPublic.ts";
-import {useGetColorThemes} from "../../../../queries/useGetColorThemes.ts";
+import { useParams } from "react-router";
+import { useGetOrganizerSettings } from "../../../../queries/useGetOrganizerSettings.ts";
+import { useUpdateOrganizerSettings } from "../../../../mutations/useUpdateOrganizerSettings.ts";
+import { useFormErrorResponseHandler } from "../../../../hooks/useFormErrorResponseHandler.tsx";
+import { IdParam, OrganizerSettings, ColorTheme } from "../../../../types.ts";
+import { showSuccess } from "../../../../utilites/notifications.tsx";
+import { t } from "@lingui/macro";
+import { useForm } from "@mantine/form";
+import { Button, Collapse, ColorInput, Group, Text, UnstyledButton, Accordion, Stack } from "@mantine/core";
+import { IconCheck, IconChevronDown, IconChevronUp, IconColorPicker, IconHelp, IconPhoto, IconPalette } from "@tabler/icons-react";
+import { Tooltip } from "../../../common/Tooltip";
+import { LoadingMask } from "../../../common/LoadingMask";
+import { CustomSelect } from "../../../common/CustomSelect";
+import { GET_ORGANIZER_QUERY_KEY, useGetOrganizer } from "../../../../queries/useGetOrganizer.ts";
+import { ImageUploadDropzone } from "../../../common/ImageUploadDropzone";
+import { organizerPreviewPath } from "../../../../utilites/urlHelper.ts";
+import { queryClient } from "../../../../utilites/queryClient.ts";
+import { GET_ORGANIZER_PUBLIC_QUERY_KEY } from "../../../../queries/useGetOrganizerPublic.ts";
+import { useGetColorThemes } from "../../../../queries/useGetColorThemes.ts";
 
 const OrganizerHomepageDesigner = () => {
-    const {organizerId} = useParams();
+    const { organizerId } = useParams();
     const organizerSettingsQuery = useGetOrganizerSettings(organizerId);
     const organizerQuery = useGetOrganizer(organizerId);
     const colorThemesQuery = useGetColorThemes();
@@ -59,7 +59,7 @@ const OrganizerHomepageDesigner = () => {
 
     const detectedTheme = useMemo(() => {
         if (!colorThemesQuery.data) return 'Custom';
-        
+
         const currentColors = form.values;
 
         // Check if colors match any theme
@@ -128,7 +128,7 @@ const OrganizerHomepageDesigner = () => {
 
             if (JSON.stringify(settingsToSend) !== JSON.stringify(lastSentSettings.current)) {
                 iframeRef.current.contentWindow.postMessage(
-                    {type: "UPDATE_ORGANIZER_SETTINGS", settings: settingsToSend},
+                    { type: "UPDATE_ORGANIZER_SETTINGS", settings: settingsToSend },
                     "*"
                 );
                 lastSentSettings.current = settingsToSend;
@@ -144,7 +144,14 @@ const OrganizerHomepageDesigner = () => {
         if (((existingCover?.id !== lastCoverId) || existingLogo !== lastLogoId) && iframeSrc) {
             setLastCoverId(existingCover?.id);
             setLastLogoId(existingLogo?.id);
-            setIframeSrc(organizerPreviewPath(organizerId) + `?cover_image_id=${existingCover?.id}&logo_image_id=${existingLogo?.id}`);
+
+            // Build query params only for defined values
+            const params = new URLSearchParams();
+            if (existingCover?.id) params.append('cover_image_id', existingCover.id.toString());
+            if (existingLogo?.id) params.append('logo_image_id', existingLogo.id.toString());
+            const queryString = params.toString();
+
+            setIframeSrc(organizerPreviewPath(organizerId) + (queryString ? `?${queryString}` : ''));
             setIframeLoaded(false);
         }
     }, [existingCover?.id, existingLogo?.id]);
@@ -185,7 +192,7 @@ const OrganizerHomepageDesigner = () => {
                         <Text c="dimmed" size="sm">{t`Customize your organizer page appearance`}</Text>
                     </div>
 
-                    <Accordion 
+                    <Accordion
                         multiple
                         value={accordionValue}
                         onChange={setAccordionValue}
@@ -203,7 +210,7 @@ const OrganizerHomepageDesigner = () => {
                                             <Text fw={500} size="sm">{t`Cover Image`}</Text>
                                             <Tooltip
                                                 label={t`We recommend dimensions of 1950px by 650px, a ratio of 3:1, and a maximum file size of 5MB`}>
-                                                <IconHelp size={16} style={{ color: 'var(--mantine-color-gray-6)' }}/>
+                                                <IconHelp size={16} style={{ color: 'var(--mantine-color-gray-6)' }} />
                                             </Tooltip>
                                         </Group>
                                         <ImageUploadDropzone
@@ -224,7 +231,7 @@ const OrganizerHomepageDesigner = () => {
                                         <Group justify={'space-between'} mb="xs">
                                             <Text fw={500} size="sm">{t`Logo`}</Text>
                                             <Tooltip label={t`We recommend dimensions of 400px by 400px, and a maximum file size of 5MB`}>
-                                                <IconHelp size={16} style={{ color: 'var(--mantine-color-gray-6)' }}/>
+                                                <IconHelp size={16} style={{ color: 'var(--mantine-color-gray-6)' }} />
                                             </Tooltip>
                                         </Group>
                                         <ImageUploadDropzone
@@ -254,7 +261,7 @@ const OrganizerHomepageDesigner = () => {
                                     <div>
                                         <Text fw={500} size="sm" mb="xs">{t`Color Presets`}</Text>
                                         <Text size="xs" c="dimmed" mb="md">{t`Choose from predefined color schemes`}</Text>
-                                        
+
                                         <div className={classes.themePresets}>
                                             <Group gap={12} wrap="wrap">
                                                 {colorThemesQuery.isLoading && (
@@ -290,7 +297,7 @@ const OrganizerHomepageDesigner = () => {
                                                             </div>
                                                             {selectedTheme === theme.name && (
                                                                 <div className={classes.themeCheckmark}>
-                                                                    <IconCheck size={14} stroke={3}/>
+                                                                    <IconCheck size={14} stroke={3} />
                                                                 </div>
                                                             )}
                                                         </div>
@@ -323,7 +330,7 @@ const OrganizerHomepageDesigner = () => {
                                                         </div>
                                                         {selectedTheme === 'Custom' && (
                                                             <div className={classes.themeCheckmark}>
-                                                                <IconCheck size={14} stroke={3}/>
+                                                                <IconCheck size={14} stroke={3} />
                                                             </div>
                                                         )}
                                                     </div>
@@ -339,13 +346,13 @@ const OrganizerHomepageDesigner = () => {
                                                 <CustomSelect
                                                     optionList={[
                                                         {
-                                                            icon: <IconColorPicker/>,
+                                                            icon: <IconColorPicker />,
                                                             label: t`Color`,
                                                             value: 'COLOR',
                                                             description: t`Choose a color for your background`,
                                                         },
                                                         {
-                                                            icon: <IconPhoto/>,
+                                                            icon: <IconPhoto />,
                                                             label: t`Use cover image`,
                                                             value: 'MIRROR_COVER_IMAGE',
                                                             description: t`Use a blurred version of the cover image as the background`,
@@ -361,8 +368,8 @@ const OrganizerHomepageDesigner = () => {
                                                     <Button
                                                         variant="light"
                                                         onClick={() => setColorInputsExpanded(!colorInputsExpanded)}
-                                                        rightSection={colorInputsExpanded ? <IconChevronUp size={16}/> :
-                                                            <IconChevronDown size={16}/>}
+                                                        rightSection={colorInputsExpanded ? <IconChevronUp size={16} /> :
+                                                            <IconChevronDown size={16} />}
                                                         fullWidth
                                                         size="sm"
                                                     >
@@ -445,7 +452,7 @@ const OrganizerHomepageDesigner = () => {
                             onLoad={() => setIframeLoaded(true)}
                         />
                     ) : (
-                        <LoadingMask/>
+                        <LoadingMask />
                     )}
                 </div>
             </div>

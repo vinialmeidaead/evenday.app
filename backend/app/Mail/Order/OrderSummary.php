@@ -33,7 +33,7 @@ class OrderSummary extends BaseMail
     {
         $this->renderedTemplate = $renderedTemplate;
 
-        parent::__construct();
+        parent::__construct($order->getLocale());
     }
 
     public function envelope(): Envelope

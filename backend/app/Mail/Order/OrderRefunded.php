@@ -24,7 +24,7 @@ class OrderRefunded extends BaseMail
         private readonly MoneyValue               $refundAmount,
     )
     {
-        parent::__construct();
+        parent::__construct($order->getLocale());
     }
 
     public function envelope(): Envelope

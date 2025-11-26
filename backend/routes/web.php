@@ -16,3 +16,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Serve public storage files (images, etc.)
+Route::get('/{path}', function ($path) {
+    $file = storage_path('app/public/' . $path);
+    
+    if (file_exists($file)) {
+        return response()->file($file);
+    }
+    
+    abort(404);
+})->where('path', '(organizer_cover|organizer_logo|event_cover|event_images|ticket_logo)/.*');

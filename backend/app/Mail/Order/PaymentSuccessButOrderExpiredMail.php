@@ -22,7 +22,7 @@ class PaymentSuccessButOrderExpiredMail extends BaseMail
         private readonly OrganizerDomainObject    $organizer,
     )
     {
-        parent::__construct();
+        parent::__construct($order->getLocale());
     }
 
     public function envelope(): Envelope

@@ -23,7 +23,7 @@ class OrderCancelled extends BaseMail
         private readonly EventSettingDomainObject $eventSettings,
     )
     {
-        parent::__construct();
+        parent::__construct($order->getLocale());
     }
 
     public function envelope(): Envelope

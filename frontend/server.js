@@ -1,13 +1,13 @@
 import express from "express";
-import {installGlobals} from "@remix-run/node";
+import { installGlobals } from "@remix-run/node";
 import process from "process";
-import {createServer as viteServer} from "vite";
+import { createServer as viteServer } from "vite";
 import compression from "compression";
 import fs from "node:fs/promises";
 import sirv from "sirv";
 import cookieParser from "cookie-parser";
 import path from "node:path";
-import {fileURLToPath} from "node:url";
+import { fileURLToPath } from "node:url";
 import * as nodePath from "node:path";
 import * as nodeUrl from "node:url";
 import "dotenv/config";
@@ -60,6 +60,23 @@ async function main() {
         }
         return JSON.stringify(envVars);
     };
+
+    // Skip SSR for static file paths (images, etc.)
+    // These should be served by nginx/backend, not processed by React Router
+    app.use((req, res, next) => {
+        const staticPaths = [
+            '/organizer_cover/',
+            '/organizer_logo/',
+            '/event_cover/',
+            '/event_images/',
+            '/ticket_logo/'
+        ];
+
+        if (staticPaths.some(path => req.url.startsWith(path))) {
+            return res.status(404).send('Not Found');
+        }
+        next();
+    });
 
     app.use("*", async (req, res) => {
         const url = req.originalUrl.replace(base, "");
@@ -127,7 +144,7 @@ async function main() {
         return import(
             nodePath.isAbsolute(path) ? nodeUrl.pathToFileURL(path).toString() : path
         );
-        
+
     }
 }
 main();
