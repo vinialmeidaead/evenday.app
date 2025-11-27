@@ -1448,12 +1448,12 @@ msgstr "Contacto {0}"
 
 #: src/components/forms/OrganizerForm/index.tsx:34
 msgid "Contact Email"
-msgstr "Correo de contacto"
+msgstr "Correo de contato"
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:48
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:81
 msgid "Contact email for support"
-msgstr "Email de contacto para soporte"
+msgstr "Email de contato para soporte"
 
 #: src/components/routes/event/HomepageDesigner/index.tsx:210
 #: src/components/routes/organizer/OrganizerHomepageDesigner/index.tsx:386
@@ -4092,7 +4092,7 @@ msgstr "Prefijo opcional para los números de factura (por ejemplo, INV-)"
 
 #: src/components/routes/event/TicketDesigner/index.tsx:161
 msgid "Optional text for disclaimers, contact info, or thank you notes (single line only)"
-msgstr "Texto opcional para avisos legales, información de contacto o notas de agradecimiento (solo una línea)"
+msgstr "Texto opcional para avisos legales, información de contato o notas de agradecimiento (solo una línea)"
 
 #: src/components/forms/QuestionForm/index.tsx:28
 msgid "Options"

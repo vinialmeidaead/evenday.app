@@ -6,12 +6,12 @@ import {isHiEvents} from "../../../../utilites/helpers.ts";
 export const EventNotAvailable = () => {
     return (
         <GenericErrorPage
-            title={t`Event Not Available`}
-            description={t`The event you're looking for is not available at the moment. It may have been removed, expired, or the URL might be incorrect.`}
-            pageTitle={t`Event Not Available`}
-            metaDescription={t`The event you're looking for is not available at the moment. It may have been removed, expired, or the URL might be incorrect.`}
-            buttonText={isHiEvents() ? t`Create your own event` : undefined}
-            buttonUrl={isHiEvents() ? "https://app.Evenday/auth/register?utm_source=app.Evenday&utm_content=organizer-not-found/create-event" : undefined}
+            title={t`Evento não disponível`}
+            description={t`O evento que você está procurando não está disponível no momento. Ele pode ter sido removido, expirado ou a URL pode estar incorreta.`}
+            pageTitle={t`Evento não disponível`}
+            metaDescription={t`O evento que você está procurando não está disponível no momento. Ele pode ter sido removido, expirado ou a URL pode estar incorreta.`}
+            buttonText={isHiEvents() ? t`Criar seu próprio evento` : undefined}
+            buttonUrl={isHiEvents() ? "https://plataforma.evenday.app" : undefined}
             buttonIcon={<IconCalendarPlus size={18}/>}
         />
     );

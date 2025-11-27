@@ -213,7 +213,7 @@
     "Your recent order for :eventTitle was not successful. The order expired while you were completing the payment. We have issued a refund for the order.": "Seu pedido recente para :eventTitle não foi bem-sucedido. O pedido expirou enquanto você estava concluindo o pagamento. Emitimos um reembolso para o pedido.",
     "We apologize for the inconvenience. If you have any questions or need assistance, feel free to reach us at": "Pedimos desculpas pela inconveniência. Se tiver alguma dúvida ou precisar de ajuda, sinta-se à vontade para entrar em contato conosco pelo",
     "View Event Page": "Exibir página do evento",
-    "Hi.Events": "Olá. Eventos",
+    "Hi.Events": "Evenday",
     "Your Order is Confirmed! ": "Seu pedido foi confirmado! ",
     "Congratulations! Your order for :eventTitle on :eventDate at :eventTime was successful. Please find your order details below.": "Parabéns! Seu pedido para :eventTitle em :eventDate em :eventTime foi bem-sucedido. Veja abaixo os detalhes de seu pedido.",
     "Event Details": "Detalhes do evento",
@@ -435,7 +435,7 @@
     "Tech": "Tecnologia",
     "Education": "Educação",
     "Workshop": "Workshop",
-    "Sports": "Desporto",
+    "Sports": "Esporte",
     "Festival": "Festival",
     "Nightlife": "Vida noturna",
     "Other": "Outro",
@@ -489,6 +489,6 @@
     "Hello :name": "Olá :name",
     "You have received a new message from": "Recebeu uma nova mensagem de",
     "Reply to :name": "Responder a :name",
-    "This message was sent via your organizer contact form.": "Esta mensagem foi enviada através do seu formulário de contacto de organizador.",
+    "This message was sent via your organizer contact form.": "Esta mensagem foi enviada através do seu formulário de contato de organizador.",
     "Your email confirmation code is:": "O seu código de confirmação de email é:"
 }

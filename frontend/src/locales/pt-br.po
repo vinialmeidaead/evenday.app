@@ -1448,7 +1448,7 @@ msgstr "Contato {0}"
 
 #: src/components/forms/OrganizerForm/index.tsx:34
 msgid "Contact Email"
-msgstr "Email de contacto"
+msgstr "Email de contato"
 
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:48
 #: src/components/common/Editor/Controls/InsertLiquidVariableControl.tsx:81
@@ -5694,7 +5694,7 @@ msgstr "Espanhol"
 
 #: src/constants/eventCategories.ts:8
 msgid "Sports"
-msgstr "Desporto"
+msgstr "Esporte"
 
 #: src/components/forms/ProductForm/index.tsx:147
 msgid "Standard product with a fixed price"

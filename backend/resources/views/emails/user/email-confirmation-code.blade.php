@@ -4,7 +4,7 @@
 <x-mail::message>
 Olá {{ $user->getFirstName() }},
 
-Bem-vindo ao evenday! Estamos muito felizes em ter você conosco!
+Bem-vindo (a) ao evenday! Estamos muito felizes em ter você conosco!
 
 Seu código de confirmação de e-mail é:
 

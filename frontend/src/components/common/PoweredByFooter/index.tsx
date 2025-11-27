@@ -34,7 +34,7 @@ export const PoweredByFooter = (
             medium = window.location.pathname.includes("/widget") ? "widget" : "app";
         }
 
-        const url = new URL("https://Evenday");
+        const url = new URL("https://evenday.app");
         url.searchParams.set("utm_source", "app-powered-by-footer");
         url.searchParams.set("utm_medium", isHiEvents() ? medium : 'self-hosted-' + medium);
         url.searchParams.set("utm_campaign", "powered-by");

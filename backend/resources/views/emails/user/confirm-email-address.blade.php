@@ -4,7 +4,7 @@
 <x-mail::message>
 Olá {{ $user->getFirstName() }},
 
-Bem-vindo ao evenday! Estamos muito felizes em ter você conosco!
+Bem-vindo (a) ao evenday! Estamos muito felizes em ter você conosco!
 
 Para começar e ativar sua conta, clique no link abaixo para confirmar seu endereço de e-mail:
 

@@ -340,14 +340,14 @@ export const OrganizerHomepage = ({
                             <div className={classes.footerContent}>
                                 <div className={classes.footerLinks}>
                                     <Anchor
-                                        href={getConfig('VITE_PRIVACY_URL', 'https://Evenday/privacy-policy?utm_source=app-organizer-footer')}
+                                        href={getConfig('VITE_PRIVACY_URL', 'https://evenday.app/politica-de-privacidade')}
                                         className={classes.footerLink}
                                     >
                                         {t`Privacy Policy`}
                                     </Anchor>
                                     <span className={classes.footerSeparator}>•</span>
                                     <Anchor
-                                        href={getConfig('VITE_TOS_URL', 'https://Evenday/terms-of-service?utm_source=app-organizer-footer')}
+                                        href={getConfig('VITE_TOS_URL', 'https://evenday.app/termos-de-servico')}
                                         className={classes.footerLink}
                                     >
                                         {t`Terms of Service`}

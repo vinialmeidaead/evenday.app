@@ -5,12 +5,12 @@ import {GenericErrorPage} from "../../../common/GenericErrorPage";
 export const OrganizerNotFound = () => {
     return (
         <GenericErrorPage
-            title={t`Organizer Not Found`}
-            description={t`The organizer you're looking for could not be found. The page may have been moved, deleted, or the URL might be incorrect.`}
-            pageTitle={t`Organizer Not Found`}
-            metaDescription={t`The organizer you're looking for could not be found. The page may have been moved, deleted, or the URL might be incorrect.`}
-            buttonText={t`Create your own event`}
-            buttonUrl="https://app.Evenday/auth/register?utm_source=app.Evenday&utm_content=organizer-not-found/create-event"
+            title={t`Organizador não encontrado`}
+            description={t`O organizador que você está procurando não foi encontrado. A página pode ter sido movida, excluída ou a URL pode estar incorreta.`}
+            pageTitle={t`Organizador não encontrado`}
+            metaDescription={t`O organizador que você está procurando não foi encontrado. A página pode ter sido movida, excluída ou a URL pode estar incorreta.`}
+            buttonText={t`Criar seu próprio evento`}
+            buttonUrl="https://plataforma.evenday.app"
             buttonIcon={<IconCalendarPlus size={18}/>}
         >
 

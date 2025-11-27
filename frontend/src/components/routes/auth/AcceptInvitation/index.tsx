@@ -118,13 +118,13 @@ const AcceptInvitation = () => {
                             label={(
                                 <Trans>
                                     I agree to the <Anchor target={'_blank'}
-                                                           href={getConfig("VITE_TOS_URL",'https://Evenday/terms-of-service')}>terms and
+                                                           href={getConfig("VITE_TOS_URL",'https://evenday.app/termos-de-servico')}>terms and
                                     conditions</Anchor>
                                 </Trans>
                             )}/>
 
                     <Button color={'var(--hi-pink)'} fullWidth loading={acceptInvitationMutation.isPending}
-                            type={'submit'}>{t`Accept Invitation`}</Button>
+                            type={'submit'}>{t`Aceitar convite`}</Button>
                 </fieldset>
             </form>
         </Card>
