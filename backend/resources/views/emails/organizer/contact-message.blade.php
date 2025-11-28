@@ -7,9 +7,9 @@
 @php /** @see \HiEvents\Mail\Organizer\OrganizerContactEmail */ @endphp
 
 <x-mail::message>
-{{ __('Hello :name', ['name' => $organizerName]) }},
+{{ __('Olá :name', ['name' => $organizerName]) }},
 
-{{ __('You have received a new message from') }} **{{ $senderName }}** ({{ $senderEmail }}).
+{{ __('Você recebeu uma nova mensagem de') }} **{{ $senderName }}** ({{ $senderEmail }}).
 
 <div style="border-radius: 5px; background-color: #eeeeee; margin: 10px 0; padding: 20px;">
 
@@ -18,9 +18,9 @@
 </div>
 
 <x-mail::button :url="'mailto:' . $senderEmail . '?subject=' . $replySubject">
-{{ __('Reply to :name', ['name' => $senderName]) }}
+{{ __('Responder a :name', ['name' => $senderName]) }}
 </x-mail::button>
 
-{{ __('This message was sent via your organizer contact form.') }}
+{{ __('Esta mensagem foi enviada através do seu formulário de contato de organizador.') }}
 
 </x-mail::message>

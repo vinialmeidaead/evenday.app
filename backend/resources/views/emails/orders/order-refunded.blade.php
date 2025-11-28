@@ -7,11 +7,11 @@
 @php /** @see \HiEvents\Mail\Order\OrderRefunded */ @endphp
 
 <x-mail::message>
-{{ __('Hello') }},
+{{ __('Olá') }},
 
-{{ __('You have received a refund of :refundAmount for the following event: :eventTitle.', ['refundAmount' => $refundAmount, 'eventTitle' => $event->getTitle()]) }}
+{{ __('Você recebeu um reembolso de :refundAmount para o seguinte evento: :eventTitle.', ['refundAmount' => $refundAmount, 'eventTitle' => $event->getTitle()]) }}
 
-{{ __('Thank you') }},<br>
+{{ __('Obrigado') }},<br>
 {{ $organizer->getName() ?: config('app.name') }}
 
 {!! $eventSettings->getGetEmailFooterHtml() !!}

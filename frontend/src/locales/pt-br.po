@@ -1386,7 +1386,7 @@ msgstr "Conectar processamento de pagamento"
 #: src/components/layouts/OrganizerLayout/index.tsx:168
 #: src/components/layouts/OrganizerLayout/index.tsx:176
 msgid "Connect Stripe"
-msgstr "Conectar faixa"
+msgstr "Conectar carteira"
 
 #: src/components/modals/SendMessageModal/index.tsx:159
 msgid "Connect Stripe to enable messaging"

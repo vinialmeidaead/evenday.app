@@ -7,18 +7,18 @@
 @php /** @see \HiEvents\Mail\Order\OrderFailed */ @endphp
 
 <x-mail::message>
-{{ __('Hello') }},
+{{ __('Olá') }},
 
-{{ __('Your recent order for') }} <b>{{$event->getTitle()}}</b> {{ __('was not successful.') }}
+{{ __('Seu pedido recente para') }} <b>{{$event->getTitle()}}</b> {{ __('não foi bem-sucedido.') }}
 
 <x-mail::button :url="$eventUrl">
-{{ __('View Event Homepage') }}
+{{ __('Ver Página Inicial do Evento') }}
 </x-mail::button>
 
-{{ __('If you have any questions or need assistance, feel free to reach out to our support team') }}
-{{ __('at') }} {{ $supportEmail ?? 'contato@evenday.app' }}.
+{{ __('Se você tiver alguma dúvida ou precisar de assistência, entre em contato com nossa equipe de suporte') }}
+{{ __('em') }} {{ $supportEmail ?? 'contato@evenday.app' }}.
 
-{{ __('Best regards') }},<br>
+{{ __('Atenciosamente') }},<br>
 {{ $organizer->getName() ?: config('app.name') }}
 
 {!! $eventSettings->getGetEmailFooterHtml() !!}
