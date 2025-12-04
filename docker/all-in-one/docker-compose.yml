@@ -51,6 +51,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - laravel_storage:/app/backend/storage
+      - laravel_bootstrap_cache:/app/backend/bootstrap/cache
 
   redis:
     image: redis:latest
@@ -92,4 +95,8 @@ volumes:
   pgdata:
     driver: local
   redisdata:
+    driver: local
+  laravel_storage:
+    driver: local
+  laravel_bootstrap_cache:
     driver: local

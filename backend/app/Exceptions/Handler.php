@@ -54,6 +54,17 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // Log all exceptions for debugging
+        if (config('app.debug') || str_contains($request->path(), 'asaas')) {
+            logger()->error('ExceptionHandler: Exception caught', [
+                'exception_class' => get_class($exception),
+                'exception_message' => $exception->getMessage(),
+                'request_path' => $request->path(),
+                'request_method' => $request->method(),
+                'trace' => $exception->getTraceAsString(),
+            ]);
+        }
+
         if ($exception instanceof ResourceNotFoundException) {
             return response()->json([
                 'message' => $exception->getMessage() ?: 'Resource not found',

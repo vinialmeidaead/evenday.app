@@ -52,4 +52,13 @@ return [
     'open_exchange_rates' => [
         'app_id' => env('OPEN_EXCHANGE_RATES_APP_ID'),
     ],
+
+    'asaas' => [
+        'api_key' => env('ASAAS_API_KEY'),
+        'api_url' => env('ASAAS_API_URL', env('ASAAS_ENVIRONMENT', 'production') === 'sandbox' 
+            ? 'https://api-sandbox.asaas.com/v3' 
+            : 'https://api.asaas.com/v3'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
+        'environment' => env('ASAAS_ENVIRONMENT', 'production'), // production ou sandbox
+    ],
 ];

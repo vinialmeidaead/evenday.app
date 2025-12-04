@@ -154,6 +154,19 @@ export const orderClientPublic = {
         return response.data;
     },
 
+    createAsaasPixPayment: async (eventId: number, orderShortId: string, cpfCnpj: string) => {
+        const response = await publicApi.post<{
+            payment_id: string,
+            pix_code: string,
+            qr_code_image?: string,
+            expiration_date: string,
+            status: string,
+        }>(`events/${eventId}/order/${orderShortId}/asaas/pix-payment`, {
+            cpf_cnpj: cpfCnpj,
+        });
+        return response.data;
+    },
+
     finaliseOrder: async (
         eventId: number,
         orderShortId: string,

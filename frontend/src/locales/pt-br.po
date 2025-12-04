@@ -1286,11 +1286,11 @@ msgstr "Pedido completo"
 
 #: src/components/routes/product-widget/CollectInformation/index.tsx:231
 msgid "Complete payment"
-msgstr "Pagamento completo"
+msgstr "Completar pagamento"
 
 #: src/components/routes/product-widget/Payment/index.tsx:131
 msgid "Complete Payment"
-msgstr "Pagamento completo"
+msgstr "Completar pagamentoo"
 
 #: src/components/common/StripeConnectButton/index.tsx:87
 #: src/components/routes/event/EventDashboard/index.tsx:236

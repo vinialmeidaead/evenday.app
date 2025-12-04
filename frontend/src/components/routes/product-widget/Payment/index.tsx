@@ -4,6 +4,7 @@ import {useGetEventPublic} from "../../../../queries/useGetEventPublic.ts";
 import {CheckoutContent} from "../../../layouts/Checkout/CheckoutContent";
 import {StripePaymentMethod} from "./PaymentMethods/Stripe";
 import {OfflinePaymentMethod} from "./PaymentMethods/Offline";
+import {AsaasPixPaymentMethod} from "./PaymentMethods/AsaasPix";
 import {Event, Order} from "../../../../types.ts";
 import {CheckoutFooter} from "../../../layouts/Checkout/CheckoutFooter";
 import {Group} from "@mantine/core";
@@ -23,23 +24,26 @@ const Payment = () => {
     const {data: order, isFetched: isOrderFetched} = useGetOrderPublic(eventId, orderShortId, ['event']);
     const isLoading = !isOrderFetched;
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-    const [activePaymentMethod, setActivePaymentMethod] = useState<'STRIPE' | 'OFFLINE' | null>(null);
+    const [activePaymentMethod, setActivePaymentMethod] = useState<'STRIPE' | 'OFFLINE' | 'ASAAS_PIX' | null>(null);
     const [submitHandler, setSubmitHandler] = useState<(() => Promise<void>) | null>(null);
     const transitionOrderToOfflinePaymentMutation = useTransitionOrderToOfflinePaymentPublic();
 
     const isStripeEnabled = event?.settings?.payment_providers?.includes('STRIPE');
     const isOfflineEnabled = event?.settings?.payment_providers?.includes('OFFLINE');
+    const isAsaasPixEnabled = event?.settings?.payment_providers?.includes('ASAAS_PIX');
 
     React.useEffect(() => {
         // Automatically set the first available payment method
         if (isStripeEnabled) {
             setActivePaymentMethod('STRIPE');
+        } else if (isAsaasPixEnabled) {
+            setActivePaymentMethod('ASAAS_PIX');
         } else if (isOfflineEnabled) {
             setActivePaymentMethod('OFFLINE');
         } else {
             setActivePaymentMethod(null); // No methods available
         }
-    }, [isStripeEnabled, isOfflineEnabled]);
+    }, [isStripeEnabled, isAsaasPixEnabled, isOfflineEnabled]);
 
     const handleParentSubmit = () => {
         if (submitHandler) {
@@ -51,6 +55,10 @@ const Payment = () => {
     const handleSubmit = async () => {
         if (activePaymentMethod === 'STRIPE') {
             handleParentSubmit();
+        } else if (activePaymentMethod === 'ASAAS_PIX') {
+            // Pix payment doesn't require submit - payment is done externally
+            // The webhook will handle the confirmation
+            // Just show a message or redirect to summary
         } else if (activePaymentMethod === 'OFFLINE') {
             setIsPaymentLoading(true);
 
@@ -69,7 +77,7 @@ const Payment = () => {
         }
     };
 
-    if (!isStripeEnabled && !isOfflineEnabled && isOrderFetched && isEventFetched) {
+    if (!isStripeEnabled && !isOfflineEnabled && !isAsaasPixEnabled && isOrderFetched && isEventFetched) {
         return (
             <CheckoutContent>
                 <Card>
@@ -88,25 +96,49 @@ const Payment = () => {
                     </div>
                 )}
 
+                {isAsaasPixEnabled && (
+                    <div style={{display: activePaymentMethod === 'ASAAS_PIX' ? 'block' : 'none'}}>
+                        <AsaasPixPaymentMethod enabled={true} />
+                    </div>
+                )}
+
                 {isOfflineEnabled && (
                     <div style={{display: activePaymentMethod === 'OFFLINE' ? 'block' : 'none'}}>
                         <OfflinePaymentMethod event={event as Event}/>
                     </div>
                 )}
 
-                {(isStripeEnabled && isOfflineEnabled) && (
+                {((isStripeEnabled && isOfflineEnabled) || 
+                  (isStripeEnabled && isAsaasPixEnabled) || 
+                  (isAsaasPixEnabled && isOfflineEnabled) ||
+                  (isStripeEnabled && isOfflineEnabled && isAsaasPixEnabled)) && (
                     <div style={{marginTop: '20px'}}>
-                        <a
-                            onClick={() => setActivePaymentMethod(
-                                activePaymentMethod === 'STRIPE' ? 'OFFLINE' : 'STRIPE'
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                            {isStripeEnabled && activePaymentMethod !== 'STRIPE' && (
+                                <a
+                                    onClick={() => setActivePaymentMethod('STRIPE')}
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    {t`Eu gostaria de pagar usando cartão de crédito (Stripe)`}
+                                </a>
                             )}
-                            style={{cursor: 'pointer'}}
-                        >
-                            {activePaymentMethod === 'STRIPE'
-                                ? t`I would like to pay using an offline method`
-                                : t`I would like to pay using an online method (credit card etc.)`
-                            }
-                        </a>
+                            {isAsaasPixEnabled && activePaymentMethod !== 'ASAAS_PIX' && (
+                                <a
+                                    onClick={() => setActivePaymentMethod('ASAAS_PIX')}
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    {t`Eu gostaria de pagar usando Pix`}
+                                </a>
+                            )}
+                            {isOfflineEnabled && activePaymentMethod !== 'OFFLINE' && (
+                                <a
+                                    onClick={() => setActivePaymentMethod('OFFLINE')}
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    {t`Eu gostaria de pagar diretamente ao organizador (offline)`}
+                                </a>
+                            )}
+                        </div>
                     </div>
                 )}
             </CheckoutContent>
@@ -115,8 +147,8 @@ const Payment = () => {
                 event={event as Event}
                 order={order as Order}
                 isLoading={isLoading || isPaymentLoading}
-                onClick={handleSubmit}
-                buttonContent={order?.is_payment_required ? (
+                onClick={activePaymentMethod === 'ASAAS_PIX' ? undefined : handleSubmit}
+                buttonContent={order?.is_payment_required && activePaymentMethod !== 'ASAAS_PIX' ? (
                     <Group gap={'10px'}>
                         <div style={{fontWeight: "bold"}}>
                             {t`Place Order`}

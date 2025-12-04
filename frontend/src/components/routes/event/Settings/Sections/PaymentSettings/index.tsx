@@ -86,6 +86,11 @@ export const PaymentAndInvoicingSettings = () => {
             description: t`Accept credit card payments with Stripe`
         },
         {
+            value: "ASAAS_PIX",
+            label: t`Pix (Asaas)`,
+            description: t`Aceitar pagamentos instantâneos via Pix através do Asaas`
+        },
+        {
             value: "OFFLINE",
             label: t`Offline Payments`,
             description: t`Accept bank transfers, checks, or other offline payment methods`
