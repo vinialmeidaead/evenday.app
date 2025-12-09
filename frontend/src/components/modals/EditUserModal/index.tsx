@@ -48,13 +48,13 @@ export const EditUserModal = ({onClose, user}: EditUserModalProps) => {
             icon: <IconUserShield/>,
             label: t`Admin`,
             value: 'ADMIN',
-            description: t`Admin users have full access to events and account settings.`,
+            description: t`Administradores têm acesso completo a eventos e configurações da conta.`,
         },
         {
             icon: <IconUser/>,
             label: t`Organizer`,
             value: 'ORGANIZER',
-            description: t`Organizers can only manage events and products. They cannot manage users, account settings or billing information.`,
+            description: t`Organizadores podem apenas gerenciar eventos e produtos. Eles não podem gerenciar usuários, configurações de conta ou informações de faturamento.`,
         },
     ];
 

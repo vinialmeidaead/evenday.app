@@ -35,10 +35,7 @@ export const PoweredByFooter = (
         }
 
         const url = new URL("https://evenday.app");
-        url.searchParams.set("utm_source", "app-powered-by-footer");
-        url.searchParams.set("utm_medium", isHiEvents() ? medium : 'self-hosted-' + medium);
-        url.searchParams.set("utm_campaign", "powered-by");
-        url.searchParams.set("utm_content", isHiEvents() ? "Evenday" : host);
+
 
         return url.toString();
     }, []);
@@ -50,7 +47,7 @@ export const PoweredByFooter = (
                 href={`${link}`}
                 target="_blank"
                 className={classes.ctaLink}
-                title={"Effortlessly manage events and sell tickets online with Evenday"}
+                title={"Gerencie eventos e venda ingressos online com Evenday"}
             >
                 {t`Try Evenday Free`}
             </a>
@@ -61,7 +58,7 @@ export const PoweredByFooter = (
             <a
                 href={link}
                 target="_blank"
-                title={"Effortlessly manage events and sell tickets online with Evenday"}
+                title={"Gerencie eventos e venda ingressos online com Evenday"}
             >
                 Evenday
             </a>{" "}
