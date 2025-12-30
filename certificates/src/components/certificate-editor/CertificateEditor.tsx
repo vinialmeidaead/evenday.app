@@ -72,7 +72,7 @@ export default function CertificateEditor({
         fontSize: textObj.fontSize || 40,
         fill: (textObj.fill as string) || "#000000",
         textAlign: (textObj.textAlign as string) || "left",
-        fontWeight: textObj.fontWeight || "normal",
+        fontWeight: String(textObj.fontWeight || "normal"),
         fontStyle: textObj.fontStyle || "normal",
         opacity: textObj.opacity || 1,
       });
@@ -83,45 +83,101 @@ export default function CertificateEditor({
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const fabricCanvas = new Canvas(canvasRef.current, {
-      width: width * zoom,
-      height: height * zoom,
-      backgroundColor: backgroundColor,
-      preserveObjectStacking: true,
+    // Verificar se o canvas já tem contexto antes de criar o Fabric Canvas
+    const canvasElement = canvasRef.current;
+    if (!canvasElement.getContext) return;
+
+    // Verificar se o contexto 2D está disponível
+    const testContext = canvasElement.getContext("2d");
+    if (!testContext) return;
+
+    let fabricCanvas: Canvas | null = null;
+
+    // Aguardar um frame para garantir que o canvas está totalmente montado no DOM
+    const rafId = requestAnimationFrame(() => {
+      if (!canvasRef.current) return;
+
+      try {
+        fabricCanvas = new Canvas(canvasRef.current, {
+          width: width * zoom,
+          height: height * zoom,
+          backgroundColor: backgroundColor,
+          preserveObjectStacking: true,
+        });
+
+        // Verificar se o lowerCanvasEl foi criado corretamente
+        if (!fabricCanvas.lowerCanvasEl) {
+          console.error("Canvas não foi inicializado corretamente");
+          return;
+        }
+
+        // Verificar se o contexto do lowerCanvas está disponível
+        const lowerContext = fabricCanvas.lowerCanvasEl.getContext("2d");
+        if (!lowerContext) {
+          console.error("Contexto 2D não está disponível");
+          if (fabricCanvas) {
+            fabricCanvas.dispose();
+          }
+          return;
+        }
+
+        // Carregar design inicial
+        if (initialDesign) {
+          fabricCanvas.loadFromJSON(initialDesign, () => {
+            try {
+              if (!fabricCanvas) return;
+              fabricCanvas.setZoom(zoom);
+              if (fabricCanvas.lowerCanvasEl?.getContext("2d")) {
+                fabricCanvas.renderAll();
+              }
+            } catch (error) {
+              console.error("Erro ao carregar design inicial:", error);
+            }
+          });
+        }
+
+        // Event listeners
+        fabricCanvas.on("selection:created", (e) => {
+          const event = e as { selected: FabricObject[] };
+          updateSelectedObject(event.selected[0]);
+        });
+
+        fabricCanvas.on("selection:updated", (e) => {
+          const event = e as { selected: FabricObject[] };
+          updateSelectedObject(event.selected[0]);
+        });
+
+        fabricCanvas.on("selection:cleared", () => {
+          setSelectedObject(null);
+        });
+
+        fabricCanvas.on("object:modified", (e) => {
+          const event = e as { target: FabricObject };
+          updateSelectedObject(event.target);
+        });
+
+        setCanvas(fabricCanvas);
+      } catch (error) {
+        console.error("Erro ao inicializar canvas:", error);
+        if (fabricCanvas) {
+          try {
+            fabricCanvas.dispose();
+          } catch (disposeError) {
+            console.error("Erro ao fazer dispose após erro:", disposeError);
+          }
+        }
+      }
     });
-
-    // Carregar design inicial
-    if (initialDesign) {
-      fabricCanvas.loadFromJSON(initialDesign, () => {
-        fabricCanvas.setZoom(zoom);
-        fabricCanvas.renderAll();
-      });
-    }
-
-    // Event listeners
-    fabricCanvas.on("selection:created", (e) => {
-      const event = e as { selected: FabricObject[] };
-      updateSelectedObject(event.selected[0]);
-    });
-
-    fabricCanvas.on("selection:updated", (e) => {
-      const event = e as { selected: FabricObject[] };
-      updateSelectedObject(event.selected[0]);
-    });
-
-    fabricCanvas.on("selection:cleared", () => {
-      setSelectedObject(null);
-    });
-
-    fabricCanvas.on("object:modified", (e) => {
-      const event = e as { target: FabricObject };
-      updateSelectedObject(event.target);
-    });
-
-    setCanvas(fabricCanvas);
 
     return () => {
-      fabricCanvas.dispose();
+      cancelAnimationFrame(rafId);
+      if (fabricCanvas) {
+        try {
+          fabricCanvas.dispose();
+        } catch (error) {
+          console.error("Erro ao fazer cleanup do canvas:", error);
+        }
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -129,78 +185,120 @@ export default function CertificateEditor({
   // Atualizar zoom
   useEffect(() => {
     if (!canvas) return;
-    canvas.setZoom(zoom);
-    canvas.setDimensions({
-      width: width * zoom,
-      height: height * zoom,
-    });
-    canvas.renderAll();
+    try {
+      if (!canvas.lowerCanvasEl) return;
+      
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+      
+      canvas.setZoom(zoom);
+      canvas.setDimensions({
+        width: width * zoom,
+        height: height * zoom,
+      });
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao atualizar zoom:", error);
+    }
   }, [zoom, canvas, width, height]);
 
   // Atualizar background
   useEffect(() => {
     if (!canvas) return;
-    canvas.backgroundColor = backgroundColor;
-    canvas.renderAll();
+    try {
+      if (!canvas.lowerCanvasEl) return;
+      
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+      
+      canvas.backgroundColor = backgroundColor;
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao atualizar background:", error);
+    }
   }, [backgroundColor, canvas]);
 
   // Adicionar texto
   const addText = () => {
     if (!canvas) return;
+    try {
+      if (!canvas.lowerCanvasEl) return;
 
-    const text = new IText("Clique para editar", {
-      left: width / 2,
-      top: height / 2,
-      fontFamily: "Arial",
-      fontSize: 40,
-      fill: "#000000",
-      originX: "center",
-      originY: "center",
-    });
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
 
-    canvas.add(text);
-    canvas.setActiveObject(text);
-    canvas.renderAll();
+      const text = new IText("Clique para editar", {
+        left: width / 2,
+        top: height / 2,
+        fontFamily: "Arial",
+        fontSize: 40,
+        fill: "#000000",
+        originX: "center",
+        originY: "center",
+      });
+
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao adicionar texto:", error);
+    }
   };
 
   // Adicionar título grande
   const addTitle = () => {
     if (!canvas) return;
+    try {
+      if (!canvas.lowerCanvasEl) return;
 
-    const text = new IText("CERTIFICADO", {
-      left: width / 2,
-      top: height / 3,
-      fontFamily: "Georgia",
-      fontSize: 80,
-      fill: "#1a1a1a",
-      fontWeight: "bold",
-      originX: "center",
-      originY: "center",
-    });
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
 
-    canvas.add(text);
-    canvas.setActiveObject(text);
-    canvas.renderAll();
+      const text = new IText("CERTIFICADO", {
+        left: width / 2,
+        top: height / 3,
+        fontFamily: "Georgia",
+        fontSize: 80,
+        fill: "#1a1a1a",
+        fontWeight: "bold",
+        originX: "center",
+        originY: "center",
+      });
+
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao adicionar título:", error);
+    }
   };
 
   // Adicionar variável
   const addVariable = (variableName: string, label: string) => {
     if (!canvas) return;
+    try {
+      if (!canvas.lowerCanvasEl) return;
 
-    const text = new IText(`{{${variableName}}}`, {
-      left: width / 2,
-      top: height / 2,
-      fontFamily: "Arial",
-      fontSize: 40,
-      fill: "#4F46E5",
-      originX: "center",
-      originY: "center",
-      data: { isVariable: true, variableName, variableLabel: label },
-    } as Record<string, unknown>);
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
 
-    canvas.add(text);
-    canvas.setActiveObject(text);
-    canvas.renderAll();
+      const text = new IText(`{{${variableName}}}`, {
+        left: width / 2,
+        top: height / 2,
+        fontFamily: "Arial",
+        fontSize: 40,
+        fill: "#4F46E5",
+        originX: "center",
+        originY: "center",
+        data: { isVariable: true, variableName, variableLabel: label },
+      } as Record<string, unknown>);
+
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao adicionar variável:", error);
+    }
   };
 
   // Upload de imagem
@@ -214,17 +312,26 @@ export default function CertificateEditor({
       const imgUrl = event.target?.result as string;
 
       FabricImage.fromURL(imgUrl).then((img) => {
-        const scale = Math.min(400 / (img.width || 1), 400 / (img.height || 1));
-        img.scale(scale);
-        img.set({
-          left: width / 2,
-          top: height / 2,
-          originX: "center",
-          originY: "center",
-        });
-        canvas.add(img);
-        canvas.setActiveObject(img);
-        canvas.renderAll();
+        try {
+          if (!canvas.lowerCanvasEl) return;
+
+          const context = canvas.lowerCanvasEl.getContext("2d");
+          if (!context) return;
+
+          const scale = Math.min(400 / (img.width || 1), 400 / (img.height || 1));
+          img.scale(scale);
+          img.set({
+            left: width / 2,
+            top: height / 2,
+            originX: "center",
+            originY: "center",
+          });
+          canvas.add(img);
+          canvas.setActiveObject(img);
+          canvas.renderAll();
+        } catch (error) {
+          console.error("Erro ao adicionar imagem:", error);
+        }
       });
     };
 
@@ -236,33 +343,50 @@ export default function CertificateEditor({
   // Adicionar formas
   const addRectangle = () => {
     if (!canvas) return;
+    try {
+      if (!canvas.lowerCanvasEl) return;
 
-    const rect = new Rect({
-      left: width / 2,
-      top: height / 2,
-      width: 400,
-      height: 60,
-      fill: "transparent",
-      stroke: "#4F46E5",
-      strokeWidth: 3,
-      originX: "center",
-      originY: "center",
-    });
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
 
-    canvas.add(rect);
-    canvas.setActiveObject(rect);
-    canvas.renderAll();
+      const rect = new Rect({
+        left: width / 2,
+        top: height / 2,
+        width: 400,
+        height: 60,
+        fill: "transparent",
+        stroke: "#4F46E5",
+        strokeWidth: 3,
+        originX: "center",
+        originY: "center",
+      });
+
+      canvas.add(rect);
+      canvas.setActiveObject(rect);
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao adicionar retângulo:", error);
+    }
   };
 
   // Atualizar propriedade do texto
   const updateTextProperty = (prop: string, value: string | number) => {
     if (!canvas || !selectedObject || selectedObject.type !== "i-text") return;
 
-    const textObj = selectedObject as IText;
-    (textObj as Record<string, unknown>)[prop] = value;
-    canvas.renderAll();
+    try {
+      if (!canvas.lowerCanvasEl) return;
 
-    setObjectProps((prev) => ({ ...prev, [prop]: value }));
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+
+      const textObj = selectedObject as IText;
+      (textObj as unknown as Record<string, unknown>)[prop] = value;
+      canvas.renderAll();
+
+      setObjectProps((prev) => ({ ...prev, [prop]: value }));
+    } catch (error) {
+      console.error("Erro ao atualizar propriedade do texto:", error);
+    }
   };
 
   // Alinhamento
@@ -271,85 +395,151 @@ export default function CertificateEditor({
   ) => {
     if (!canvas || !selectedObject) return;
 
-    const obj = selectedObject;
+    try {
+      if (!canvas.lowerCanvasEl) return;
 
-    switch (alignment) {
-      case "left":
-        obj.set({ left: 0, originX: "left" });
-        break;
-      case "center":
-        obj.set({ left: width / 2, originX: "center" });
-        break;
-      case "right":
-        obj.set({ left: width, originX: "right" });
-        break;
-      case "top":
-        obj.set({ top: 0, originY: "top" });
-        break;
-      case "middle":
-        obj.set({ top: height / 2, originY: "center" });
-        break;
-      case "bottom":
-        obj.set({ top: height, originY: "bottom" });
-        break;
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+
+      const obj = selectedObject;
+
+      switch (alignment) {
+        case "left":
+          obj.set({ left: 0, originX: "left" });
+          break;
+        case "center":
+          obj.set({ left: width / 2, originX: "center" });
+          break;
+        case "right":
+          obj.set({ left: width, originX: "right" });
+          break;
+        case "top":
+          obj.set({ top: 0, originY: "top" });
+          break;
+        case "middle":
+          obj.set({ top: height / 2, originY: "center" });
+          break;
+        case "bottom":
+          obj.set({ top: height, originY: "bottom" });
+          break;
+      }
+
+      obj.setCoords();
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao alinhar objeto:", error);
     }
-
-    obj.setCoords();
-    canvas.renderAll();
   };
 
   // Camadas
   const bringToFront = () => {
     if (!canvas || !selectedObject) return;
-    selectedObject.bringToFront();
-    canvas.renderAll();
+    try {
+      if (!canvas.lowerCanvasEl) return;
+
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+
+      (selectedObject as any).bringToFront();
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao trazer para frente:", error);
+    }
   };
 
   const sendToBack = () => {
     if (!canvas || !selectedObject) return;
-    selectedObject.sendToBack();
-    canvas.renderAll();
+    try {
+      if (!canvas.lowerCanvasEl) return;
+
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+
+      (selectedObject as any).sendToBack();
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao enviar para trás:", error);
+    }
   };
 
   // Deletar
   const deleteSelected = () => {
     if (!canvas) return;
-    const activeObjects = canvas.getActiveObjects();
-    activeObjects.forEach((obj) => canvas.remove(obj));
-    canvas.discardActiveObject();
-    canvas.renderAll();
+    try {
+      if (!canvas.lowerCanvasEl) return;
+
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+
+      const activeObjects = canvas.getActiveObjects();
+      activeObjects.forEach((obj) => canvas.remove(obj));
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    } catch (error) {
+      console.error("Erro ao deletar objeto:", error);
+    }
   };
 
   // Limpar tudo
   const clearCanvas = () => {
     if (!canvas) return;
     if (confirm("Tem certeza que deseja limpar todo o canvas?")) {
-      canvas.clear();
-      canvas.backgroundColor = backgroundColor;
-      canvas.renderAll();
+      try {
+        if (!canvas.lowerCanvasEl) return;
+
+        const context = canvas.lowerCanvasEl.getContext("2d");
+        if (!context) return;
+
+        canvas.clear();
+        canvas.backgroundColor = backgroundColor;
+        canvas.renderAll();
+      } catch (error) {
+        console.error("Erro ao limpar canvas:", error);
+      }
     }
   };
 
   // Salvar
   const handleSave = () => {
     if (!canvas) return;
-    const json = canvas.toJSON(["data"]);
-    onSave?.(json);
+    try {
+      const json = canvas.toJSON();
+      onSave?.(json as DesignData);
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+    }
   };
 
   // Duplicar objeto
   const duplicateObject = () => {
     if (!canvas || !selectedObject) return;
 
-    selectedObject.clone((cloned: FabricObject) => {
-      cloned.set({
-        left: (cloned.left || 0) + 20,
-        top: (cloned.top || 0) + 20,
+    try {
+      if (!canvas.lowerCanvasEl) return;
+
+      const context = canvas.lowerCanvasEl.getContext("2d");
+      if (!context) return;
+
+      selectedObject.clone().then((cloned: FabricObject) => {
+        try {
+          if (!canvas.lowerCanvasEl) return;
+          const clonedContext = canvas.lowerCanvasEl.getContext("2d");
+          if (!clonedContext) return;
+
+          cloned.set({
+            left: (cloned.left || 0) + 20,
+            top: (cloned.top || 0) + 20,
+          });
+          canvas.add(cloned);
+          canvas.setActiveObject(cloned);
+          canvas.renderAll();
+        } catch (error) {
+          console.error("Erro ao adicionar objeto clonado:", error);
+        }
       });
-      canvas.add(cloned);
-      canvas.setActiveObject(cloned);
-      canvas.renderAll();
-    });
+    } catch (error) {
+      console.error("Erro ao duplicar objeto:", error);
+    }
   };
 
   const variables = [
