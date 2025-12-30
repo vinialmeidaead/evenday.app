@@ -1,0 +1,72 @@
+// Prisma Schema for evenday.app Certificate Module
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Certificate Templates
+// Stores reusable certificate designs created by users
+model CertificateTemplate {
+  id          String   @id @default(cuid())
+  userId      Int // Reference to user from evenday.app
+  accountId   Int? // Reference to account/organizer
+  name        String
+  description String?
+  width       Int      @default(1754) // A4 landscape 300 DPI
+  height      Int      @default(1240)
+  design      Json // Fabric.js canvas JSON
+  variables   Json // Available variables mapping
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  certificates IssuedCertificate[]
+  configs      CertificateConfig[]
+
+  @@index([userId])
+  @@index([accountId])
+  @@map("certificate_templates")
+}
+
+// Issued Certificates
+// Individual certificates issued to attendees
+model IssuedCertificate {
+  id                String   @id @default(cuid())
+  templateId        String
+  eventId           Int // Reference to event from evenday.app
+  attendeeId        Int // Reference to attendee from evenday.app
+  certificateNumber String   @unique
+  pdfUrl            String? // URL to PDF in storage
+  variables         Json // Actual data used in certificate
+  generatedAt       DateTime @default(now())
+
+  template CertificateTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([attendeeId])
+  @@index([certificateNumber])
+  @@map("issued_certificates")
+}
+
+// Certificate Configuration per Event
+// Settings for how certificates are issued for each event
+model CertificateConfig {
+  id              String   @id @default(cuid())
+  eventId         Int      @unique // One config per event
+  templateId      String
+  requireCheckIn  Boolean  @default(false)
+  autoGenerate    Boolean  @default(false)
+  customVariables Json // Extra variables per event (e.g., hours)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  template CertificateTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([eventId])
+  @@map("certificate_configs")
+}
