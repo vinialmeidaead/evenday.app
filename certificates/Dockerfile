@@ -95,6 +95,10 @@ RUN mkdir -p ./storage/certificates && \
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Copiar módulos nativos externos (serverExternalPackages)
+# @napi-rs/canvas não é incluído no standalone build
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@napi-rs ./node_modules/@napi-rs
+
 # Mudar para o usuário não-root
 USER nextjs
 
