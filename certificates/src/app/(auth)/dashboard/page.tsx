@@ -124,7 +124,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link
           href="/events"
           className="block p-6 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
@@ -143,12 +143,6 @@ export default function DashboardPage() {
             Desenhe novos modelos de certificados
           </p>
         </Link>
-        <div className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-2">Documentação</h3>
-          <p className="text-sm text-gray-700">
-            Aprenda a usar o sistema de certificados
-          </p>
-        </div>
       </div>
     </div>
   );
