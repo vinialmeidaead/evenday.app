@@ -1,0 +1,58 @@
+# Dependências
+node_modules
+npm-debug.log
+
+# Build do Next.js
+.next
+out
+build
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Testes
+coverage
+.nyc_output
+
+# Logs
+*.log
+logs
+
+# Temporários
+*.tmp
+.cache
+
+# Desenvolvimento
+.husky
+.eslintcache
+lint-output.txt
+
+# Documentação
+README.md
+*.md
+!API_CONFIGURATION.md
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Prisma migrations (opcional - mantenha se quiser rodar migrations no container)
+# prisma/migrations

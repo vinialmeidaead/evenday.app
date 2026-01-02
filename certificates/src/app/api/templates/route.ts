@@ -9,7 +9,7 @@ const templateSchema = z.object({
   width: z.number().default(1754),
   height: z.number().default(1240),
   design: z.any(),
-  variables: z.record(z.string()).default({}),
+  variables: z.record(z.string(), z.string()).default({}),
   isDefault: z.boolean().default(false),
 });
 

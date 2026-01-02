@@ -3,7 +3,7 @@ import { evdayApi } from "@/lib/api-client";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { eventId: string } }
+  { params }: { params: Promise<{ eventId: string }> }
 ) {
   try {
     const token = request.cookies.get("evenday_token")?.value;
@@ -12,7 +12,8 @@ export async function GET(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const eventId = parseInt(params.eventId);
+    const resolvedParams = await params;
+    const eventId = parseInt(resolvedParams.eventId);
     const event = await evdayApi.getEvent(eventId, token);
 
     return NextResponse.json({ event }, { status: 200 });

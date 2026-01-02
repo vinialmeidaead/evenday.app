@@ -8,7 +8,7 @@ const templateUpdateSchema = z.object({
   width: z.number().optional(),
   height: z.number().optional(),
   design: z.any().optional(),
-  variables: z.record(z.string()).optional(),
+  variables: z.record(z.string(), z.string()).optional(),
   isDefault: z.boolean().optional(),
 });
 

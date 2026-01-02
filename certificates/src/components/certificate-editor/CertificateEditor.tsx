@@ -470,8 +470,14 @@ export default function CertificateEditor({
         fill: "#40296C",
         originX: "center",
         originY: "center",
-        data: { isVariable: true, variableName, variableLabel: label },
-      } as Record<string, unknown>);
+      });
+
+      // Definir data como propriedade customizada após criação
+      (text as any).data = {
+        isVariable: true,
+        variableName,
+        variableLabel: label,
+      };
 
       canvas.add(text);
       canvas.setActiveObject(text);
@@ -655,7 +661,8 @@ export default function CertificateEditor({
   const handleSave = () => {
     if (!canvas) return;
     try {
-      const json = canvas.toJSON() as DesignData;
+      // Using toObject() which properly serializes all properties including custom 'data'
+      const json = canvas.toObject() as DesignData;
       json.backgroundFrame = backgroundFrame;
       onSave?.(json);
     } catch (error) {

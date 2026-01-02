@@ -4,7 +4,14 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { FiHome, FiCalendar, FiLayout, FiLogOut, FiUser } from "react-icons/fi";
+import {
+  FiHome,
+  FiCalendar,
+  FiLayout,
+  FiLogOut,
+  FiUser,
+  FiFileText,
+} from "react-icons/fi";
 
 export default function AuthLayout({
   children,
@@ -50,6 +57,7 @@ export default function AuthLayout({
     { href: "/dashboard", label: "Dashboard", icon: FiHome },
     { href: "/events", label: "Eventos", icon: FiCalendar },
     { href: "/templates", label: "Templates", icon: FiLayout },
+    { href: "/certificates", label: "Certificados", icon: FiFileText },
   ];
 
   return (
