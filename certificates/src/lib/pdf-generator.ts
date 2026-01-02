@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { createCanvas, loadImage, registerFont } from "canvas";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { CertificateTemplate } from "@/types/certificate";
 
 interface GeneratePDFOptions {
@@ -9,7 +9,7 @@ interface GeneratePDFOptions {
 
 /**
  * Gera PDF do certificado a partir do template e variáveis
- * Usa node-canvas para renderizar no servidor
+ * Usa @napi-rs/canvas para renderizar no servidor
  */
 export async function generateCertificatePDF({
   template,

@@ -3,19 +3,15 @@
 # ============================================
 # Stage 1: Dependências
 # ============================================
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
-# Instalar dependências necessárias para compilar pacotes nativos (canvas, @napi-rs/canvas)
+# Instalar dependências mínimas necessárias
+# @napi-rs/canvas já vem com binários pré-compilados, então não precisa de muitas deps de build
 RUN apk add --no-cache \
     libc6-compat \
     python3 \
     make \
-    g++ \
-    cairo-dev \
-    jpeg-dev \
-    pango-dev \
-    giflib-dev \
-    pixman-dev
+    g++
 
 WORKDIR /app
 
@@ -32,16 +28,18 @@ RUN npx prisma generate
 # ============================================
 # Stage 2: Builder
 # ============================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
-# Instalar dependências nativas necessárias para o build
+# Instalar dependências runtime necessárias para @napi-rs/canvas
 RUN apk add --no-cache \
     libc6-compat \
     cairo \
-    jpeg \
     pango \
+    jpeg \
     giflib \
-    pixman
+    pixman \
+    fontconfig \
+    freetype
 
 WORKDIR /app
 
@@ -60,15 +58,17 @@ RUN npm run build
 # ============================================
 # Stage 3: Runner (Imagem Final)
 # ============================================
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
-# Instalar dependências runtime necessárias para canvas
+# Instalar dependências runtime necessárias para @napi-rs/canvas
 RUN apk add --no-cache \
     cairo \
-    jpeg \
     pango \
+    jpeg \
     giflib \
     pixman \
+    fontconfig \
+    freetype \
     libc6-compat
 
 WORKDIR /app
