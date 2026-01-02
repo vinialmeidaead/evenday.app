@@ -1,2 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #40296c;
+  --color-primary-hover: #332156;
+  --color-secondary: #5a1065;
+  --color-background-page: #f7f6f8;
+  --color-surface: #ffffff;
+  --radius-md: 0.5rem; /* Approx 8px */
+}
+
+body {
+  background-color: var(--color-background-page);
+  color: #1a1a1a;
+}

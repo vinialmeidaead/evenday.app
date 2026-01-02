@@ -47,6 +47,7 @@ interface CertificateEditorProps {
 }
 
 const FONTS = [
+  "Varela Round",
   "Arial",
   "Times New Roman",
   "Courier New",
@@ -91,7 +92,7 @@ export default function CertificateEditor({
 
   // Propriedades do objeto selecionado
   const [objectProps, setObjectProps] = useState({
-    fontFamily: "Arial",
+    fontFamily: "Varela Round",
     fontSize: 40,
     fill: "#000000",
     textAlign: "left",
@@ -107,7 +108,7 @@ export default function CertificateEditor({
     if (obj && obj.type === "i-text") {
       const textObj = obj as IText;
       setObjectProps({
-        fontFamily: (textObj.fontFamily as string) || "Arial",
+        fontFamily: (textObj.fontFamily as string) || "Varela Round",
         fontSize: textObj.fontSize || 40,
         fill: (textObj.fill as string) || "#000000",
         textAlign: (textObj.textAlign as string) || "left",
@@ -372,7 +373,7 @@ export default function CertificateEditor({
       const text = new IText("Clique para editar", {
         left: width / 2,
         top: height / 2,
-        fontFamily: "Arial",
+        fontFamily: "Varela Round",
         fontSize: 40,
         fill: "#000000",
         originX: "center",
@@ -427,9 +428,9 @@ export default function CertificateEditor({
       const text = new IText(`{{${variableName}}}`, {
         left: width / 2,
         top: height / 2,
-        fontFamily: "Arial",
+        fontFamily: "Varela Round",
         fontSize: 40,
-        fill: "#4F46E5",
+        fill: "#40296C",
         originX: "center",
         originY: "center",
         data: { isVariable: true, variableName, variableLabel: label },
@@ -500,7 +501,7 @@ export default function CertificateEditor({
         width: 400,
         height: 60,
         fill: "transparent",
-        stroke: "#4F46E5",
+        stroke: "#40296C",
         strokeWidth: 3,
         originX: "center",
         originY: "center",
@@ -700,28 +701,27 @@ export default function CertificateEditor({
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-background-page">
       {/* Toolbar Superior */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3">
+      <div className="bg-surface border-b border-gray-200 px-6 py-3 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Ferramentas principais */}
             <button
               onClick={addTitle}
-              className="px-3 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="px-3 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary-hover transition-colors shadow-sm"
               title="Adicionar Título"
             >
               <span className="font-bold">T</span>
             </button>
             <button
               onClick={addText}
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-3 py-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md transition-colors inline-flex items-center gap-2 shadow-sm text-gray-700"
               title="Adicionar Texto"
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
             >
               <FiType /> Texto
             </button>
-            <label className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-2">
+            <label className="px-3 py-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md transition-colors cursor-pointer inline-flex items-center gap-2 shadow-sm text-gray-700">
               <FiImage /> Imagem
               <input
                 type="file"
@@ -732,7 +732,7 @@ export default function CertificateEditor({
             </label>
             <button
               onClick={addRectangle}
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
+              className="px-3 py-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md transition-colors inline-flex items-center gap-2 shadow-sm text-gray-700"
               title="Adicionar Forma"
             >
               <FiSquare /> Forma
@@ -745,7 +745,7 @@ export default function CertificateEditor({
               <button
                 onClick={() => alignObject("left")}
                 disabled={!selectedObject}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Alinhar à Esquerda"
               >
                 <FiAlignLeft />
@@ -753,7 +753,7 @@ export default function CertificateEditor({
               <button
                 onClick={() => alignObject("center")}
                 disabled={!selectedObject}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Centralizar Horizontalmente"
               >
                 <FiAlignCenter />
@@ -761,7 +761,7 @@ export default function CertificateEditor({
               <button
                 onClick={() => alignObject("right")}
                 disabled={!selectedObject}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Alinhar à Direita"
               >
                 <FiAlignRight />
@@ -775,7 +775,7 @@ export default function CertificateEditor({
               <button
                 onClick={bringToFront}
                 disabled={!selectedObject}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Trazer para Frente"
               >
                 <FiArrowUp />
@@ -783,7 +783,7 @@ export default function CertificateEditor({
               <button
                 onClick={sendToBack}
                 disabled={!selectedObject}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Enviar para Trás"
               >
                 <FiArrowDown />
@@ -797,7 +797,7 @@ export default function CertificateEditor({
               <button
                 onClick={undo}
                 disabled={!canUndo}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Desfazer"
               >
                 <FiCornerUpLeft />
@@ -805,7 +805,7 @@ export default function CertificateEditor({
               <button
                 onClick={redo}
                 disabled={!canRedo}
-                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Refazer"
               >
                 <FiCornerUpRight />
@@ -817,7 +817,7 @@ export default function CertificateEditor({
             <button
               onClick={duplicateObject}
               disabled={!selectedObject}
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Duplicar"
             >
               <FiCopy />
@@ -825,7 +825,7 @@ export default function CertificateEditor({
             <button
               onClick={deleteSelected}
               disabled={!selectedObject}
-              className="px-3 py-2 text-sm bg-red-50 text-red-700 hover:bg-red-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-3 py-2 text-sm bg-white text-red-600 hover:bg-red-50 border border-gray-200 rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title="Deletar"
             >
               <FiTrash2 />
@@ -837,7 +837,7 @@ export default function CertificateEditor({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setZoom(Math.max(0.1, zoom - 0.1))}
-                className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                className="px-2 py-1 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm"
               >
                 <FiMinus />
               </button>
@@ -846,7 +846,7 @@ export default function CertificateEditor({
               </span>
               <button
                 onClick={() => setZoom(Math.min(2, zoom + 0.1))}
-                className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
+                className="px-2 py-1 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm"
               >
                 <FiPlus />
               </button>
@@ -854,13 +854,13 @@ export default function CertificateEditor({
 
             <button
               onClick={clearCanvas}
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg inline-flex items-center gap-2"
+              className="px-3 py-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md inline-flex items-center gap-2 shadow-sm text-gray-700"
             >
               <FiXCircle /> Limpar
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors inline-flex items-center gap-2"
+              className="px-6 py-2 bg-[#00b894] text-white rounded-md hover:bg-[#00a180] transition-colors inline-flex items-center gap-2 shadow-sm font-medium"
             >
               <FiSave /> Salvar Template
             </button>
@@ -870,25 +870,25 @@ export default function CertificateEditor({
 
       <div className="flex flex-1 overflow-hidden">
         {/* Painel Esquerdo - Com Tabs */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        <div className="w-80 bg-surface border-r border-gray-200 flex flex-col shadow-sm z-10">
           {/* Tabs */}
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab("variables")}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 border-b-2 ${
                 activeTab === "variables"
-                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  ? "text-primary border-primary bg-primary/5"
+                  : "text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50"
               }`}
             >
               <FiTag /> Variáveis
             </button>
             <button
               onClick={() => setActiveTab("frames")}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 ${
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 border-b-2 ${
                 activeTab === "frames"
-                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  ? "text-primary border-primary bg-primary/5"
+                  : "text-gray-500 border-transparent hover:text-gray-700 hover:bg-gray-50"
               }`}
             >
               <FiImage /> Molduras
@@ -911,17 +911,17 @@ export default function CertificateEditor({
                     <button
                       key={variable.key}
                       onClick={() => addVariable(variable.key, variable.label)}
-                      className="w-full px-3 py-2.5 text-left bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 rounded-lg transition-all group"
+                      className="w-full px-3 py-2.5 text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-md transition-all group shadow-sm hover:shadow-md"
                     >
                       <div className="flex items-center gap-2">
-                        <div className="text-indigo-500">
+                        <div className="text-primary">
                           <FiTag size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs font-mono text-indigo-700 truncate">
+                          <div className="text-xs font-mono text-primary font-medium truncate">
                             {`{{${variable.key}}}`}
                           </div>
-                          <div className="text-[10px] text-gray-600 mt-0.5">
+                          <div className="text-[10px] text-gray-500 mt-0.5">
                             {variable.label}
                           </div>
                         </div>
@@ -960,8 +960,8 @@ export default function CertificateEditor({
                       onClick={() => applyBackgroundFrame(frame.path)}
                       className={`relative aspect-[3/2] rounded-lg overflow-hidden border-2 transition-all ${
                         backgroundFrame === frame.path
-                          ? "border-indigo-600 ring-2 ring-indigo-200 shadow-lg"
-                          : "border-gray-200 hover:border-indigo-300 hover:shadow-md"
+                          ? "border-primary ring-2 ring-primary/20 shadow-lg"
+                          : "border-gray-200 hover:border-primary/50 hover:shadow-md"
                       }`}
                       title={frame.name}
                     >
@@ -971,10 +971,10 @@ export default function CertificateEditor({
                         className="w-full h-full object-cover"
                       />
                       {backgroundFrame === frame.path && (
-                        <div className="absolute inset-0 bg-indigo-600 bg-opacity-20 flex items-center justify-center">
-                          <div className="bg-white rounded-full p-1">
+                        <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                          <div className="bg-white rounded-full p-1 shadow-md">
                             <svg
-                              className="w-4 h-4 text-indigo-600"
+                              className="w-4 h-4 text-primary"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -1020,7 +1020,7 @@ export default function CertificateEditor({
         </div>
 
         {/* Painel Direito - Propriedades */}
-        <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+        <div className="w-80 bg-surface border-l border-gray-200 overflow-y-auto shadow-sm z-10">
           <div className="p-4">
             {selectedObject ? (
               <>
@@ -1040,7 +1040,7 @@ export default function CertificateEditor({
                         onChange={(e) =>
                           updateTextProperty("fontFamily", e.target.value)
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         {FONTS.map((font) => (
                           <option
@@ -1114,10 +1114,10 @@ export default function CertificateEditor({
                                 : "bold"
                             )
                           }
-                          className={`flex-1 px-3 py-2 text-sm rounded-lg border ${
+                          className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${
                             objectProps.fontWeight === "bold"
-                              ? "bg-indigo-100 border-indigo-300 text-indigo-700"
-                              : "bg-white border-gray-300"
+                              ? "bg-primary/10 border-primary text-primary"
+                              : "bg-surface border-gray-300 hover:bg-gray-50"
                           }`}
                         >
                           <strong>B</strong>
@@ -1131,10 +1131,10 @@ export default function CertificateEditor({
                                 : "italic"
                             )
                           }
-                          className={`flex-1 px-3 py-2 text-sm rounded-lg border ${
+                          className={`flex-1 px-3 py-2 text-sm rounded-md border transition-colors ${
                             objectProps.fontStyle === "italic"
-                              ? "bg-indigo-100 border-indigo-300 text-indigo-700"
-                              : "bg-white border-gray-300"
+                              ? "bg-primary/10 border-primary text-primary"
+                              : "bg-surface border-gray-300 hover:bg-gray-50"
                           }`}
                         >
                           <em>I</em>
