@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { FiX, FiCheck } from "react-icons/fi";
 
 // Importar editor dinamicamente (client-side only)
 const CertificateEditor = dynamic(
@@ -34,8 +35,8 @@ export default function NewTemplatePage() {
         body: JSON.stringify({
           name,
           description,
-          width: 1754,
-          height: 1240,
+          width: 3000,
+          height: 2000,
           design: canvasDesign,
           variables: {},
         }),
@@ -46,10 +47,10 @@ export default function NewTemplatePage() {
         throw new Error(error.error || "Erro ao salvar template");
       }
 
-      alert("✅ Template salvo com sucesso!");
+      alert("Template salvo com sucesso!");
       router.push("/templates");
     } catch (error: any) {
-      alert("❌ Erro ao salvar: " + error.message);
+      alert("Erro ao salvar: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -95,8 +96,9 @@ export default function NewTemplatePage() {
           <div className="flex gap-3">
             <Link
               href="/templates"
-              className="flex-1 px-4 py-3 text-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="flex-1 inline-flex items-center justify-center px-4 py-3 text-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
             >
+              <FiX className="mr-2" />
               Cancelar
             </Link>
             <button
@@ -107,8 +109,9 @@ export default function NewTemplatePage() {
                 }
                 setShowModal(false);
               }}
-              className="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
+              <FiCheck className="mr-2" />
               Começar a Editar
             </button>
           </div>
@@ -119,7 +122,7 @@ export default function NewTemplatePage() {
 
   return (
     <div className="fixed inset-0">
-      <CertificateEditor width={1754} height={1240} onSave={handleSave} />
+      <CertificateEditor width={3000} height={2000} onSave={handleSave} />
 
       {saving && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

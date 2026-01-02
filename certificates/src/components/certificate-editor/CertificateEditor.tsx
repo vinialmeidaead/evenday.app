@@ -8,11 +8,34 @@ import {
   Rect,
   Image as FabricImage,
 } from "fabric";
+import {
+  FiType,
+  FiImage,
+  FiSquare,
+  FiAlignLeft,
+  FiAlignCenter,
+  FiAlignRight,
+  FiArrowUp,
+  FiArrowDown,
+  FiCornerUpLeft,
+  FiCornerUpRight,
+  FiCopy,
+  FiTrash2,
+  FiMinus,
+  FiPlus,
+  FiXCircle,
+  FiSave,
+  FiTag,
+  FiX,
+  FiInfo,
+  FiLayout,
+} from "react-icons/fi";
 
 interface DesignData {
   version?: string;
   objects?: unknown[];
   background?: string;
+  backgroundFrame?: string | null;
   [key: string]: unknown;
 }
 
@@ -38,9 +61,17 @@ const FONTS = [
   "Impact",
 ];
 
+const FRAMES = [
+  { id: 1, path: "/molduras/moldura-1.jpg", name: "Moldura Clássica" },
+  { id: 2, path: "/molduras/moldura-2.jpg", name: "Moldura Elegante" },
+  { id: 3, path: "/molduras/moldura-3.jpg", name: "Moldura Premium" },
+  { id: 4, path: "/molduras/moldura-4.jpg", name: "Moldura Moderna" },
+  { id: 5, path: "/molduras/moldura-5.jpg", name: "Moldura Sofisticada" },
+];
+
 export default function CertificateEditor({
-  width = 1754,
-  height = 1240,
+  width = 3000,
+  height = 2000,
   initialDesign,
   onSave,
 }: CertificateEditorProps) {
@@ -50,7 +81,13 @@ export default function CertificateEditor({
     null
   );
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
-  const [zoom, setZoom] = useState(0.5);
+  const [backgroundFrame, setBackgroundFrame] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(0.3);
+  const [activeTab, setActiveTab] = useState<
+    "variables" | "frames" | "properties"
+  >("variables");
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   // Propriedades do objeto selecionado
   const [objectProps, setObjectProps] = useState({
@@ -61,6 +98,8 @@ export default function CertificateEditor({
     fontWeight: "normal",
     fontStyle: "normal",
     opacity: 1,
+    angle: 0,
+    lineHeight: 1.16,
   });
 
   const updateSelectedObject = (obj: FabricObject) => {
@@ -75,6 +114,8 @@ export default function CertificateEditor({
         fontWeight: String(textObj.fontWeight || "normal"),
         fontStyle: textObj.fontStyle || "normal",
         opacity: textObj.opacity || 1,
+        angle: textObj.angle || 0,
+        lineHeight: textObj.lineHeight || 1.16,
       });
     }
   };
@@ -127,6 +168,12 @@ export default function CertificateEditor({
             try {
               if (!fabricCanvas) return;
               fabricCanvas.setZoom(zoom);
+
+              // Carregar moldura de fundo se existir
+              if (initialDesign.backgroundFrame) {
+                setBackgroundFrame(initialDesign.backgroundFrame);
+              }
+
               if (fabricCanvas.lowerCanvasEl?.getContext("2d")) {
                 fabricCanvas.renderAll();
               }
@@ -187,10 +234,10 @@ export default function CertificateEditor({
     if (!canvas) return;
     try {
       if (!canvas.lowerCanvasEl) return;
-      
+
       const context = canvas.lowerCanvasEl.getContext("2d");
       if (!context) return;
-      
+
       canvas.setZoom(zoom);
       canvas.setDimensions({
         width: width * zoom,
@@ -207,16 +254,111 @@ export default function CertificateEditor({
     if (!canvas) return;
     try {
       if (!canvas.lowerCanvasEl) return;
-      
+
       const context = canvas.lowerCanvasEl.getContext("2d");
       if (!context) return;
-      
+
       canvas.backgroundColor = backgroundColor;
       canvas.renderAll();
     } catch (error) {
       console.error("Erro ao atualizar background:", error);
     }
   }, [backgroundColor, canvas]);
+
+  // Aplicar moldura de fundo
+  const applyBackgroundFrame = (framePath: string) => {
+    if (!canvas) return;
+
+    try {
+      // Remover moldura anterior se existir
+      const objects = canvas.getObjects();
+      const existingFrame = objects.find(
+        (obj: any) => obj.data?.isBackgroundFrame
+      );
+      if (existingFrame) {
+        canvas.remove(existingFrame);
+      }
+
+      // Carregar nova moldura
+      FabricImage.fromURL(framePath).then((img) => {
+        try {
+          if (!canvas.lowerCanvasEl) return;
+
+          const context = canvas.lowerCanvasEl.getContext("2d");
+          if (!context) return;
+
+          // Escalar moldura para preencher todo o canvas
+          const scaleX = width / (img.width || 1);
+          const scaleY = height / (img.height || 1);
+
+          img.scale(Math.max(scaleX, scaleY));
+          img.set({
+            left: 0,
+            top: 0,
+            selectable: false,
+            evented: false,
+            originX: "left",
+            originY: "top",
+          });
+
+          // Marcar como moldura de fundo
+          (img as any).data = { isBackgroundFrame: true };
+
+          // Adicionar e enviar para trás
+          canvas.add(img);
+          canvas.sendObjectToBack(img);
+          canvas.renderAll();
+          setBackgroundFrame(framePath);
+        } catch (error) {
+          console.error("Erro ao adicionar moldura:", error);
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao aplicar moldura:", error);
+    }
+  };
+
+  // Remover moldura de fundo
+  const removeBackgroundFrame = () => {
+    if (!canvas) return;
+
+    try {
+      const objects = canvas.getObjects();
+      const existingFrame = objects.find(
+        (obj: any) => obj.data?.isBackgroundFrame
+      );
+      if (existingFrame) {
+        canvas.remove(existingFrame);
+        canvas.renderAll();
+        setBackgroundFrame(null);
+      }
+    } catch (error) {
+      console.error("Erro ao remover moldura:", error);
+    }
+  };
+
+  // Undo/Redo functions
+  const undo = () => {
+    if (!canvas) return;
+    try {
+      // Implementação básica - você pode expandir com stack de histórico
+      canvas.renderAll();
+      setCanUndo(false);
+    } catch (error) {
+      console.error("Erro ao fazer undo:", error);
+    }
+  };
+
+  const redo = () => {
+    if (!canvas) return;
+    try {
+      // Implementação básica - você pode expandir com stack de histórico
+      canvas.renderAll();
+      setCanRedo(false);
+    } catch (error) {
+      console.error("Erro ao fazer redo:", error);
+    }
+  };
 
   // Adicionar texto
   const addText = () => {
@@ -318,7 +460,10 @@ export default function CertificateEditor({
           const context = canvas.lowerCanvasEl.getContext("2d");
           if (!context) return;
 
-          const scale = Math.min(400 / (img.width || 1), 400 / (img.height || 1));
+          const scale = Math.min(
+            400 / (img.width || 1),
+            400 / (img.height || 1)
+          );
           img.scale(scale);
           img.set({
             left: width / 2,
@@ -503,8 +648,9 @@ export default function CertificateEditor({
   const handleSave = () => {
     if (!canvas) return;
     try {
-      const json = canvas.toJSON();
-      onSave?.(json as DesignData);
+      const json = canvas.toJSON() as DesignData;
+      json.backgroundFrame = backgroundFrame;
+      onSave?.(json);
     } catch (error) {
       console.error("Erro ao salvar:", error);
     }
@@ -571,11 +717,12 @@ export default function CertificateEditor({
               onClick={addText}
               className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
               title="Adicionar Texto"
+              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
             >
-              📝 Texto
+              <FiType /> Texto
             </button>
-            <label className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer">
-              🖼️ Imagem
+            <label className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-2">
+              <FiImage /> Imagem
               <input
                 type="file"
                 accept="image/*"
@@ -585,10 +732,10 @@ export default function CertificateEditor({
             </label>
             <button
               onClick={addRectangle}
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
               title="Adicionar Forma"
             >
-              ◻️ Forma
+              <FiSquare /> Forma
             </button>
 
             <div className="w-px h-6 bg-gray-300"></div>
@@ -601,7 +748,7 @@ export default function CertificateEditor({
                 className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Alinhar à Esquerda"
               >
-                ⬅️
+                <FiAlignLeft />
               </button>
               <button
                 onClick={() => alignObject("center")}
@@ -609,7 +756,7 @@ export default function CertificateEditor({
                 className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Centralizar Horizontalmente"
               >
-                ↔️
+                <FiAlignCenter />
               </button>
               <button
                 onClick={() => alignObject("right")}
@@ -617,7 +764,7 @@ export default function CertificateEditor({
                 className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Alinhar à Direita"
               >
-                ➡️
+                <FiAlignRight />
               </button>
             </div>
 
@@ -631,7 +778,7 @@ export default function CertificateEditor({
                 className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Trazer para Frente"
               >
-                ⬆️
+                <FiArrowUp />
               </button>
               <button
                 onClick={sendToBack}
@@ -639,7 +786,29 @@ export default function CertificateEditor({
                 className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                 title="Enviar para Trás"
               >
-                ⬇️
+                <FiArrowDown />
+              </button>
+            </div>
+
+            <div className="w-px h-6 bg-gray-300"></div>
+
+            {/* Undo/Redo */}
+            <div className="flex gap-1">
+              <button
+                onClick={undo}
+                disabled={!canUndo}
+                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Desfazer"
+              >
+                <FiCornerUpLeft />
+              </button>
+              <button
+                onClick={redo}
+                disabled={!canRedo}
+                className="p-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Refazer"
+              >
+                <FiCornerUpRight />
               </button>
             </div>
 
@@ -651,7 +820,7 @@ export default function CertificateEditor({
               className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
               title="Duplicar"
             >
-              📋
+              <FiCopy />
             </button>
             <button
               onClick={deleteSelected}
@@ -659,7 +828,7 @@ export default function CertificateEditor({
               className="px-3 py-2 text-sm bg-red-50 text-red-700 hover:bg-red-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
               title="Deletar"
             >
-              🗑️
+              <FiTrash2 />
             </button>
           </div>
 
@@ -670,7 +839,7 @@ export default function CertificateEditor({
                 onClick={() => setZoom(Math.max(0.1, zoom - 0.1))}
                 className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
               >
-                −
+                <FiMinus />
               </button>
               <span className="text-sm text-gray-700 w-16 text-center">
                 {Math.round(zoom * 100)}%
@@ -679,57 +848,159 @@ export default function CertificateEditor({
                 onClick={() => setZoom(Math.min(2, zoom + 0.1))}
                 className="px-2 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded"
               >
-                +
+                <FiPlus />
               </button>
             </div>
 
             <button
               onClick={clearCanvas}
-              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
+              className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg inline-flex items-center gap-2"
             >
-              🧹 Limpar
+              <FiXCircle /> Limpar
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors inline-flex items-center gap-2"
             >
-              💾 Salvar Template
+              <FiSave /> Salvar Template
             </button>
           </div>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Painel Esquerdo - Variáveis */}
-        <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
-          <div className="p-4">
-            <h3 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">
-              Variáveis Dinâmicas
-            </h3>
-            <p className="text-xs text-gray-600 mb-4">
-              Arraste para o canvas ou clique para adicionar
-            </p>
-            <div className="space-y-2">
-              {variables.map((variable) => (
-                <button
-                  key={variable.key}
-                  onClick={() => addVariable(variable.key, variable.label)}
-                  className="w-full px-3 py-2.5 text-left bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 rounded-lg transition-all group"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🏷️</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-mono text-indigo-700 truncate">
-                        {`{{${variable.key}}}`}
+        {/* Painel Esquerdo - Com Tabs */}
+        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab("variables")}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 ${
+                activeTab === "variables"
+                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <FiTag /> Variáveis
+            </button>
+            <button
+              onClick={() => setActiveTab("frames")}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors inline-flex items-center justify-center gap-2 ${
+                activeTab === "frames"
+                  ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <FiImage /> Molduras
+            </button>
+          </div>
+
+          {/* Conteúdo das Tabs */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Tab de Variáveis */}
+            {activeTab === "variables" && (
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm">
+                  Variáveis Dinâmicas
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  Clique para adicionar variáveis ao certificado
+                </p>
+                <div className="space-y-2">
+                  {variables.map((variable) => (
+                    <button
+                      key={variable.key}
+                      onClick={() => addVariable(variable.key, variable.label)}
+                      className="w-full px-3 py-2.5 text-left bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 rounded-lg transition-all group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="text-indigo-500">
+                          <FiTag size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-mono text-indigo-700 truncate">
+                            {`{{${variable.key}}}`}
+                          </div>
+                          <div className="text-[10px] text-gray-600 mt-0.5">
+                            {variable.label}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-[10px] text-gray-600 mt-0.5">
-                        {variable.label}
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tab de Molduras */}
+            {activeTab === "frames" && (
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm">
+                  Molduras de Fundo
+                </h3>
+                <p className="text-xs text-gray-600 mb-4">
+                  Escolha uma moldura para o certificado
+                </p>
+
+                {/* Botão para remover moldura */}
+                {backgroundFrame && (
+                  <button
+                    onClick={removeBackgroundFrame}
+                    className="w-full mb-4 px-3 py-2 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors inline-flex items-center justify-center gap-2"
+                  >
+                    <FiX /> Remover Moldura
+                  </button>
+                )}
+
+                {/* Grid de molduras */}
+                <div className="grid grid-cols-2 gap-3">
+                  {FRAMES.map((frame) => (
+                    <button
+                      key={frame.id}
+                      onClick={() => applyBackgroundFrame(frame.path)}
+                      className={`relative aspect-[3/2] rounded-lg overflow-hidden border-2 transition-all ${
+                        backgroundFrame === frame.path
+                          ? "border-indigo-600 ring-2 ring-indigo-200 shadow-lg"
+                          : "border-gray-200 hover:border-indigo-300 hover:shadow-md"
+                      }`}
+                      title={frame.name}
+                    >
+                      <img
+                        src={frame.path}
+                        alt={frame.name}
+                        className="w-full h-full object-cover"
+                      />
+                      {backgroundFrame === frame.path && (
+                        <div className="absolute inset-0 bg-indigo-600 bg-opacity-20 flex items-center justify-center">
+                          <div className="bg-white rounded-full p-1">
+                            <svg
+                              className="w-4 h-4 text-indigo-600"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Informações das molduras */}
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+                  <FiInfo className="text-blue-900 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-blue-900">
+                    <strong>Dica:</strong> A moldura será aplicada como plano de
+                    fundo do certificado e não poderá ser movida ou editada.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -871,6 +1142,44 @@ export default function CertificateEditor({
                       </div>
                     </div>
 
+                    {/* Rotação */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Rotação: {Math.round(objectProps.angle)}°
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="360"
+                        value={objectProps.angle}
+                        onChange={(e) =>
+                          updateTextProperty("angle", parseInt(e.target.value))
+                        }
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Espaçamento de Linha */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Espaçamento: {objectProps.lineHeight.toFixed(2)}
+                      </label>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="3"
+                        step="0.1"
+                        value={objectProps.lineHeight}
+                        onChange={(e) =>
+                          updateTextProperty(
+                            "lineHeight",
+                            parseFloat(e.target.value)
+                          )
+                        }
+                        className="w-full"
+                      />
+                    </div>
+
                     {/* Opacidade */}
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-2">
@@ -905,7 +1214,7 @@ export default function CertificateEditor({
               </>
             ) : (
               <div className="text-center py-12">
-                <div className="text-gray-400 text-4xl mb-4">🎨</div>
+                <FiLayout className="text-gray-400 text-4xl mb-4 mx-auto" />
                 <p className="text-sm text-gray-600">
                   Selecione um objeto para editar suas propriedades
                 </p>

@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  FiFileText,
+  FiPlus,
+  FiTrash2,
+  FiEdit2,
+  FiLayout,
+} from "react-icons/fi";
 
 interface Template {
   id: string;
@@ -69,25 +76,16 @@ export default function TemplatesPage() {
         </h1>
         <Link
           href="/templates/new"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
         >
-          + Novo Template
+          <FiPlus className="mr-2" />
+          Novo Template
         </Link>
       </div>
 
       {templates.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <svg
-            className="mx-auto h-16 w-16 text-gray-400 mb-4"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
+          <FiFileText className="mx-auto h-16 w-16 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             Nenhum template criado ainda
           </h3>
@@ -96,8 +94,9 @@ export default function TemplatesPage() {
           </p>
           <Link
             href="/templates/new"
-            className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
+            <FiPlus className="mr-2" />
             Criar Primeiro Template
           </Link>
         </div>
@@ -110,17 +109,7 @@ export default function TemplatesPage() {
             >
               {/* Preview placeholder */}
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 h-48 flex items-center justify-center">
-                <svg
-                  className="h-16 w-16 text-indigo-400"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
+                <FiLayout className="h-16 w-16 text-indigo-400" />
               </div>
 
               <div className="p-4">
@@ -140,14 +129,16 @@ export default function TemplatesPage() {
                 <div className="flex gap-2">
                   <Link
                     href={`/templates/${template.id}/edit`}
-                    className="flex-1 px-3 py-2 text-center text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
                   >
+                    <FiEdit2 className="mr-2" />
                     Editar
                   </Link>
                   <button
                     onClick={() => handleDelete(template.id)}
-                    className="px-3 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
+                    className="inline-flex items-center justify-center px-3 py-2 text-sm text-red-600 hover:text-red-800 transition-colors"
                   >
+                    <FiTrash2 className="mr-1" />
                     Excluir
                   </button>
                 </div>

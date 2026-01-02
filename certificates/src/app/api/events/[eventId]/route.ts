@@ -18,8 +18,17 @@ export async function GET(
     return NextResponse.json({ event }, { status: 200 });
   } catch (error: any) {
     console.error("Get event error:", error);
+    console.error("Error details:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+    });
     return NextResponse.json(
-      { error: "Failed to fetch event" },
+      {
+        error: "Failed to fetch event",
+        details: error.response?.data || error.message,
+      },
       { status: error.response?.status || 500 }
     );
   }

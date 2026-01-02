@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { FiAlertCircle, FiArrowLeft } from "react-icons/fi";
 
 const CertificateEditor = dynamic(
   () => import("@/components/certificate-editor/CertificateEditor"),
@@ -53,9 +54,9 @@ export default function EditTemplatePage() {
         throw new Error(error.error || "Erro ao salvar template");
       }
 
-      alert("✅ Template atualizado com sucesso!");
+      alert("Template atualizado com sucesso!");
     } catch (error: any) {
-      alert("❌ Erro ao salvar: " + error.message);
+      alert("Erro ao salvar: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -76,15 +77,16 @@ export default function EditTemplatePage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="text-6xl mb-4">😞</div>
+          <FiAlertCircle className="h-24 w-24 text-gray-300 mb-4 mx-auto" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Template não encontrado
           </h2>
           <Link
             href="/templates"
-            className="text-indigo-600 hover:text-indigo-800"
+            className="inline-flex items-center text-indigo-600 hover:text-indigo-800"
           >
-            ← Voltar para templates
+            <FiArrowLeft className="mr-2" />
+            Voltar para templates
           </Link>
         </div>
       </div>

@@ -10,7 +10,7 @@ class EvdayApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: process.env.EVENDAY_API_URL || "http://localhost:8000",
+      baseURL: process.env.EVENDAY_API_URL || "http://localhost:8000/api",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
