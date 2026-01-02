@@ -15,8 +15,6 @@ import {
   FiAlignLeft,
   FiAlignCenter,
   FiAlignRight,
-  FiArrowUp,
-  FiArrowDown,
   FiCornerUpLeft,
   FiCornerUpRight,
   FiCopy,
@@ -616,37 +614,6 @@ export default function CertificateEditor({
     }
   };
 
-  // Camadas
-  const bringToFront = () => {
-    if (!canvas || !selectedObject) return;
-    try {
-      if (!canvas.lowerCanvasEl) return;
-
-      const context = canvas.lowerCanvasEl.getContext("2d");
-      if (!context) return;
-
-      (selectedObject as any).bringToFront();
-      canvas.renderAll();
-    } catch (error) {
-      console.error("Erro ao trazer para frente:", error);
-    }
-  };
-
-  const sendToBack = () => {
-    if (!canvas || !selectedObject) return;
-    try {
-      if (!canvas.lowerCanvasEl) return;
-
-      const context = canvas.lowerCanvasEl.getContext("2d");
-      if (!context) return;
-
-      (selectedObject as any).sendToBack();
-      canvas.renderAll();
-    } catch (error) {
-      console.error("Erro ao enviar para trás:", error);
-    }
-  };
-
   // Deletar
   const deleteSelected = () => {
     if (!canvas) return;
@@ -797,28 +764,6 @@ export default function CertificateEditor({
                 title="Alinhar à Direita"
               >
                 <FiAlignRight />
-              </button>
-            </div>
-
-            <div className="w-px h-6 bg-gray-300"></div>
-
-            {/* Camadas */}
-            <div className="flex gap-1">
-              <button
-                onClick={bringToFront}
-                disabled={!selectedObject}
-                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Trazer para Frente"
-              >
-                <FiArrowUp />
-              </button>
-              <button
-                onClick={sendToBack}
-                disabled={!selectedObject}
-                className="p-2 text-sm bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-sm text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Enviar para Trás"
-              >
-                <FiArrowDown />
               </button>
             </div>
 
