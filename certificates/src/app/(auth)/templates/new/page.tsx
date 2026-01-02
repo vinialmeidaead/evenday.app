@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FiX, FiCheck } from "react-icons/fi";
+import { certificateTemplates } from "@/data/certificate-templates";
 
 // Importar editor dinamicamente (client-side only)
 const CertificateEditor = dynamic(
@@ -18,6 +19,8 @@ export default function NewTemplatePage() {
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(true);
+  const [showTemplates, setShowTemplates] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
 
   const handleSave = async (canvasDesign: any) => {
     if (!name.trim()) {
@@ -55,6 +58,85 @@ export default function NewTemplatePage() {
       setSaving(false);
     }
   };
+
+  // Tela de seleção de templates
+  if (showTemplates) {
+    return (
+      <div className="fixed inset-0 bg-background-page flex items-center justify-center p-8">
+        <div className="bg-surface rounded-xl shadow-2xl p-8 max-w-6xl w-full">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Escolha um Template
+            </h2>
+            <p className="text-gray-600">
+              Comece com um modelo profissional ou crie do zero
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Opção: Criar do Zero */}
+            <button
+              onClick={() => {
+                setSelectedTemplate(null);
+                setShowTemplates(false);
+              }}
+              className="group relative aspect-[3/2] rounded-lg overflow-hidden border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5 transition-all flex items-center justify-center"
+            >
+              <div className="text-center p-6">
+                <div className="text-5xl mb-3">✨</div>
+                <div className="font-semibold text-gray-900 mb-1">
+                  Criar do Zero
+                </div>
+                <div className="text-sm text-gray-500">
+                  Comece com um certificado em branco
+                </div>
+              </div>
+            </button>
+
+            {/* Templates Pré-configurados */}
+            {certificateTemplates.map((template) => (
+              <button
+                key={template.id}
+                onClick={() => {
+                  setSelectedTemplate(template);
+                  setShowTemplates(false);
+                }}
+                className="group relative aspect-[3/2] rounded-lg overflow-hidden border-2 border-gray-200 hover:border-primary hover:shadow-lg transition-all"
+              >
+                <img
+                  src={template.thumbnail}
+                  alt={template.name}
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-4">
+                  <div className="text-white">
+                    <div className="font-semibold text-lg mb-1">
+                      {template.name}
+                    </div>
+                    <div className="text-xs opacity-90 mb-2">
+                      {template.description}
+                    </div>
+                    <div className="inline-block px-2 py-1 bg-primary/80 rounded text-xs">
+                      {template.category}
+                    </div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-center">
+            <Link
+              href="/templates"
+              className="inline-flex items-center gap-2 px-6 py-3 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <FiX /> Cancelar
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showModal) {
     return (
@@ -122,7 +204,12 @@ export default function NewTemplatePage() {
 
   return (
     <div className="fixed inset-0">
-      <CertificateEditor width={3000} height={2000} onSave={handleSave} />
+      <CertificateEditor
+        width={3000}
+        height={2000}
+        initialDesign={selectedTemplate?.design}
+        onSave={handleSave}
+      />
 
       {saving && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

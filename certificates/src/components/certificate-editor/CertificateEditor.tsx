@@ -173,6 +173,45 @@ export default function CertificateEditor({
               // Carregar moldura de fundo se existir
               if (initialDesign.backgroundFrame) {
                 setBackgroundFrame(initialDesign.backgroundFrame);
+                // Aplicar a moldura imediatamente
+                setTimeout(() => {
+                  if (initialDesign.backgroundFrame) {
+                    FabricImage.fromURL(initialDesign.backgroundFrame).then(
+                      (img) => {
+                        try {
+                          if (!fabricCanvas || !fabricCanvas.lowerCanvasEl)
+                            return;
+                          const context =
+                            fabricCanvas.lowerCanvasEl.getContext("2d");
+                          if (!context) return;
+
+                          const scaleX = width / (img.width || 1);
+                          const scaleY = height / (img.height || 1);
+
+                          img.scale(Math.max(scaleX, scaleY));
+                          img.set({
+                            left: 0,
+                            top: 0,
+                            selectable: false,
+                            evented: false,
+                            originX: "left",
+                            originY: "top",
+                          });
+
+                          (img as any).data = { isBackgroundFrame: true };
+                          fabricCanvas.add(img);
+                          fabricCanvas.sendObjectToBack(img);
+                          fabricCanvas.renderAll();
+                        } catch (error) {
+                          console.error(
+                            "Erro ao aplicar moldura inicial:",
+                            error
+                          );
+                        }
+                      }
+                    );
+                  }
+                }, 100);
               }
 
               if (fabricCanvas.lowerCanvasEl?.getContext("2d")) {
@@ -691,13 +730,6 @@ export default function CertificateEditor({
 
   const variables = [
     { key: "participant_name", label: "Nome do Participante" },
-    { key: "event_title", label: "Título do Evento" },
-    { key: "event_date", label: "Data do Evento" },
-    { key: "event_location", label: "Local do Evento" },
-    { key: "certificate_number", label: "Número do Certificado" },
-    { key: "issue_date", label: "Data de Emissão" },
-    { key: "event_duration", label: "Duração do Evento" },
-    { key: "organizer_name", label: "Nome do Organizador" },
   ];
 
   return (
