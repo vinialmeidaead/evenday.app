@@ -1,5 +1,4 @@
-import jsPDF from "jspdf";
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import puppeteer from "puppeteer";
 import { CertificateTemplate } from "@/types/certificate";
 
 interface GeneratePDFOptions {
@@ -8,93 +7,254 @@ interface GeneratePDFOptions {
 }
 
 /**
- * Gera PDF do certificado a partir do template e variáveis
- * Usa @napi-rs/canvas para renderizar no servidor
+ * Gera o HTML para renderização do certificado
+ */
+function generateCertificateHtml(
+  design: any,
+  variables: Record<string, string>,
+  width: number,
+  height: number
+): string {
+  const designJson = JSON.stringify(design);
+  const variablesJson = JSON.stringify(variables);
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate</title>
+  <script src="https://cdn.jsdelivr.net/npm/fabric@6.0.2/dist/index.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #ffffff; }
+    #certificate-container { width: ${width}px; height: ${height}px; }
+  </style>
+</head>
+<body>
+  <div id="certificate-container">
+    <canvas id="certificate-canvas"></canvas>
+  </div>
+  <script>
+    (async function() {
+      const design = ${designJson};
+      const variables = ${variablesJson};
+      const width = ${width};
+      const height = ${height};
+
+      // Criar canvas Fabric.js
+      const canvas = new fabric.Canvas('certificate-canvas', {
+        width: width,
+        height: height,
+        selection: false,
+        renderOnAddRemove: false
+      });
+
+      // Aplicar background
+      if (design.background || design.backgroundColor) {
+        canvas.backgroundColor = design.background || design.backgroundColor;
+      }
+
+      // Carregar backgroundFrame se existir
+      if (design.backgroundFrame) {
+        try {
+          const img = await fabric.FabricImage.fromURL(design.backgroundFrame);
+          const scaleX = width / (img.width || 1);
+          const scaleY = height / (img.height || 1);
+          img.scale(Math.max(scaleX, scaleY));
+          img.set({
+            left: 0,
+            top: 0,
+            selectable: false,
+            evented: false,
+            originX: 'left',
+            originY: 'top'
+          });
+          canvas.add(img);
+          canvas.sendObjectToBack(img);
+        } catch (err) {
+          console.error('Error loading background frame:', err);
+        }
+      }
+
+      // Carregar objetos do design
+      if (design.objects && Array.isArray(design.objects)) {
+        for (const obj of design.objects) {
+          try {
+            // Pular imagens de background frame
+            if (obj.data?.isBackgroundFrame) continue;
+
+            const objType = obj.type?.toLowerCase();
+
+            if (objType === 'itext' || objType === 'text' || objType === 'i-text') {
+              // Processar variáveis no texto
+              let text = obj.text || '';
+              if (obj.data?.isVariable) {
+                const varName = obj.data.variableName;
+                text = variables[varName] || \`{{\${varName}}}\`;
+              } else if (text.includes('{{') && text.includes('}}')) {
+                text = text.replace(/\\{\\{(\\w+)\\}\\}/g, (match, varName) => {
+                  return variables[varName] || match;
+                });
+              }
+
+              const textObj = new fabric.IText(text, {
+                left: obj.left,
+                top: obj.top,
+                fontSize: obj.fontSize,
+                fontFamily: obj.fontFamily,
+                fontWeight: obj.fontWeight,
+                fontStyle: obj.fontStyle,
+                fill: obj.fill,
+                textAlign: obj.textAlign,
+                originX: obj.originX || 'left',
+                originY: obj.originY || 'top',
+                scaleX: obj.scaleX || 1,
+                scaleY: obj.scaleY || 1,
+                angle: obj.angle || 0,
+                lineHeight: obj.lineHeight || 1.16,
+                selectable: false,
+                evented: false
+              });
+              canvas.add(textObj);
+            } else if (objType === 'image') {
+              const img = await fabric.FabricImage.fromURL(obj.src);
+              img.set({
+                left: obj.left,
+                top: obj.top,
+                scaleX: obj.scaleX || 1,
+                scaleY: obj.scaleY || 1,
+                angle: obj.angle || 0,
+                originX: obj.originX || 'left',
+                originY: obj.originY || 'top',
+                selectable: false,
+                evented: false
+              });
+              canvas.add(img);
+            } else if (objType === 'rect') {
+              const rect = new fabric.Rect({
+                left: obj.left,
+                top: obj.top,
+                width: obj.width,
+                height: obj.height,
+                fill: obj.fill,
+                stroke: obj.stroke,
+                strokeWidth: obj.strokeWidth,
+                rx: obj.rx || 0,
+                ry: obj.ry || 0,
+                originX: obj.originX || 'left',
+                originY: obj.originY || 'top',
+                scaleX: obj.scaleX || 1,
+                scaleY: obj.scaleY || 1,
+                angle: obj.angle || 0,
+                selectable: false,
+                evented: false
+              });
+              canvas.add(rect);
+            }
+          } catch (err) {
+            console.error('Error rendering object:', err);
+          }
+        }
+      }
+
+      canvas.renderAll();
+
+      // Notificar que está pronto
+      setTimeout(() => {
+        window.__CERTIFICATE_READY__ = true;
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+/**
+ * Gera PDF do certificado usando Puppeteer para renderização fiel
+ * Esta abordagem garante que o PDF seja idêntico ao que é visto no editor
  */
 export async function generateCertificatePDF({
   template,
   variables,
 }: GeneratePDFOptions): Promise<Buffer> {
+  let browser = null;
+
   try {
-    // DEBUG: Log da estrutura do template
-    console.log("=== DEBUG: Gerando PDF ===");
+    console.log("=== DEBUG: Gerando PDF via Puppeteer ===");
     console.log("Template ID:", template.id);
     console.log("Template dimensions:", template.width, "x", template.height);
-    console.log("Design structure:", JSON.stringify(template.design, null, 2));
-    console.log("Background:", template.design?.background);
-    console.log("Objects count:", template.design?.objects?.length || 0);
     console.log("Variables:", variables);
 
-    // Criar canvas
-    const canvas = createCanvas(template.width, template.height);
-    const ctx = canvas.getContext("2d");
+    // Gerar HTML com o certificado
+    const html = generateCertificateHtml(
+      template.design,
+      variables,
+      template.width,
+      template.height
+    );
 
-    // Background - Fabric.js usa 'backgroundColor', mas pode ter sido salvo como 'background'
-    const bgColor =
-      template.design.backgroundColor ||
-      template.design.background ||
-      "#ffffff";
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, template.width, template.height);
+    console.log("HTML generated, launching browser...");
 
-    console.log("Background applied:", ctx.fillStyle);
-
-    // Processar objetos do design
-    if (template.design.objects && Array.isArray(template.design.objects)) {
-      console.log(`Processing ${template.design.objects.length} objects...`);
-
-      for (const obj of template.design.objects) {
-        try {
-          console.log("Processing object:", {
-            type: obj.type,
-            text: obj.text,
-            isVariable: obj.data?.isVariable,
-            variableName: obj.data?.variableName,
-            left: obj.left,
-            top: obj.top,
-          });
-
-          // Fabric.js v7 usa "IText" com I maiúsculo
-          const objType = obj.type?.toLowerCase();
-
-          if (
-            objType === "itext" ||
-            objType === "text" ||
-            objType === "i-text"
-          ) {
-            await renderText(ctx, obj, variables);
-          } else if (objType === "image") {
-            await renderImage(ctx, obj);
-          } else if (objType === "rect") {
-            renderRect(ctx, obj);
-          } else if (objType === "line") {
-            renderLine(ctx, obj);
-          }
-        } catch (err) {
-          console.error("Error rendering object:", err);
-          // Continue mesmo se um objeto falhar
-        }
-      }
-    } else {
-      console.warn("No objects found in template design");
-    }
-
-    // Converter canvas para buffer PNG
-    const pngBuffer = canvas.toBuffer("image/png");
-
-    // Criar PDF
-    const pdf = new jsPDF({
-      orientation: template.width > template.height ? "landscape" : "portrait",
-      unit: "px",
-      format: [template.width, template.height],
+    // Iniciar Puppeteer
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-web-security",
+        "--allow-file-access-from-files",
+      ],
     });
 
-    // Adicionar imagem ao PDF
-    const pngDataUrl = `data:image/png;base64,${pngBuffer.toString("base64")}`;
-    pdf.addImage(pngDataUrl, "PNG", 0, 0, template.width, template.height);
+    const page = await browser.newPage();
 
-    // Retornar como buffer
-    return Buffer.from(pdf.output("arraybuffer"));
+    // Configurar viewport para o tamanho do certificado
+    await page.setViewport({
+      width: template.width,
+      height: template.height,
+      deviceScaleFactor: 1,
+    });
+
+    console.log("Setting HTML content...");
+
+    // Carregar HTML diretamente (sem servidor HTTP)
+    await page.setContent(html, {
+      waitUntil: "networkidle0",
+      timeout: 30000,
+    });
+
+    // Aguardar o certificado estar pronto
+    console.log("Waiting for certificate to render...");
+
+    try {
+      await page.waitForFunction(
+        () => (window as any).__CERTIFICATE_READY__ === true,
+        { timeout: 25000 }
+      );
+    } catch (waitError) {
+      console.warn("Timeout waiting for ready signal, proceeding anyway...");
+    }
+
+    // Aguardar um pouco mais para garantir que imagens foram carregadas
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    console.log("Capturing PDF...");
+
+    // Gerar PDF
+    const pdfBuffer = await page.pdf({
+      width: template.width,
+      height: template.height,
+      printBackground: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      preferCSSPageSize: true,
+    });
+
+    console.log("PDF generated successfully, size:", pdfBuffer.length, "bytes");
+
+    return Buffer.from(pdfBuffer);
   } catch (error) {
     console.error("PDF generation error:", error);
     throw new Error(
@@ -102,205 +262,11 @@ export async function generateCertificatePDF({
         error instanceof Error ? error.message : "Unknown error"
       }`
     );
-  }
-}
-
-/**
- * Renderiza texto no canvas
- */
-async function renderText(
-  ctx: any,
-  obj: any,
-  variables: Record<string, string>
-) {
-  let text = obj.text || "";
-
-  // Substituir variável se for uma (via propriedade data)
-  if (obj.data?.isVariable) {
-    const varName = obj.data.variableName;
-    text = variables[varName] || `{{${varName}}}`;
-    console.log(`Replacing variable (via data): {{${varName}}} -> ${text}`);
-  } else if (text.includes("{{") && text.includes("}}")) {
-    // Fallback: detectar variáveis pelo padrão {{nome}} no texto
-    const originalText = text;
-    text = text.replace(/\{\{(\w+)\}\}/g, (match: string, varName: string) => {
-      return variables[varName] || match;
-    });
-    if (originalText !== text) {
-      console.log(
-        `Replacing variable (via pattern): ${originalText} -> ${text}`
-      );
+  } finally {
+    if (browser) {
+      await browser.close();
     }
   }
-
-  // Configurações de fonte - aplicar escala ao tamanho
-  const baseSize = obj.fontSize || 40;
-  const scaleX = obj.scaleX || 1;
-  const scaleY = obj.scaleY || 1;
-  const fontSize = baseSize * scaleY; // Aplicar escala Y ao tamanho da fonte
-
-  console.log(
-    `[TEXT] "${text.substring(0, 30)}..." at (${obj.left}, ${
-      obj.top
-    }), fontSize: ${baseSize} * ${scaleY} = ${fontSize}, originX: ${
-      obj.originX
-    }, originY: ${obj.originY}, textAlign: ${obj.textAlign}`
-  );
-
-  const fontFamily = obj.fontFamily || "Arial";
-  const fontWeight = obj.fontWeight === "bold" ? "bold" : "normal";
-  const fontStyle = obj.fontStyle === "italic" ? "italic" : "normal";
-
-  ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
-  ctx.fillStyle = obj.fill || "#000000";
-
-  // IMPORTANTE: Usar originX para determinar o alinhamento, NÃO obj.textAlign!
-  // Em Fabric.js, originX define onde está o ponto de referência do objeto
-  // Se originX = "center", o ponto (left, top) é o CENTRO do objeto
-  // Então precisamos centralizar o texto nesse ponto também
-  const originX = obj.originX || "left";
-
-  if (originX === "center") {
-    ctx.textAlign = "center";
-  } else if (originX === "right") {
-    ctx.textAlign = "right";
-  } else {
-    ctx.textAlign = "left";
-  }
-
-  // Salvar estado do contexto
-  ctx.save();
-
-  // Posição base do objeto
-  const x = obj.left || 0;
-  const y = obj.top || 0;
-
-  // Aplicar translação para a posição
-  ctx.translate(x, y);
-
-  // Aplicar rotação se houver
-  if (obj.angle) {
-    ctx.rotate((obj.angle * Math.PI) / 180);
-  }
-
-  // NÃO usar ctx.scale() - já aplicamos scale ao fontSize
-
-  // Ajustar baseline baseado no originY
-  // Em Fabric.js, originY define qual ponto vertical do objeto está em obj.top
-  const originY = obj.originY || "top";
-
-  if (originY === "center" || originY === "middle") {
-    ctx.textBaseline = "middle";
-  } else if (originY === "top") {
-    ctx.textBaseline = "top";
-  } else if (originY === "bottom") {
-    ctx.textBaseline = "bottom";
-  } else {
-    ctx.textBaseline = "alphabetic";
-  }
-
-  // Renderizar texto (suporte a multilinha)
-  const lines = text.split("\n");
-  const lineHeight = fontSize * (obj.lineHeight || 1.16);
-
-  if (lines.length === 1) {
-    // Texto de linha única - renderizar direto em (0,0)
-    ctx.fillText(text, 0, 0);
-  } else {
-    // Texto multilinha - centralizar as linhas em torno do ponto (0,0)
-    lines.forEach((line: string, index: number) => {
-      // Calcular Y para cada linha, centralizado em torno de 0
-      const lineY = (index - (lines.length - 1) / 2) * lineHeight;
-      ctx.fillText(line, 0, lineY);
-    });
-  }
-
-  ctx.restore();
-}
-
-/**
- * Renderiza imagem no canvas
- */
-async function renderImage(ctx: any, obj: any) {
-  if (!obj.src) return;
-
-  try {
-    // Converter URLs localhost para caminhos do filesystem
-    let imagePath = obj.src;
-    if (imagePath.startsWith("http://localhost")) {
-      // Extrair o caminho relativo e converter para caminho absoluto
-      const urlPath = new URL(imagePath).pathname;
-      imagePath = `./public${urlPath}`;
-      console.log(
-        "Converting localhost URL to filesystem path:",
-        obj.src,
-        "->",
-        imagePath
-      );
-    }
-
-    const image = await loadImage(imagePath);
-
-    ctx.save();
-
-    const x = obj.left || 0;
-    const y = obj.top || 0;
-    const width = (obj.width || image.width) * (obj.scaleX || 1);
-    const height = (obj.height || image.height) * (obj.scaleY || 1);
-
-    if (obj.angle) {
-      ctx.translate(x + width / 2, y + height / 2);
-      ctx.rotate((obj.angle * Math.PI) / 180);
-      ctx.drawImage(image, -width / 2, -height / 2, width, height);
-    } else {
-      ctx.drawImage(image, x, y, width, height);
-    }
-
-    ctx.restore();
-  } catch (err) {
-    console.error("Error loading image:", err);
-  }
-}
-
-/**
- * Renderiza retângulo no canvas
- */
-function renderRect(ctx: any, obj: any) {
-  const x = obj.left || 0;
-  const y = obj.top || 0;
-  const width = obj.width || 100;
-  const height = obj.height || 100;
-
-  ctx.save();
-
-  if (obj.fill && obj.fill !== "transparent") {
-    ctx.fillStyle = obj.fill;
-    ctx.fillRect(x, y, width, height);
-  }
-
-  if (obj.stroke) {
-    ctx.strokeStyle = obj.stroke;
-    ctx.lineWidth = obj.strokeWidth || 1;
-    ctx.strokeRect(x, y, width, height);
-  }
-
-  ctx.restore();
-}
-
-/**
- * Renderiza linha no canvas
- */
-function renderLine(ctx: any, obj: any) {
-  if (!obj.x1 || !obj.y1 || !obj.x2 || !obj.y2) return;
-
-  ctx.save();
-  ctx.strokeStyle = obj.stroke || "#000000";
-  ctx.lineWidth = obj.strokeWidth || 1;
-  ctx.beginPath();
-  ctx.moveTo(obj.x1, obj.y1);
-  ctx.lineTo(obj.x2, obj.y2);
-  ctx.stroke();
-  ctx.restore();
 }
 
 /**
