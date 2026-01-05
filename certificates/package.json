@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
+    "@csstools/css-parser-algorithms": "^3.0.5",
+    "@csstools/css-tokenizer": "^3.0.4",
     "@napi-rs/canvas": "^0.1.88",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
