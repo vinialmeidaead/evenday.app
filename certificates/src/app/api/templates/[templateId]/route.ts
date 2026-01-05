@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { evdayApi } from "@/lib/api-client";
 import { z } from "zod";
 
 const templateUpdateSchema = z.object({
@@ -23,14 +24,19 @@ export async function GET(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const user = await evdayApi.getUser(token);
     const { templateId } = await params;
-    const template = await prisma.certificateTemplate.findUnique({
-      where: { id: templateId },
+
+    const template = await prisma.certificateTemplate.findFirst({
+      where: {
+        id: templateId,
+        userId: user.id
+      },
     });
 
     if (!template) {
       return NextResponse.json(
-        { error: "Template not found" },
+        { error: "Template not found or access denied" },
         { status: 404 }
       );
     }
@@ -56,9 +62,19 @@ export async function PUT(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const user = await evdayApi.getUser(token);
     const { templateId } = await params;
     const body = await request.json();
     const validatedData = templateUpdateSchema.parse(body);
+
+    // Verificar se o template pertence ao usuário antes de atualizar
+    const existing = await prisma.certificateTemplate.findFirst({
+      where: { id: templateId, userId: user.id }
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Template not found or access denied" }, { status: 404 });
+    }
 
     const template = await prisma.certificateTemplate.update({
       where: { id: templateId },
@@ -70,12 +86,6 @@ export async function PUT(
     console.error("Update template error:", error);
     if (error.name === "ZodError") {
       return NextResponse.json({ error: error.errors }, { status: 400 });
-    }
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        { error: "Template not found" },
-        { status: 404 }
-      );
     }
     return NextResponse.json(
       { error: "Failed to update template" },
@@ -95,7 +105,18 @@ export async function DELETE(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const user = await evdayApi.getUser(token);
     const { templateId } = await params;
+
+    // Verificar se o template pertence ao usuário
+    const existing = await prisma.certificateTemplate.findFirst({
+      where: { id: templateId, userId: user.id }
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Template not found or access denied" }, { status: 404 });
+    }
+
     await prisma.certificateTemplate.delete({
       where: { id: templateId },
     });
@@ -103,12 +124,6 @@ export async function DELETE(
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     console.error("Delete template error:", error);
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        { error: "Template not found" },
-        { status: 404 }
-      );
-    }
     return NextResponse.json(
       { error: "Failed to delete template" },
       { status: 500 }

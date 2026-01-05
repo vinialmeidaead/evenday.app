@@ -46,7 +46,7 @@ class EvdayApiClient {
     const response = await this.client.get("/users/me", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data;
+    return response.data.data || response.data;
   }
 
   /**

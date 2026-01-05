@@ -54,11 +54,16 @@ export async function POST(request: NextRequest) {
 
     const user = await evdayApi.getUser(token);
 
+    if (!user || !user.id) {
+      console.error("User ID not found in token/API response", user);
+      return NextResponse.json({ error: "Invalid user data" }, { status: 400 });
+    }
+
     const template = await prisma.certificateTemplate.create({
       data: {
         userId: user.id,
+        accountId: user.account_id || null,
         name: validatedData.name,
-        // ... rest of the fields
         description: validatedData.description,
         width: validatedData.width,
         height: validatedData.height,

@@ -27,9 +27,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Buscar template
-    const template = await prisma.certificateTemplate.findUnique({
-      where: { id: templateId },
+    const user = await evdayApi.getUser(token);
+
+    // Buscar template e verificar propriedade
+    const template = await prisma.certificateTemplate.findFirst({
+      where: {
+        id: templateId,
+        userId: user.id
+      },
     });
 
     if (!template) {
