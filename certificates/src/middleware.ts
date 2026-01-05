@@ -11,6 +11,8 @@ export function middleware(request: NextRequest) {
     "/api/auth/login",
     "/render",
     "/api/render-data",
+    "/validate",
+    "/api/validate",
   ];
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route)
