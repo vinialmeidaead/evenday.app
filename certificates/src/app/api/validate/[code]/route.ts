@@ -60,19 +60,22 @@ export async function GET(
             console.error("Erro ao buscar dados do evento:", error);
         }
 
+        // Forçar tipagem das variáveis para evitar erro de build
+        const variables = (certificate.variables as any) || {};
+
         // Retornar informações públicas do certificado
         return NextResponse.json({
             valid: true,
             certificate: {
                 certificateNumber: certificate.certificateNumber,
-                participantName: certificate.variables.participant_name || "N/A",
-                eventTitle: certificate.variables.event_title || eventData?.title || "N/A",
-                eventDate: certificate.variables.event_date ||
+                participantName: variables.participant_name || "N/A",
+                eventTitle: variables.event_title || eventData?.title || "N/A",
+                eventDate: variables.event_date ||
                     (eventData?.start_date ? new Date(eventData.start_date).toLocaleDateString("pt-BR") : "N/A"),
                 issueDate: new Date(certificate.generatedAt).toLocaleDateString("pt-BR"),
                 templateName: certificate.template.name,
-                hours: certificate.variables.hours || certificate.variables.event_duration || null,
-                eventDuration: certificate.variables.event_duration || null,
+                hours: variables.hours || variables.event_duration || null,
+                eventDuration: variables.event_duration || null,
             },
         });
     } catch (error: any) {
