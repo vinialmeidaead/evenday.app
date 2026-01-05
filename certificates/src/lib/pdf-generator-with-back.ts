@@ -170,6 +170,7 @@ export async function generateFullCertificatePDF(
     // 2. Renderizar ambos em PDF usando Puppeteer
     browser = await puppeteer.launch({
       headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined, // Usar caminho do sistema se definido
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
     });
 

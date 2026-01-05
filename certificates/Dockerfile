@@ -69,7 +69,13 @@ RUN apk add --no-cache \
     pixman \
     fontconfig \
     freetype \
-    libc6-compat
+    libc6-compat \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
 
 WORKDIR /app
 
@@ -78,6 +84,9 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+# Configuração crítica para Puppeteer no Docker
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 # Criar usuário não-root para segurança
 RUN addgroup --system --gid 1001 nodejs
