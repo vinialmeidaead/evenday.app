@@ -21,6 +21,8 @@ export interface IssuedCertificate {
   eventId: number;
   attendeeId: number;
   certificateNumber: string;
+  validationCode: string;
+  validationUrl?: string;
   pdfUrl?: string;
   variables: Record<string, string>;
   generatedAt: Date;
@@ -94,5 +96,15 @@ export const DEFAULT_VARIABLES: CertificateVariable[] = [
     key: "hours",
     label: "Carga Horária",
     description: "Carga horária do evento (customizável)",
+  },
+  {
+    key: "validation_code",
+    label: "Código de Validação",
+    description: "Código único de validação do certificado",
+  },
+  {
+    key: "validation_url",
+    label: "URL de Validação",
+    description: "Link direto para a página de validação",
   },
 ];

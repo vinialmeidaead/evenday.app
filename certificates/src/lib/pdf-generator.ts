@@ -258,8 +258,7 @@ export async function generateCertificatePDF({
   } catch (error) {
     console.error("PDF generation error:", error);
     throw new Error(
-      `Failed to generate PDF: ${
-        error instanceof Error ? error.message : "Unknown error"
+      `Failed to generate PDF: ${error instanceof Error ? error.message : "Unknown error"
       }`
     );
   } finally {
@@ -275,7 +274,9 @@ export async function generateCertificatePDF({
 export function prepareVariablesForAttendee(
   attendee: any,
   event: any,
-  certificateNumber: string
+  certificateNumber: string,
+  validationCode?: string,
+  validationUrl?: string
 ): Record<string, string> {
   const now = new Date();
 
@@ -288,5 +289,7 @@ export function prepareVariablesForAttendee(
     issue_date: now.toLocaleDateString("pt-BR"),
     event_duration: event.duration || "N/A",
     organizer_name: event.organizer?.name || "Organizador",
+    validation_code: validationCode || "",
+    validation_url: validationUrl || "",
   };
 }

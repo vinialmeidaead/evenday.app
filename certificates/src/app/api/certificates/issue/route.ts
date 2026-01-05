@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evdayApi } from "@/lib/api-client";
-import {
-  generateCertificatePDF,
-  prepareVariablesForAttendee,
-} from "@/lib/pdf-generator";
+import { prepareVariablesForAttendee } from "@/lib/pdf-generator";
+import { generateFullCertificatePDF } from "@/lib/pdf-generator-with-back";
 import { savePDF, generateFilename } from "@/lib/storage";
 import { generateCertificateNumber } from "@/lib/certificate-utils";
+import { generateValidationCode, generateValidationUrl } from "@/lib/validation-utils";
 
 /**
  * POST - Emitir certificado individual
@@ -73,18 +72,30 @@ export async function POST(request: NextRequest) {
     // Gerar número do certificado
     const certificateNumber = generateCertificateNumber();
 
+    // Gerar código de validação
+    const validationCode = generateValidationCode();
+    const validationUrl = generateValidationUrl(validationCode);
+
     // Preparar variáveis
     const variables = prepareVariablesForAttendee(
       attendee,
       event,
-      certificateNumber
+      certificateNumber,
+      validationCode,
+      validationUrl
     );
 
-    // Gerar PDF
-    const pdfBuffer = await generateCertificatePDF({
-      template: template as any,
+    // Gerar PDF Completo (Frente + Verso)
+    const pdfBuffer = await generateFullCertificatePDF(
+      template as any,
       variables,
-    });
+      {
+        certificateNumber,
+        validationCode,
+        validationUrl,
+        issueDate: variables.issue_date,
+      }
+    );
 
     // Salvar PDF
     const filename = generateFilename(
@@ -100,6 +111,8 @@ export async function POST(request: NextRequest) {
         eventId,
         attendeeId,
         certificateNumber,
+        validationCode,
+        validationUrl,
         pdfUrl,
         variables,
         generatedAt: new Date(),

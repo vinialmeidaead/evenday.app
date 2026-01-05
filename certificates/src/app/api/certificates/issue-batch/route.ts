@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { evdayApi } from "@/lib/api-client";
-import {
-  generateCertificatePDF,
-  prepareVariablesForAttendee,
-} from "@/lib/pdf-generator";
+import { prepareVariablesForAttendee } from "@/lib/pdf-generator";
+import { generateFullCertificatePDF } from "@/lib/pdf-generator-with-back";
 import { savePDF, generateFilename } from "@/lib/storage";
 import { generateCertificateNumber } from "@/lib/certificate-utils";
+import { generateValidationCode, generateValidationUrl } from "@/lib/validation-utils";
 
 /**
  * POST - Emitir certificados em lote
@@ -91,16 +90,27 @@ export async function POST(request: NextRequest) {
 
         // Gerar certificado
         const certificateNumber = generateCertificateNumber();
+        const validationCode = generateValidationCode();
+        const validationUrl = generateValidationUrl(validationCode);
+
         const variables = prepareVariablesForAttendee(
           attendee,
           event,
-          certificateNumber
+          certificateNumber,
+          validationCode,
+          validationUrl
         );
 
-        const pdfBuffer = await generateCertificatePDF({
-          template: template as any,
+        const pdfBuffer = await generateFullCertificatePDF(
+          template as any,
           variables,
-        });
+          {
+            certificateNumber,
+            validationCode,
+            validationUrl,
+            issueDate: variables.issue_date,
+          }
+        );
 
         const filename = generateFilename(
           certificateNumber,
@@ -114,6 +124,8 @@ export async function POST(request: NextRequest) {
             eventId,
             attendeeId: attendee.id,
             certificateNumber,
+            validationCode,
+            validationUrl,
             pdfUrl,
             variables,
             generatedAt: new Date(),

@@ -41,6 +41,8 @@ model IssuedCertificate {
   eventId           Int // Reference to event from evenday.app
   attendeeId        Int // Reference to attendee from evenday.app
   certificateNumber String   @unique
+  validationCode    String?  @unique // Código único para validação pública (opcional para certificados antigos)
+  validationUrl     String? // URL completa de validação
   pdfUrl            String? // URL to PDF in storage
   variables         Json // Actual data used in certificate
   generatedAt       DateTime @default(now())
@@ -50,6 +52,7 @@ model IssuedCertificate {
   @@index([eventId])
   @@index([attendeeId])
   @@index([certificateNumber])
+  @@index([validationCode])
   @@map("issued_certificates")
 }
 
