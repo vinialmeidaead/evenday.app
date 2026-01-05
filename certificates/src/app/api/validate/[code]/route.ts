@@ -50,7 +50,7 @@ export async function GET(
         let eventData = null;
         try {
             const eventResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/events/${certificate.eventId}`
+                `${process.env.NEXT_PUBLIC_API_URL}/api/events/${certificate.eventId}`
             );
             if (eventResponse.ok) {
                 const data = await eventResponse.json();
