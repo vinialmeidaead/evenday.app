@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { evdayApi } from "@/lib/api-client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,10 +9,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    const user = await evdayApi.getUser(token);
     const { searchParams } = new URL(request.url);
     const eventId = searchParams.get("eventId");
 
-    const where = eventId ? { eventId: parseInt(eventId) } : {};
+    const where: any = {
+      template: {
+        userId: user.id,
+      },
+    };
+
+    if (eventId) {
+      where.eventId = parseInt(eventId);
+    }
 
     const certificates = await prisma.issuedCertificate.findMany({
       where,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { evdayApi } from "@/lib/api-client";
 import { z } from "zod";
 
 // Schema de validação
@@ -21,9 +22,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    // TODO: Pegar userId do token
-    // Por enquanto, retornar todos os templates
+    const user = await evdayApi.getUser(token);
+
     const templates = await prisma.certificateTemplate.findMany({
+      where: {
+        userId: user.id,
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -48,13 +52,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = templateSchema.parse(body);
 
-    // TODO: Pegar userId real do token
-    const userId = 1; // Placeholder
+    const user = await evdayApi.getUser(token);
 
     const template = await prisma.certificateTemplate.create({
       data: {
-        userId,
+        userId: user.id,
         name: validatedData.name,
+        // ... rest of the fields
         description: validatedData.description,
         width: validatedData.width,
         height: validatedData.height,
