@@ -45,6 +45,7 @@ export default function EventAttendeesPage() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [sendEmail, setSendEmail] = useState(false);
   const [issuing, setIssuing] = useState(false);
   const [issuanceResult, setIssuanceResult] = useState<IssuanceResult | null>(
     null
@@ -122,6 +123,7 @@ export default function EventAttendeesPage() {
           templateId: selectedTemplate,
           eventId: parseInt(eventId),
           attendeeIds: Array.from(selectedAttendees),
+          sendEmail,
         }),
       });
 
@@ -296,9 +298,6 @@ export default function EventAttendeesPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Check-in
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Ações
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -335,14 +334,6 @@ export default function EventAttendeesPage() {
                           Não
                         </span>
                       )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
-                        onClick={() => handleIssueSingle(attendee.id)}
-                      >
-                        Emitir
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -386,11 +377,10 @@ export default function EventAttendeesPage() {
                   {templates.map((template) => (
                     <label
                       key={template.id}
-                      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        selectedTemplate === template.id
-                          ? "border-indigo-600 bg-indigo-50"
-                          : "border-gray-200 hover:border-indigo-300"
-                      }`}
+                      className={`block p-4 border-2 rounded-lg cursor-pointer transition-all ${selectedTemplate === template.id
+                        ? "border-indigo-600 bg-indigo-50"
+                        : "border-gray-200 hover:border-indigo-300"
+                        }`}
                     >
                       <input
                         type="radio"
@@ -419,6 +409,26 @@ export default function EventAttendeesPage() {
                   ))}
                 </div>
               )}
+
+              {/* Opção de Enviar Email */}
+              <div className="mb-6">
+                <label className="flex items-center space-x-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={sendEmail}
+                    onChange={(e) => setSendEmail(e.target.checked)}
+                    className="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                  />
+                  <div className="flex-1">
+                    <span className="block font-medium text-gray-900">
+                      Enviar por email
+                    </span>
+                    <span className="block text-sm text-gray-500">
+                      Envia o certificado PDF automaticamente para o participante
+                    </span>
+                  </div>
+                </label>
+              </div>
 
               <div className="flex gap-3">
                 <button
@@ -483,8 +493,13 @@ export default function EventAttendeesPage() {
                   </h3>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {issuanceResult.results.success.map((item, idx) => (
-                      <div key={idx} className="text-sm text-gray-600">
-                        • {item.name} - {item.certificateNumber}
+                      <div key={idx} className="text-sm text-gray-600 flex justify-between items-center">
+                        <span>• {item.name} - {item.certificateNumber}</span>
+                        {item.emailSent && (
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                            Email enviado
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>

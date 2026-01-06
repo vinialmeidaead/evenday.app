@@ -6,6 +6,7 @@ import { generateFullCertificatePDF } from "@/lib/pdf-generator-with-back";
 import { savePDF, generateFilename } from "@/lib/storage";
 import { generateCertificateNumber } from "@/lib/certificate-utils";
 import { generateValidationCode, generateValidationUrl } from "@/lib/validation-utils";
+import { sendCertificateEmail } from "@/lib/mail";
 
 /**
  * POST - Emitir certificados em lote
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { templateId, eventId, attendeeIds } = body;
+    const { templateId, eventId, attendeeIds, sendEmail } = body;
 
     if (
       !templateId ||
@@ -137,11 +138,26 @@ export async function POST(request: NextRequest) {
           },
         });
 
+        let emailSent = false;
+        if (sendEmail && attendee.email) {
+          const emailResult = await sendCertificateEmail({
+            to: attendee.email,
+            participantName: `${attendee.first_name} ${attendee.last_name}`,
+            eventName: event.title,
+            certificateUrl: pdfUrl,
+            validationUrl: validationUrl,
+            pdfBuffer: pdfBuffer,
+            filename: filename,
+          });
+          emailSent = emailResult.success;
+        }
+
         results.success.push({
           attendeeId: attendee.id,
           name: `${attendee.first_name} ${attendee.last_name}`,
           certificateNumber,
           pdfUrl,
+          emailSent,
         });
       } catch (error: any) {
         results.failed.push({

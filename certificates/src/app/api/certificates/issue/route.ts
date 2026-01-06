@@ -6,6 +6,7 @@ import { generateFullCertificatePDF } from "@/lib/pdf-generator-with-back";
 import { savePDF, generateFilename } from "@/lib/storage";
 import { generateCertificateNumber } from "@/lib/certificate-utils";
 import { generateValidationCode, generateValidationUrl } from "@/lib/validation-utils";
+import { sendCertificateEmail } from "@/lib/mail";
 
 /**
  * POST - Emitir certificado individual
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { templateId, eventId, attendeeId } = body;
+    const { templateId, eventId, attendeeId, sendEmail } = body;
 
     if (!templateId || !eventId || !attendeeId) {
       return NextResponse.json(
@@ -124,8 +125,22 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    let emailSent = false;
+    if (sendEmail && attendee.email) {
+      const emailResult = await sendCertificateEmail({
+        to: attendee.email,
+        participantName: `${attendee.first_name} ${attendee.last_name}`,
+        eventName: event.title,
+        certificateUrl: pdfUrl,
+        validationUrl: validationUrl,
+        pdfBuffer: pdfBuffer,
+        filename: filename,
+      });
+      emailSent = emailResult.success;
+    }
+
     return NextResponse.json(
-      { certificate, message: "Certificate issued successfully" },
+      { certificate, message: "Certificate issued successfully", emailSent },
       { status: 201 }
     );
   } catch (error: any) {
