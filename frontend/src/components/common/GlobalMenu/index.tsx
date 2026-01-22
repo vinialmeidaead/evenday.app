@@ -66,7 +66,7 @@ export const GlobalMenu = () => {
 
     if (!getConfig("VITE_HIDE_ABOUT_LINK")) {
         links.push({
-            label: `About & Support`,
+            label: t`Sobre e Suporte`,
             icon: IconLifebuoy,
             onClick: openAboutModal,
         });
