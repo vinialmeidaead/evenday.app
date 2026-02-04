@@ -223,7 +223,7 @@ export const AsaasPixPaymentMethod = ({enabled}: AsaasPixPaymentMethodProps) => 
             <CheckoutContent>
                 <Card padding="lg" radius="md" withBorder>
                     <Group justify="space-between" mb="xs">
-                        <Text fw={500} size="lg">{t`Pay with Pix`}</Text>
+                        <Text fw={500} size="lg">{t`Pagar com Pix`}</Text>
                         {currentOrder && (
                             <Text size="sm" c="dimmed">
                                 {formatCurrency(currentOrder.total_gross, currentOrder.currency)}
@@ -236,8 +236,8 @@ export const AsaasPixPaymentMethod = ({enabled}: AsaasPixPaymentMethodProps) => 
                     </Text>
 
                     <TextInput
-                        label={t`CPF or CNPJ`}
-                        placeholder={t`000.000.000-00 or 00.000.000/0000-00`}
+                        label={t`CPF ou CNPJ`}
+                        placeholder={t`000.000.000-00 ou 00.000.000/0000-00`}
                         value={cpfCnpj}
                         onChange={(e) => handleCpfCnpjChange(e.target.value)}
                         error={cpfCnpjError}

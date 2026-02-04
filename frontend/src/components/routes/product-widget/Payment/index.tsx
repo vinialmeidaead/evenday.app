@@ -8,14 +8,13 @@ import {AsaasPixPaymentMethod} from "./PaymentMethods/AsaasPix";
 import {AsaasCreditCardPaymentMethod} from "./PaymentMethods/AsaasCreditCard";
 import {Event, Order} from "../../../../types.ts";
 import {CheckoutFooter} from "../../../layouts/Checkout/CheckoutFooter";
-import {Group} from "@mantine/core";
+import {Group, Button, Card, Text} from "@mantine/core";
 import {formatCurrency} from "../../../../utilites/currency.ts";
 import {t} from "@lingui/macro";
 import {useGetOrderPublic} from "../../../../queries/useGetOrderPublic.ts";
 import {
     useTransitionOrderToOfflinePaymentPublic
 } from "../../../../mutations/useTransitionOrderToOfflinePaymentPublic.ts";
-import {Card} from "../../../common/Card";
 import {showError} from "../../../../utilites/notifications.tsx";
 
 const Payment = () => {
@@ -35,20 +34,16 @@ const Payment = () => {
     const isAsaasCreditCardEnabled = event?.settings?.payment_providers?.includes('ASAAS_CREDIT_CARD');
 
     React.useEffect(() => {
-        // Automatically set the first available payment method (but not Asaas Credit Card - user must choose)
+        // Automatically set the first available payment method (but NOT Asaas methods - user must choose)
         if (isStripeEnabled) {
             setActivePaymentMethod('STRIPE');
-        } else if (isAsaasPixEnabled) {
-            setActivePaymentMethod('ASAAS_PIX');
         } else if (isOfflineEnabled) {
             setActivePaymentMethod('OFFLINE');
-        } else if (isAsaasCreditCardEnabled) {
-            // Only set Asaas Credit Card if it's the ONLY option available
-            setActivePaymentMethod('ASAAS_CREDIT_CARD');
         } else {
-            setActivePaymentMethod(null); // No methods available
+            // Don't auto-select Asaas methods - user must choose
+            setActivePaymentMethod(null);
         }
-    }, [isStripeEnabled, isAsaasCreditCardEnabled, isAsaasPixEnabled, isOfflineEnabled]);
+    }, [isStripeEnabled, isOfflineEnabled]);
 
     const handleParentSubmit = () => {
         if (submitHandler) {
@@ -92,9 +87,67 @@ const Payment = () => {
         );
     }
 
+    // Conta quantos métodos de pagamento estão disponíveis
+    const availableMethodsCount = [
+        isStripeEnabled,
+        isAsaasPixEnabled,
+        isAsaasCreditCardEnabled,
+        isOfflineEnabled
+    ].filter(Boolean).length;
+
+    // Mostra botões de seleção se há múltiplos métodos ou se nenhum está selecionado
+    const showMethodSelection = availableMethodsCount > 1 || activePaymentMethod === null;
+    const isAsaasMethodSelected = activePaymentMethod === 'ASAAS_PIX' || activePaymentMethod === 'ASAAS_CREDIT_CARD';
+
     return (
         <>
             <CheckoutContent>
+                {/* Seção de seleção de métodos de pagamento */}
+                {showMethodSelection && (
+                    <MantineCard padding="lg" radius="md" withBorder mb="md">
+                        <Text fw={500} size="lg" mb="md">{t`Selecione o método de pagamento`}</Text>
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                            {isStripeEnabled && (
+                                <Button
+                                    variant={activePaymentMethod === 'STRIPE' ? 'filled' : 'outline'}
+                                    onClick={() => setActivePaymentMethod('STRIPE')}
+                                    fullWidth
+                                >
+                                    {t`Cartão de Crédito (Stripe)`}
+                                </Button>
+                            )}
+                            {isAsaasPixEnabled && (
+                                <Button
+                                    variant={activePaymentMethod === 'ASAAS_PIX' ? 'filled' : 'outline'}
+                                    onClick={() => setActivePaymentMethod('ASAAS_PIX')}
+                                    fullWidth
+                                >
+                                    {t`Pix`}
+                                </Button>
+                            )}
+                            {isAsaasCreditCardEnabled && (
+                                <Button
+                                    variant={activePaymentMethod === 'ASAAS_CREDIT_CARD' ? 'filled' : 'outline'}
+                                    onClick={() => setActivePaymentMethod('ASAAS_CREDIT_CARD')}
+                                    fullWidth
+                                >
+                                    {t`Cartão de Crédito (Asaas)`}
+                                </Button>
+                            )}
+                            {isOfflineEnabled && (
+                                <Button
+                                    variant={activePaymentMethod === 'OFFLINE' ? 'filled' : 'outline'}
+                                    onClick={() => setActivePaymentMethod('OFFLINE')}
+                                    fullWidth
+                                >
+                                    {t`Pagamento Direto ao Organizador`}
+                                </Button>
+                            )}
+                        </div>
+                    </MantineCard>
+                )}
+
+                {/* Métodos de pagamento */}
                 {isStripeEnabled && (
                     <div style={{display: activePaymentMethod === 'STRIPE' ? 'block' : 'none'}}>
                         <StripePaymentMethod enabled={true} setSubmitHandler={setSubmitHandler}/>
@@ -118,76 +171,30 @@ const Payment = () => {
                         <OfflinePaymentMethod event={event as Event}/>
                     </div>
                 )}
-
-                {((isStripeEnabled && isOfflineEnabled) || 
-                  (isStripeEnabled && isAsaasPixEnabled) || 
-                  (isStripeEnabled && isAsaasCreditCardEnabled) ||
-                  (isAsaasPixEnabled && isOfflineEnabled) ||
-                  (isAsaasCreditCardEnabled && isOfflineEnabled) ||
-                  (isAsaasPixEnabled && isAsaasCreditCardEnabled) ||
-                  (isStripeEnabled && isOfflineEnabled && isAsaasPixEnabled) ||
-                  (isStripeEnabled && isOfflineEnabled && isAsaasCreditCardEnabled) ||
-                  (isStripeEnabled && isAsaasPixEnabled && isAsaasCreditCardEnabled) ||
-                  (isAsaasPixEnabled && isAsaasCreditCardEnabled && isOfflineEnabled) ||
-                  (isStripeEnabled && isAsaasPixEnabled && isAsaasCreditCardEnabled && isOfflineEnabled)) && (
-                    <div style={{marginTop: '20px'}}>
-                        <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                            {isStripeEnabled && activePaymentMethod !== 'STRIPE' && (
-                                <a
-                                    onClick={() => setActivePaymentMethod('STRIPE')}
-                                    style={{cursor: 'pointer'}}
-                                >
-                                    {t`Eu gostaria de pagar usando cartão de crédito (Stripe)`}
-                                </a>
-                            )}
-                            {isAsaasPixEnabled && activePaymentMethod !== 'ASAAS_PIX' && (
-                                <a
-                                    onClick={() => setActivePaymentMethod('ASAAS_PIX')}
-                                    style={{cursor: 'pointer'}}
-                                >
-                                    {t`Eu gostaria de pagar usando Pix`}
-                                </a>
-                            )}
-                            {isAsaasCreditCardEnabled && activePaymentMethod !== 'ASAAS_CREDIT_CARD' && (
-                                <a
-                                    onClick={() => setActivePaymentMethod('ASAAS_CREDIT_CARD')}
-                                    style={{cursor: 'pointer'}}
-                                >
-                                    {t`Eu gostaria de pagar usando cartão de crédito (Asaas)`}
-                                </a>
-                            )}
-                            {isOfflineEnabled && activePaymentMethod !== 'OFFLINE' && (
-                                <a
-                                    onClick={() => setActivePaymentMethod('OFFLINE')}
-                                    style={{cursor: 'pointer'}}
-                                >
-                                    {t`Eu gostaria de pagar diretamente ao organizador (offline)`}
-                                </a>
-                            )}
-                        </div>
-                    </div>
-                )}
             </CheckoutContent>
 
-            <CheckoutFooter
-                event={event as Event}
-                order={order as Order}
-                isLoading={isLoading || isPaymentLoading}
-                onClick={activePaymentMethod === 'ASAAS_PIX' || activePaymentMethod === 'ASAAS_CREDIT_CARD' ? undefined : handleSubmit}
-                buttonContent={order?.is_payment_required && activePaymentMethod !== 'ASAAS_PIX' && activePaymentMethod !== 'ASAAS_CREDIT_CARD' ? (
-                    <Group gap={'10px'}>
-                        <div style={{fontWeight: "bold"}}>
-                            {t`Place Order`}
-                        </div>
-                        <div style={{fontSize: 14}}>
-                            {formatCurrency(order.total_gross, order.currency)}
-                        </div>
-                        <div style={{fontSize: 14, fontWeight: 500}}>
-                            {order.currency}
-                        </div>
-                    </Group>
-                ) : t`Complete Payment`}
-            />
+            {/* Footer com botão - só aparece se não for método Asaas */}
+            {!isAsaasMethodSelected && (
+                <CheckoutFooter
+                    event={event as Event}
+                    order={order as Order}
+                    isLoading={isLoading || isPaymentLoading}
+                    onClick={handleSubmit}
+                    buttonContent={order?.is_payment_required ? (
+                        <Group gap={'10px'}>
+                            <div style={{fontWeight: "bold"}}>
+                                {t`Place Order`}
+                            </div>
+                            <div style={{fontSize: 14}}>
+                                {formatCurrency(order.total_gross, order.currency)}
+                            </div>
+                            <div style={{fontSize: 14, fontWeight: 500}}>
+                                {order.currency}
+                            </div>
+                        </Group>
+                    ) : t`Complete Payment`}
+                />
+            )}
         </>
     );
 }

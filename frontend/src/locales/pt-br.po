@@ -1288,9 +1288,9 @@ msgstr "Pedido completo"
 msgid "Complete payment"
 msgstr "Completar pagamento"
 
-#: src/components/routes/product-widget/Payment/index.tsx:131
+Completar pagamento#: src/components/routes/product-widget/Payment/index.tsx:131
 msgid "Complete Payment"
-msgstr "Completar pagamentoo"
+msgstr ""
 
 #: src/components/common/StripeConnectButton/index.tsx:87
 #: src/components/routes/event/EventDashboard/index.tsx:236
