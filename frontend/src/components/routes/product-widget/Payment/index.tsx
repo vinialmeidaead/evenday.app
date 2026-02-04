@@ -104,7 +104,7 @@ const Payment = () => {
             <CheckoutContent>
                 {/* Seção de seleção de métodos de pagamento */}
                 {showMethodSelection && (
-                    <MantineCard padding="lg" radius="md" withBorder mb="md">
+                    <Card padding="lg" radius="md" withBorder mb="md">
                         <Text fw={500} size="lg" mb="md">{t`Selecione o método de pagamento`}</Text>
                         <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                             {isStripeEnabled && (
@@ -144,7 +144,7 @@ const Payment = () => {
                                 </Button>
                             )}
                         </div>
-                    </MantineCard>
+                    </Card>
                 )}
 
                 {/* Métodos de pagamento */}
