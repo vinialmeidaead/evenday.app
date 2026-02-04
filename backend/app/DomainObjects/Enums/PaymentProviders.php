@@ -9,4 +9,5 @@ enum PaymentProviders: string
     case STRIPE = 'STRIPE';
     case OFFLINE = 'OFFLINE';
     case ASAAS_PIX = 'ASAAS_PIX';
+    case ASAAS_CREDIT_CARD = 'ASAAS_CREDIT_CARD';
 }

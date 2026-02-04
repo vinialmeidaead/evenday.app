@@ -30,6 +30,8 @@ use Throwable;
 
 class PaymentConfirmedHandler
 {
+    private array $currentPaymentData = [];
+
     public function __construct(
         private readonly OrderRepositoryInterface                        $orderRepository,
         private readonly AsaasPaymentsRepository                        $asaasPaymentsRepository,
@@ -75,6 +77,9 @@ class PaymentConfirmedHandler
         $this->logger->debug('PaymentConfirmedHandler: Starting database transaction');
 
         $this->databaseManager->transaction(function () use ($paymentData, $paymentId) {
+            // Armazena os dados do pagamento para uso posterior
+            $this->currentPaymentData = $paymentData;
+            
             $this->logger->debug('PaymentConfirmedHandler: Searching for Asaas payment in database', [
                 'payment_id' => $paymentId,
             ]);
@@ -140,10 +145,30 @@ class PaymentConfirmedHandler
 
     private function updateOrderStatuses(\HiEvents\DomainObjects\AsaasPaymentDomainObject $asaasPayment): OrderDomainObject
     {
+        // Determina o provider baseado no billingType do pagamento
+        // Usa os dados do webhook armazenados em currentPaymentData
+        $paymentData = $this->currentPaymentData;
+        $billingType = $paymentData['billingType'] ?? null;
+        
+        // Se não tiver billingType nos dados do webhook, tenta usar os dados salvos
+        if (!$billingType) {
+            $savedData = $asaasPayment->getAsaasResponse();
+            if (is_array($savedData)) {
+                $billingType = $savedData['billingType'] ?? null;
+            }
+        }
+        
+        $paymentProvider = PaymentProviders::ASAAS_PIX->value;
+        if ($billingType === 'CREDIT_CARD') {
+            $paymentProvider = PaymentProviders::ASAAS_CREDIT_CARD->value;
+        }
+
         $this->logger->info('PaymentConfirmedHandler: Updating order statuses', [
             'order_id' => $asaasPayment->getOrderId(),
             'new_payment_status' => OrderPaymentStatus::PAYMENT_RECEIVED->name,
             'new_status' => OrderStatus::COMPLETED->name,
+            'billing_type' => $billingType,
+            'payment_provider' => $paymentProvider,
         ]);
 
         $updatedOrder = $this->orderRepository
@@ -151,7 +176,7 @@ class PaymentConfirmedHandler
             ->updateFromArray($asaasPayment->getOrderId(), [
                 OrderDomainObjectAbstract::PAYMENT_STATUS => OrderPaymentStatus::PAYMENT_RECEIVED->name,
                 OrderDomainObjectAbstract::STATUS => OrderStatus::COMPLETED->name,
-                OrderDomainObjectAbstract::PAYMENT_PROVIDER => PaymentProviders::ASAAS_PIX->value,
+                OrderDomainObjectAbstract::PAYMENT_PROVIDER => $paymentProvider,
             ]);
 
         $this->logger->info('PaymentConfirmedHandler: Order statuses updated', [
@@ -281,14 +306,18 @@ class PaymentConfirmedHandler
 
     private function storeApplicationFeePayment(OrderDomainObject $updatedOrder): void
     {
-        // Para Pix via Asaas, não há application fee como no Stripe Connect
+        // Para pagamentos via Asaas, não há application fee como no Stripe Connect
         // Todos os pagamentos vão para conta central da Evenday
         // Se necessário calcular fee, pode ser feito aqui
+        $paymentProvider = $updatedOrder->getPaymentProvider() === PaymentProviders::ASAAS_CREDIT_CARD->value
+            ? PaymentProviders::ASAAS_CREDIT_CARD
+            : PaymentProviders::ASAAS_PIX;
+            
         $this->orderApplicationFeeService->createOrderApplicationFee(
             orderId: $updatedOrder->getId(),
-            applicationFeeAmountMinorUnit: 0, // Sem fee para Pix
+            applicationFeeAmountMinorUnit: 0, // Sem fee para Asaas
             orderApplicationFeeStatus: OrderApplicationFeeStatus::PAID,
-            paymentMethod: PaymentProviders::ASAAS_PIX,
+            paymentMethod: $paymentProvider,
             currency: $updatedOrder->getCurrency(),
         );
     }

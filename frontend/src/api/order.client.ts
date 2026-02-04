@@ -167,6 +167,28 @@ export const orderClientPublic = {
         return response.data;
     },
 
+    createAsaasCreditCardPayment: async (eventId: number, orderShortId: string, cardData: {
+        cpf_cnpj: string,
+        holder_name: string,
+        card_number: string,
+        expiry_month: string,
+        expiry_year: string,
+        ccv: string,
+        postal_code: string,
+        address_number: string,
+        address_complement?: string,
+        phone: string,
+        mobile_phone?: string,
+    }) => {
+        const response = await publicApi.post<{
+            payment_id: string,
+            status: string,
+            credit_card_number?: string,
+            credit_card_brand?: string,
+        }>(`events/${eventId}/order/${orderShortId}/asaas/credit-card-payment`, cardData);
+        return response.data;
+    },
+
     finaliseOrder: async (
         eventId: number,
         orderShortId: string,

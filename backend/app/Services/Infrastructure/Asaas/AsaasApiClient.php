@@ -272,5 +272,52 @@ class AsaasApiClient
             throw $e;
         }
     }
+
+    /**
+     * Paga uma cobrança com cartão de crédito
+     *
+     * @param string $paymentId ID do pagamento
+     * @param array $data Dados do cartão e titular
+     * @return array Resposta da API
+     * @throws RequestException
+     */
+    public function payWithCreditCard(string $paymentId, array $data): array
+    {
+        try {
+            $this->logger->debug('AsaasApiClient: Paying with credit card', [
+                'url' => $this->apiUrl . '/payments/' . $paymentId . '/payWithCreditCard',
+                'payment_id' => $paymentId,
+                'has_credit_card' => !empty($data['creditCard'] ?? null),
+                'has_holder_info' => !empty($data['creditCardHolderInfo'] ?? null),
+            ]);
+
+            $response = $this->client->post("/payments/{$paymentId}/payWithCreditCard", $data);
+            
+            $this->logger->debug('AsaasApiClient: Credit card payment response', [
+                'status' => $response->status(),
+                'payment_id' => $response->json()['id'] ?? null,
+                'payment_status' => $response->json()['status'] ?? null,
+            ]);
+
+            $response->throw();
+
+            $this->logger->info('AsaasApiClient: Credit card payment processed', [
+                'payment_id' => $response->json()['id'] ?? null,
+                'status' => $response->json()['status'] ?? null,
+            ]);
+
+            return $response->json();
+        } catch (RequestException $e) {
+            $this->logger->error('AsaasApiClient: Failed to pay with credit card', [
+                'error' => $e->getMessage(),
+                'status' => $e->response?->status(),
+                'payment_id' => $paymentId,
+                'response_body' => $e->response?->body(),
+                'response_json' => $e->response?->json(),
+            ]);
+
+            throw $e;
+        }
+    }
 }
 

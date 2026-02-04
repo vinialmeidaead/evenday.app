@@ -91,6 +91,11 @@ export const PaymentAndInvoicingSettings = () => {
             description: t`Aceitar pagamentos instantâneos via Pix através do Asaas`
         },
         {
+            value: "ASAAS_CREDIT_CARD",
+            label: t`Cartão de Crédito (Asaas)`,
+            description: t`Aceitar pagamentos com cartão de crédito através do Asaas`
+        },
+        {
             value: "OFFLINE",
             label: t`Offline Payments`,
             description: t`Accept bank transfers, checks, or other offline payment methods`

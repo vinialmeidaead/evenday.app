@@ -1410,7 +1410,7 @@ msgstr "Conecte-se com Stripe"
 
 #: src/components/layouts/OrganizerLayout/index.tsx:169
 msgid "Connect your Stripe account to accept payments for tickets and products."
-msgstr "Conecte sua conta Stripe para aceitar pagamentos de ingressos e produtos."
+msgstr "Conecte sua conta Stripe (opcional) para aceitar pagamentos de ingressos direto na sua conta Stripe."
 
 #: src/components/routes/account/ManageAccount/sections/PaymentSettings/index.tsx:216
 msgid "Connect your Stripe account to accept payments."
@@ -3422,7 +3422,7 @@ msgstr "Link para o ingresso"
 
 #: src/components/routes/event/EventDashboard/index.tsx:225
 msgid "Link your Stripe account to receive funds from ticket sales."
-msgstr "Conecte sua conta Stripe para receber fundos das vendas de ingressos."
+msgstr "Por padrão, os repasses são feitos via Asaas pela nossa conta, mas você pode integrar sua conta Stripe para receber diretamente."
 
 #: src/components/routes/organizer/Settings/Sections/SocialLinks/index.tsx:61
 msgid "LinkedIn"

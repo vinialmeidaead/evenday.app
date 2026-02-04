@@ -87,6 +87,7 @@ use HiEvents\Http\Actions\Orders\MarkOrderAsPaidAction;
 use HiEvents\Http\Actions\Orders\MessageOrderAction;
 use HiEvents\Http\Actions\Orders\Payment\RefundOrderAction;
 use HiEvents\Http\Actions\Orders\Payment\Asaas\CreatePixPaymentActionPublic;
+use HiEvents\Http\Actions\Orders\Payment\Asaas\CreateCreditCardPaymentActionPublic;
 use HiEvents\Http\Actions\Orders\Payment\Stripe\CreatePaymentIntentActionPublic;
 use HiEvents\Http\Actions\Orders\Payment\Stripe\GetPaymentIntentActionPublic;
 use HiEvents\Http\Actions\Orders\Public\AbandonOrderActionPublic;
@@ -416,6 +417,7 @@ $router->prefix('/public')->group(
         $router->post('/events/{event_id}/order/{order_short_id}/stripe/payment_intent', CreatePaymentIntentActionPublic::class);
         $router->get('/events/{event_id}/order/{order_short_id}/stripe/payment_intent', GetPaymentIntentActionPublic::class);
         $router->post('/events/{event_id}/order/{order_short_id}/asaas/pix-payment', CreatePixPaymentActionPublic::class);
+        $router->post('/events/{event_id}/order/{order_short_id}/asaas/credit-card-payment', CreateCreditCardPaymentActionPublic::class);
 
         // Questions
         $router->get('/events/{event_id}/questions', GetQuestionsPublicAction::class);
