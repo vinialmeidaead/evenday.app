@@ -212,7 +212,10 @@ class CreateEventService
             'continue_button_text' => __('Continue'),
             'support_email' => $organizer->getEmail(),
 
-            'payment_providers' => [PaymentProviders::STRIPE->value],
+            'payment_providers' => [
+                PaymentProviders::ASAAS_PIX->value,
+                PaymentProviders::ASAAS_CREDIT_CARD->value,
+            ],
             'offline_payment_instructions' => null,
 
             'enable_invoicing' => false,

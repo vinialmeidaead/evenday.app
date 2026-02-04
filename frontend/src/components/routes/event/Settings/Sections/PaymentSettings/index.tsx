@@ -1,5 +1,5 @@
 import {t} from "@lingui/macro";
-import {Button, Card as MantineCard, Checkbox, NumberInput, Paper, Stack, Switch, Text, TextInput} from "@mantine/core";
+import {Button, Card as MantineCard, Checkbox, NumberInput, Paper, Stack, Switch, Text, TextInput, Group, ThemeIcon, Anchor} from "@mantine/core";
 import {useForm} from "@mantine/form";
 import {useParams} from "react-router";
 import {useEffect} from "react";
@@ -13,11 +13,16 @@ import {HeadingWithDescription} from "../../../../../common/Card/CardHeading";
 import {Editor} from "../../../../../common/Editor";
 import {InputLabelWithHelp} from "../../../../../common/InputLabelWithHelp";
 import {isEmptyHtml} from "../../../../../../utilites/helpers.ts";
+import {StripeConnectButton} from "../../../../../common/StripeConnectButton";
+import {useGetAccount} from "../../../../../../queries/useGetAccount.ts";
+import {IconCheck, IconExternalLink} from "@tabler/icons-react";
 
 export const PaymentAndInvoicingSettings = () => {
     const {eventId} = useParams();
     const eventSettingsQuery = useGetEventSettings(eventId);
     const updateMutation = useUpdateEventSettings();
+    const accountQuery = useGetAccount();
+    const account = accountQuery.data;
     const form = useForm({
         initialValues: {
             require_billing_address: true,
@@ -170,6 +175,47 @@ export const PaymentAndInvoicingSettings = () => {
                                         {...form.getInputProps('allow_orders_awaiting_offline_payment_to_check_in', {type: 'checkbox'})}
                                     />
                                 </Card>
+                            )}
+                        </Paper>
+
+                        <Paper withBorder p="md" radius="md">
+                            <Text size="lg" fw={500} mb="md">{t`Stripe Account`}</Text>
+                            {account?.stripe_connect_setup_complete ? (
+                                <>
+                                    <Group gap="xs" mb="md">
+                                        <ThemeIcon size="sm" variant="light" radius="xl" color="green">
+                                            <IconCheck size={16}/>
+                                        </ThemeIcon>
+                                        <Text size="sm" fw={500}>
+                                            <b>{t`Connected to Stripe`}</b>
+                                        </Text>
+                                    </Group>
+                                    <Text size="sm" c="dimmed" mb="lg">
+                                        {t`Your Stripe account is connected and ready to process payments.`}
+                                    </Text>
+                                    <Group gap="xs">
+                                        <Anchor
+                                            href="https://dashboard.stripe.com/"
+                                            target="_blank"
+                                            size="sm"
+                                        >
+                                            <Group gap="xs" wrap={'nowrap'}>
+                                                <Text span>{t`Open Stripe Dashboard`}</Text>
+                                                <IconExternalLink size={14}/>
+                                            </Group>
+                                        </Anchor>
+                                    </Group>
+                                </>
+                            ) : (
+                                <>
+                                    <Text size="sm" c="dimmed" mb="lg">
+                                        {t`Connect your Stripe account (optional) to accept credit card payments directly to your Stripe account.`}
+                                    </Text>
+                                    <StripeConnectButton
+                                        variant="light"
+                                        size="sm"
+                                    />
+                                </>
                             )}
                         </Paper>
 

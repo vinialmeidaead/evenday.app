@@ -91,7 +91,6 @@ export const EventDashboard = () => {
         : '';
 
     const shouldShowChecklist = (isChecklistVisible && event && accountIsFetched && account?.is_saas_mode_enabled) && (
-        !account?.stripe_connect_setup_complete ||
         event?.status !== 'LIVE'
     );
 
@@ -203,40 +202,6 @@ export const EventDashboard = () => {
                                         )}
                                     </div>
 
-                                    <div className={classes.checklistItem}>
-                                        <h3>
-                                            <div className={classes.checkboxContainer}>
-                                                <div
-                                                    className={classes.checkbox}
-                                                    style={{backgroundColor: account?.stripe_connect_setup_complete ? 'var(--hi-primary)' : 'transparent'}}
-                                                >
-                                                    {account?.stripe_connect_setup_complete && (
-                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                                             xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M13.3333 4L6.00001 11.3333L2.66667 8"
-                                                                  stroke="white" strokeWidth="2" strokeLinecap="round"
-                                                                  strokeLinejoin="round"/>
-                                                        </svg>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            {t`Connect payment processing`}
-                                        </h3>
-                                        <p>{t`Link your Stripe account to receive funds from ticket sales.`}</p>
-                                        {!account?.stripe_connect_setup_complete && (
-                                            <Button
-                                                onClick={() => {
-                                                    window.location.href = '/account/payment';
-                                                }}
-                                                variant="light"
-                                                size="sm"
-                                                radius="md"
-                                                fullWidth
-                                            >
-                                                {account?.stripe_account_id ? t`Complete Stripe Setup` : t`Connect to Stripe`}
-                                            </Button>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
                         </div>
