@@ -131,7 +131,7 @@ const Payment = () => {
                                     onClick={() => setActivePaymentMethod('ASAAS_CREDIT_CARD')}
                                     fullWidth
                                 >
-                                    {t`Cartão de Crédito (Asaas)`}
+                                    {t`Cartão de Crédito`}
                                 </Button>
                             )}
                             {isOfflineEnabled && (

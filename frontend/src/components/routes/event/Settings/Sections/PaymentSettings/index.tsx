@@ -209,7 +209,7 @@ export const PaymentAndInvoicingSettings = () => {
                             ) : (
                                 <>
                                     <Text size="sm" c="dimmed" mb="lg">
-                                        {t`Connect your Stripe account (optional) to accept credit card payments directly to your Stripe account.`}
+                                        {t`Por padrão, os repasses são feitos via asaas direto pela evenday, mas você pode integrar sua conta Stripe para receber diretamente.`}
                                     </Text>
                                     <StripeConnectButton
                                         variant="light"
