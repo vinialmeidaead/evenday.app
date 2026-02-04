@@ -14,6 +14,7 @@ class IncomingWebhookHandler
 {
     private static array $validEvents = [
         'PAYMENT.CONFIRMED',
+        'PAYMENT_CONFIRMED', // Formato alternativo do Asaas
         'PAYMENT.RECEIVED',
         'PAYMENT_RECEIVED', // Formato alternativo do Asaas
         'PAYMENT.OVERDUE',
@@ -110,6 +111,7 @@ class IncomingWebhookHandler
 
             switch ($event) {
                 case 'PAYMENT.CONFIRMED':
+                case 'PAYMENT_CONFIRMED': // Formato alternativo do Asaas
                 case 'PAYMENT.RECEIVED':
                 case 'PAYMENT_RECEIVED': // Formato alternativo do Asaas
                     $this->logger->info('IncomingWebhookHandler: Handling payment confirmed/received event', [

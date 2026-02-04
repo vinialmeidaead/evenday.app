@@ -35,15 +35,16 @@ const Payment = () => {
     const isAsaasCreditCardEnabled = event?.settings?.payment_providers?.includes('ASAAS_CREDIT_CARD');
 
     React.useEffect(() => {
-        // Automatically set the first available payment method
+        // Automatically set the first available payment method (but not Asaas Credit Card - user must choose)
         if (isStripeEnabled) {
             setActivePaymentMethod('STRIPE');
-        } else if (isAsaasCreditCardEnabled) {
-            setActivePaymentMethod('ASAAS_CREDIT_CARD');
         } else if (isAsaasPixEnabled) {
             setActivePaymentMethod('ASAAS_PIX');
         } else if (isOfflineEnabled) {
             setActivePaymentMethod('OFFLINE');
+        } else if (isAsaasCreditCardEnabled) {
+            // Only set Asaas Credit Card if it's the ONLY option available
+            setActivePaymentMethod('ASAAS_CREDIT_CARD');
         } else {
             setActivePaymentMethod(null); // No methods available
         }

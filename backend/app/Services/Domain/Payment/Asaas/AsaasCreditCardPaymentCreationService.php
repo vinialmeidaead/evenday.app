@@ -91,6 +91,24 @@ class AsaasCreditCardPaymentCreationService
             ]);
 
             // Agora paga a cobrança com o cartão
+            $creditCardHolderInfo = [
+                'name' => $requestDTO->order->getFullName(),
+                'email' => $requestDTO->order->getEmail(),
+                'cpfCnpj' => $requestDTO->cpfCnpj,
+                'postalCode' => $requestDTO->postalCode,
+                'addressNumber' => $requestDTO->addressNumber,
+                'phone' => $requestDTO->phone,
+            ];
+            
+            // Adiciona campos opcionais apenas se não forem null
+            if ($requestDTO->addressComplement !== null) {
+                $creditCardHolderInfo['addressComplement'] = $requestDTO->addressComplement;
+            }
+            
+            if ($requestDTO->mobilePhone !== null) {
+                $creditCardHolderInfo['mobilePhone'] = $requestDTO->mobilePhone;
+            }
+            
             $creditCardData = [
                 'creditCard' => [
                     'holderName' => $requestDTO->holderName,
@@ -99,16 +117,7 @@ class AsaasCreditCardPaymentCreationService
                     'expiryYear' => $requestDTO->expiryYear,
                     'ccv' => $requestDTO->ccv,
                 ],
-                'creditCardHolderInfo' => [
-                    'name' => $requestDTO->order->getFullName(),
-                    'email' => $requestDTO->order->getEmail(),
-                    'cpfCnpj' => $requestDTO->cpfCnpj,
-                    'postalCode' => $requestDTO->postalCode,
-                    'addressNumber' => $requestDTO->addressNumber,
-                    'addressComplement' => $requestDTO->addressComplement,
-                    'phone' => $requestDTO->phone,
-                    'mobilePhone' => $requestDTO->mobilePhone,
-                ],
+                'creditCardHolderInfo' => $creditCardHolderInfo,
             ];
 
             $this->logger->info('AsaasCreditCardPaymentCreationService: Paying with credit card', [

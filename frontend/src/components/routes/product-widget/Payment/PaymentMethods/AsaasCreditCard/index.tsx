@@ -37,7 +37,6 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
     const [addressNumber, setAddressNumber] = useState<string>('');
     const [addressComplement, setAddressComplement] = useState<string>('');
     const [phone, setPhone] = useState<string>('');
-    const [mobilePhone, setMobilePhone] = useState<string>('');
     
     const [errors, setErrors] = useState<Record<string, string>>({});
     
@@ -93,43 +92,43 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
         
         const cpfCnpjNumbers = cpfCnpj.replace(/\D/g, '');
         if (cpfCnpjNumbers.length !== 11 && cpfCnpjNumbers.length !== 14) {
-            newErrors.cpfCnpj = t`CPF must have 11 digits or CNPJ must have 14 digits.`;
+            newErrors.cpfCnpj = t`CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos.`;
         }
         
         if (!holderName.trim()) {
-            newErrors.holderName = t`Cardholder name is required.`;
+            newErrors.holderName = t`Nome do titular é obrigatório.`;
         }
         
         const cardNumberNumbers = cardNumber.replace(/\D/g, '');
         if (cardNumberNumbers.length < 13 || cardNumberNumbers.length > 19) {
-            newErrors.cardNumber = t`Invalid card number.`;
+            newErrors.cardNumber = t`Número do cartão inválido.`;
         }
         
         if (!expiryMonth || parseInt(expiryMonth) < 1 || parseInt(expiryMonth) > 12) {
-            newErrors.expiryMonth = t`Invalid expiry month.`;
+            newErrors.expiryMonth = t`Mês de expiração inválido.`;
         }
         
         const currentYear = new Date().getFullYear();
         if (!expiryYear || expiryYear.length !== 4 || parseInt(expiryYear) < currentYear) {
-            newErrors.expiryYear = t`Invalid expiry year.`;
+            newErrors.expiryYear = t`Ano de expiração inválido.`;
         }
         
         if (ccv.length < 3 || ccv.length > 4) {
-            newErrors.ccv = t`CVV must have 3 or 4 digits.`;
+            newErrors.ccv = t`CVV deve ter 3 ou 4 dígitos.`;
         }
         
         const postalCodeNumbers = postalCode.replace(/\D/g, '');
         if (postalCodeNumbers.length !== 8) {
-            newErrors.postalCode = t`Postal code must have 8 digits.`;
+            newErrors.postalCode = t`CEP deve ter 8 dígitos.`;
         }
         
         if (!addressNumber.trim()) {
-            newErrors.addressNumber = t`Address number is required.`;
+            newErrors.addressNumber = t`Número do endereço é obrigatório.`;
         }
         
         const phoneNumbers = phone.replace(/\D/g, '');
         if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
-            newErrors.phone = t`Invalid phone format.`;
+            newErrors.phone = t`Formato de telefone inválido.`;
         }
         
         setErrors(newErrors);
@@ -156,7 +155,6 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                 address_number: addressNumber.trim(),
                 address_complement: addressComplement.trim() || undefined,
                 phone: phone.replace(/\D/g, ''),
-                mobile_phone: mobilePhone.trim() ? mobilePhone.replace(/\D/g, '') : undefined,
             };
 
             const data = await orderClientPublic.createAsaasCreditCardPayment(
@@ -167,15 +165,11 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
             
             setPaymentStatus(data.status);
             
-            // Se o pagamento foi confirmado imediatamente, aguarda um pouco antes de verificar
-            if (data.status === 'CONFIRMED' || data.status === 'RECEIVED') {
-                setTimeout(() => {
-                    // O polling vai atualizar o pedido
-                }, 2000);
-            }
+            // Não para o loading aqui - deixa o polling verificar o status
+            // O webhook vai atualizar o pedido e o polling vai detectar a mudança
         } catch (err: any) {
             setIsProcessing(false);
-            const errorMessage = err.response?.data?.message || t`Failed to process payment. Please try again.`;
+            const errorMessage = err.response?.data?.message || t`Falha ao processar pagamento. Por favor, tente novamente.`;
             showError(errorMessage);
             
             // Tenta extrair erros de validação específicos
@@ -195,15 +189,17 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
 
     // Verifica se o pagamento foi confirmado e redireciona
     useEffect(() => {
-        if (!currentOrder || !paymentStatus) {
+        if (!currentOrder) {
             return;
         }
 
+        // Se o pedido foi pago ou completado, para o loading e redireciona
         if (currentOrder.payment_status === 'PAYMENT_RECEIVED' || currentOrder.status === 'COMPLETED') {
             setIsProcessing(false);
+            setPaymentStatus(null);
             navigate(eventCheckoutPath(eventId, orderShortId, 'summary'));
         }
-    }, [currentOrder?.payment_status, currentOrder?.status, paymentStatus, navigate, eventId, orderShortId]);
+    }, [currentOrder?.payment_status, currentOrder?.status, navigate, eventId, orderShortId]);
 
     if (!isOrderFetched || !currentOrder?.payment_status) {
         return (
@@ -217,8 +213,8 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
         return (
             <CheckoutContent>
                 <HomepageInfoMessage
-                    message={t`This order has already been paid.`}
-                    linkText={t`View order details`}
+                    message={t`Este pedido já foi pago.`}
+                    linkText={t`Ver detalhes do pedido`}
                     link={eventCheckoutPath(eventId, orderShortId, 'summary')}
                 />
             </CheckoutContent>
@@ -229,8 +225,8 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
         return (
             <CheckoutContent>
                 <HomepageInfoMessage
-                    message={t`This order page is no longer available.`}
-                    linkText={t`View order details`}
+                    message={t`Esta página de pedido não está mais disponível.`}
+                    linkText={t`Ver detalhes do pedido`}
                     link={eventHomepagePath(event as Event)}
                 />
             </CheckoutContent>
@@ -241,9 +237,9 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
         return (
             <CheckoutContent>
                 <HomepageInfoMessage
-                    message={t`Credit card payments are not enabled for this event.`}
+                    message={t`Pagamentos com cartão de crédito não estão habilitados para este evento.`}
                     link={eventHomepagePath(event as Event)}
-                    linkText={t`Return to event page`}
+                    linkText={t`Voltar para a página do evento`}
                 />
             </CheckoutContent>
         );
@@ -253,7 +249,7 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
         <CheckoutContent>
             <Card padding="lg" radius="md" withBorder>
                 <Group justify="space-between" mb="xs">
-                    <Text fw={500} size="lg">{t`Pay with Credit Card`}</Text>
+                    <Text fw={500} size="lg">{t`Pagar com Cartão de Crédito`}</Text>
                     {currentOrder && (
                         <Text size="sm" c="dimmed">
                             {formatCurrency(currentOrder.total_gross, currentOrder.currency)}
@@ -263,16 +259,16 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
 
                 {paymentStatus && paymentStatus !== 'CONFIRMED' && paymentStatus !== 'RECEIVED' && (
                     <Alert color="yellow" mb="md">
-                        {paymentStatus === 'PENDING' && t`Payment is being processed. Please wait...`}
-                        {paymentStatus === 'AWAITING_RISK_ANALYSIS' && t`Payment is under risk analysis. Please wait...`}
-                        {paymentStatus === 'AUTHORIZED' && t`Payment authorized. Waiting for confirmation...`}
+                        {paymentStatus === 'PENDING' && t`Pagamento está sendo processado. Por favor, aguarde...`}
+                        {paymentStatus === 'AWAITING_RISK_ANALYSIS' && t`Pagamento está em análise de risco. Por favor, aguarde...`}
+                        {paymentStatus === 'AUTHORIZED' && t`Pagamento autorizado. Aguardando confirmação...`}
                     </Alert>
                 )}
 
                 <Stack gap="md">
                     <TextInput
-                        label={t`CPF or CNPJ`}
-                        placeholder={t`000.000.000-00 or 00.000.000/0000-00`}
+                        label={t`CPF ou CNPJ`}
+                        placeholder={t`000.000.000-00 ou 00.000.000/0000-00`}
                         value={cpfCnpj}
                         onChange={(e) => {
                             const formatted = formatCpfCnpj(e.target.value);
@@ -285,8 +281,8 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                     />
 
                     <TextInput
-                        label={t`Cardholder Name`}
-                        placeholder={t`Name as it appears on card`}
+                        label={t`Nome do Titular`}
+                        placeholder={t`Nome como aparece no cartão`}
                         value={holderName}
                         onChange={(e) => {
                             setHolderName(e.target.value);
@@ -297,7 +293,7 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                     />
 
                     <TextInput
-                        label={t`Card Number`}
+                        label={t`Número do Cartão`}
                         placeholder={t`0000 0000 0000 0000`}
                         value={cardNumber}
                         onChange={(e) => {
@@ -312,7 +308,7 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
 
                     <Group grow>
                         <TextInput
-                            label={t`Expiry Month`}
+                            label={t`Mês de Expiração`}
                             placeholder={t`MM`}
                             value={expiryMonth}
                             onChange={(e) => {
@@ -325,8 +321,8 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                             maxLength={2}
                         />
                         <TextInput
-                            label={t`Expiry Year`}
-                            placeholder={t`YYYY`}
+                            label={t`Ano de Expiração`}
+                            placeholder={t`AAAA`}
                             value={expiryYear}
                             onChange={(e) => {
                                 const value = e.target.value.replace(/\D/g, '').slice(0, 4);
@@ -353,7 +349,7 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                     </Group>
 
                     <TextInput
-                        label={t`Postal Code (CEP)`}
+                        label={t`CEP`}
                         placeholder={t`00000-000`}
                         value={postalCode}
                         onChange={(e) => {
@@ -368,7 +364,7 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
 
                     <Group grow>
                         <TextInput
-                            label={t`Address Number`}
+                            label={t`Número`}
                             placeholder={t`123`}
                             value={addressNumber}
                             onChange={(e) => {
@@ -379,15 +375,15 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                             required
                         />
                         <TextInput
-                            label={t`Address Complement`}
-                            placeholder={t`Apt, Suite, etc.`}
+                            label={t`Nome da Rua`}
+                            placeholder={t`Ex: Rua das Flores`}
                             value={addressComplement}
                             onChange={(e) => setAddressComplement(e.target.value)}
                         />
                     </Group>
 
                     <TextInput
-                        label={t`Phone`}
+                        label={t`Telefone`}
                         placeholder={t`(00) 0000-0000`}
                         value={phone}
                         onChange={(e) => {
@@ -399,16 +395,6 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                         required
                     />
 
-                    <TextInput
-                        label={t`Mobile Phone (Optional)`}
-                        placeholder={t`(00) 00000-0000`}
-                        value={mobilePhone}
-                        onChange={(e) => {
-                            const formatted = formatPhone(e.target.value);
-                            setMobilePhone(formatted);
-                        }}
-                    />
-
                     <Button
                         onClick={handleSubmit}
                         loading={isProcessing}
@@ -416,7 +402,7 @@ export const AsaasCreditCardPaymentMethod = ({enabled}: AsaasCreditCardPaymentMe
                         mt="md"
                         disabled={isProcessing}
                     >
-                        {isProcessing ? t`Processing...` : t`Pay Now`}
+                        {isProcessing ? t`Processando...` : t`Pagar Agora`}
                     </Button>
                 </Stack>
             </Card>
