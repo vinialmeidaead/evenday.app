@@ -232,11 +232,12 @@ class AsaasCreditCardPaymentCreationService
             return $customer;
         }
 
-        // Cria novo cliente
+        // Cria novo cliente (notificações desativadas por padrão)
         $customerData = [
             'name' => $requestDTO->order->getFullName(),
             'email' => $email,
             'cpfCnpj' => $requestDTO->cpfCnpj,
+            'notificationDisabled' => true,
         ];
 
         $this->logger->info('AsaasCreditCardPaymentCreationService: Creating new customer', [

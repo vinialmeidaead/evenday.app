@@ -260,11 +260,12 @@ class AsaasPixPaymentCreationService
             return $customer;
         }
 
-        // Cria novo cliente
+        // Cria novo cliente (notificações desativadas por padrão)
         $customerData = [
             'name' => $requestDTO->order->getFullName(),
             'email' => $email,
             'cpfCnpj' => $requestDTO->cpfCnpj, // CPF/CNPJ fornecido pelo cliente no checkout
+            'notificationDisabled' => true,
         ];
 
         $this->logger->info('AsaasPixPaymentCreationService: Creating new customer', [
