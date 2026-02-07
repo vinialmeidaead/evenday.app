@@ -25,4 +25,7 @@ php artisan storage:link
 chown -R www-data:www-data /app/backend
 chmod -R 775 /app/backend/storage /app/backend/bootstrap/cache
 
-exec /usr/bin/supervisord -c /etc/supervisord.conf
+echo "-------------------------------------"
+echo "Starting supervisord (nginx, php-fpm, node SSR, queue worker)..."
+echo "-------------------------------------"
+exec supervisord -c /etc/supervisord.conf
