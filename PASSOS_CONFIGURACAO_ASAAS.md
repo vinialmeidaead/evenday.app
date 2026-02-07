@@ -62,6 +62,7 @@ Este documento contém todos os passos que **você precisa fazer manualmente** p
 
 ---
 
+
 ## 🔐 Passo 2: Configurar Variáveis de Ambiente
 
 ### 2.1 Adicionar Credenciais no `.env`
