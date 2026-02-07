@@ -8,7 +8,9 @@ COPY ./frontend/package.json ./frontend/yarn.lock ./
 
 COPY ./frontend .
 
-RUN yarn install && yarn build
+# Aumenta timeout de rede para ambientes com conexão lenta (ex.: build no Easypanel)
+ENV YARN_NETWORK_TIMEOUT=300000
+RUN yarn install --network-timeout 300000 && yarn build
 
 FROM serversideup/php:beta-8.3.2-fpm-alpine
 
