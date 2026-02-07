@@ -22,8 +22,12 @@ mkdir -p /app/backend/bootstrap/cache
 
 php artisan storage:link
 
-chown -R www-data:www-data /app/backend
-chmod -R 775 /app/backend/storage /app/backend/bootstrap/cache
+# Ajuste de permissões em background para não bloquear a subida do container
+# (chown/chmod em volumes montados podem travar no Docker, ex.: Windows)
+echo "-------------------------------------"
+echo "Adjusting permissions (non-blocking)..."
+echo "-------------------------------------"
+( chown -R www-data:www-data /app/backend 2>/dev/null; chmod -R 775 /app/backend/storage /app/backend/bootstrap/cache 2>/dev/null; ) &
 
 echo "-------------------------------------"
 echo "Starting supervisord (nginx, php-fpm, node SSR, queue worker)..."
