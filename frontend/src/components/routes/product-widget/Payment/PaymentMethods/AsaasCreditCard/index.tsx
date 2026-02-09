@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useGetEventPublic } from "../../../../../../queries/useGetEventPublic.ts";
 import { CheckoutContent } from "../../../../../layouts/Checkout/CheckoutContent";
 import { HomepageInfoMessage } from "../../../../../common/HomepageInfoMessage";
@@ -77,6 +77,9 @@ export const AsaasCreditCardPaymentMethod = ({
 
   const currentOrder = polledOrder || order;
 
+  // Valor mínimo por parcela
+  const MIN_INSTALLMENT_VALUE = 10.0;
+
   // Tabela de acréscimos por número de parcelas
   const installmentSurcharges: Record<number, number> = {
     1: 0.0,
@@ -93,14 +96,66 @@ export const AsaasCreditCardPaymentMethod = ({
     12: 19.4,
   };
 
+  // Calcula o valor máximo de parcelas permitidas baseado no valor mínimo por parcela
+  const calculateMaxInstallments = (originalValue: number): number => {
+    if (!originalValue || originalValue <= 0) return 1;
+    
+    // Testa cada número de parcelas de 12 até 1
+    for (let count = 12; count >= 1; count--) {
+      const surchargePercentage = installmentSurcharges[count] || 0;
+      const totalValue = originalValue * (1 + surchargePercentage / 100);
+      const installmentValue = count === 1 
+        ? totalValue 
+        : Math.floor((totalValue * 100) / count) / 100;
+      
+      // Se o valor da parcela for maior ou igual ao mínimo, permite
+      if (installmentValue >= MIN_INSTALLMENT_VALUE) {
+        return count;
+      }
+    }
+    
+    return 1; // Se nenhuma parcela atender o mínimo, retorna 1x
+  };
+
+  // Calcula o valor por parcela para um número específico de parcelas
+  const calculateInstallmentValue = (originalValue: number, count: number): number => {
+    const surchargePercentage = installmentSurcharges[count] || 0;
+    const totalValue = originalValue * (1 + surchargePercentage / 100);
+    return count === 1 
+      ? totalValue 
+      : Math.floor((totalValue * 100) / count) / 100;
+  };
+
+  // Calcula o máximo de parcelas permitidas
+  const maxInstallments = useMemo(() => {
+    if (!currentOrder?.total_gross) return 12;
+    return calculateMaxInstallments(currentOrder.total_gross);
+  }, [currentOrder?.total_gross]);
+
+  // Ajusta o número de parcelas se exceder o máximo permitido
+  useEffect(() => {
+    if (currentOrder?.total_gross && installmentCount > maxInstallments) {
+      setInstallmentCount(maxInstallments);
+    }
+  }, [currentOrder?.total_gross, maxInstallments]);
+
   // Calcula valores de parcelamento quando o número de parcelas ou valor do pedido mudar
   useEffect(() => {
     if (currentOrder?.total_gross && currentOrder?.currency) {
+      // Garante que não exceda o máximo permitido
+      const maxAllowed = calculateMaxInstallments(currentOrder.total_gross);
+      const validInstallmentCount = Math.min(installmentCount, maxAllowed);
+      
+      if (validInstallmentCount !== installmentCount) {
+        setInstallmentCount(validInstallmentCount);
+        return;
+      }
+
       const calculateInstallment = async () => {
         try {
           const result = await orderClientPublic.calculateInstallment(
             currentOrder.total_gross,
-            installmentCount,
+            validInstallmentCount,
           );
           setInstallmentCalculation({
             total_value: result.total_value,
@@ -112,13 +167,13 @@ export const AsaasCreditCardPaymentMethod = ({
           console.error("Erro ao calcular parcelamento:", error);
           // Em caso de erro, calcula localmente
           const surchargePercentage =
-            installmentSurcharges[installmentCount] || 0;
+            installmentSurcharges[validInstallmentCount] || 0;
           const totalValue =
             currentOrder.total_gross * (1 + surchargePercentage / 100);
           const installmentValue =
-            installmentCount === 1
+            validInstallmentCount === 1
               ? totalValue
-              : Math.floor((totalValue * 100) / installmentCount) / 100;
+              : Math.floor((totalValue * 100) / validInstallmentCount) / 100;
 
           setInstallmentCalculation({
             total_value: totalValue,
@@ -375,16 +430,28 @@ export const AsaasCreditCardPaymentMethod = ({
           label={t`Número de Parcelas`}
           placeholder={t`Selecione o número de parcelas`}
           value={installmentCount.toString()}
-          onChange={(value) => setInstallmentCount(parseInt(value || "1"))}
-          data={Array.from({ length: 12 }, (_, i) => {
+          onChange={(value) => {
+            const newCount = parseInt(value || "1");
+            // Garante que não exceda o máximo permitido
+            if (newCount <= maxInstallments) {
+              setInstallmentCount(newCount);
+            } else {
+              setInstallmentCount(maxInstallments);
+            }
+          }}
+          data={Array.from({ length: maxInstallments }, (_, i) => {
             const count = i + 1;
             const surcharge = installmentSurcharges[count] || 0;
+            const installmentValue = currentOrder?.total_gross 
+              ? calculateInstallmentValue(currentOrder.total_gross, count)
+              : 0;
+            
             return {
               value: count.toString(),
               label:
                 count === 1
-                  ? t`${count}x sem acréscimo`
-                  : t`${count}x com ${surcharge.toFixed(2)}% de acréscimo`,
+                  ? t`${count}x de ${formatCurrency(installmentValue, currentOrder?.currency || 'BRL')} sem acréscimo`
+                  : t`${count}x de ${formatCurrency(installmentValue, currentOrder?.currency || 'BRL')} com acréscimo`,
             };
           })}
           mb="md"

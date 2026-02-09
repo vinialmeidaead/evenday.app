@@ -4,6 +4,7 @@ namespace HiEvents\Http\Actions\Orders\Payment\Asaas;
 
 use HiEvents\Exceptions\Asaas\CreateCreditCardPaymentFailedException;
 use HiEvents\Http\Actions\BaseAction;
+use HiEvents\Repository\Interfaces\OrderRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Order\Payment\Asaas\CreateCreditCardPaymentHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ class CreateCreditCardPaymentActionPublic extends BaseAction
 {
     public function __construct(
         private readonly CreateCreditCardPaymentHandler $createCreditCardPaymentHandler,
+        private readonly OrderRepositoryInterface $orderRepository,
     )
     {
         logger()->debug('CreateCreditCardPaymentActionPublic: Constructor called', [
@@ -86,6 +88,33 @@ class CreateCreditCardPaymentActionPublic extends BaseAction
                 throw ValidationException::withMessages([
                     'expiry_month' => __('Card has expired.'),
                 ]);
+            }
+
+            // Valida valor mínimo por parcela (R$ 10,00)
+            if (isset($validated['installment_count']) && $validated['installment_count'] > 1) {
+                $order = $this->orderRepository->findByShortId($orderShortId);
+                if ($order) {
+                    $installmentCount = (int)$validated['installment_count'];
+                    $originalValue = $order->getTotalGross();
+                    
+                    // Calcula o valor por parcela
+                    $surchargeTable = [
+                        1 => 0.00, 2 => 6.30, 3 => 7.70, 4 => 9.00, 5 => 10.30,
+                        6 => 11.60, 7 => 12.90, 8 => 14.20, 9 => 15.50,
+                        10 => 16.80, 11 => 18.10, 12 => 19.40,
+                    ];
+                    
+                    $surchargePercentage = $surchargeTable[$installmentCount] ?? 0;
+                    $totalValue = $originalValue * (1 + ($surchargePercentage / 100));
+                    $installmentValue = floor(($totalValue * 100) / $installmentCount) / 100;
+                    
+                    $minInstallmentValue = 10.0;
+                    if ($installmentValue < $minInstallmentValue) {
+                        throw ValidationException::withMessages([
+                            'installment_count' => __('The minimum installment value is R$ 10.00. Please select fewer installments.'),
+                        ]);
+                    }
+                }
             }
 
             $paymentResponse = $this->createCreditCardPaymentHandler->handle($orderShortId, $validated);
