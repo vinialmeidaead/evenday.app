@@ -410,93 +410,101 @@ export const AsaasCreditCardPaymentMethod = ({
 
   return (
     <CheckoutContent>
-      <Card padding="lg" radius="md" withBorder style={{ position: 'relative' }}>
+      <Card padding="xl" radius="md" withBorder style={{ position: 'relative' }}>
         <LoadingOverlay
           visible={isProcessing}
           loaderProps={{ size: 'lg', type: 'dots' }}
           overlayProps={{ radius: 'md', blur: 2 }}
           zIndex={1000}
         />
-        <Group justify="space-between" mb="xs">
-          <Text fw={500} size="lg">{t`Pagar com Cartão de Crédito`}</Text>
-          {currentOrder && (
-            <Text size="sm" c="dimmed">
-              {formatCurrency(currentOrder.total_gross, currentOrder.currency)}
-            </Text>
-          )}
-        </Group>
+        
+        {/* Cabeçalho */}
+        <Stack gap="md" mb="xl">
+          <Group justify="space-between" align="center">
+            <Text fw={600} size="xl">{t`Pagar com Cartão de Crédito`}</Text>
+            {currentOrder && (
+              <Text size="lg" fw={600} c="dimmed">
+                {formatCurrency(currentOrder.total_gross, currentOrder.currency)}
+              </Text>
+            )}
+          </Group>
+          <Divider />
+        </Stack>
 
-        <Select
-          label={t`Número de Parcelas`}
-          placeholder={t`Selecione o número de parcelas`}
-          value={installmentCount.toString()}
-          onChange={(value) => {
-            const newCount = parseInt(value || "1");
-            // Garante que não exceda o máximo permitido
-            if (newCount <= maxInstallments) {
-              setInstallmentCount(newCount);
-            } else {
-              setInstallmentCount(maxInstallments);
-            }
-          }}
-          data={Array.from({ length: maxInstallments }, (_, i) => {
-            const count = i + 1;
-            const surcharge = installmentSurcharges[count] || 0;
-            const installmentValue = currentOrder?.total_gross 
-              ? calculateInstallmentValue(currentOrder.total_gross, count)
-              : 0;
-            
-            return {
-              value: count.toString(),
-              label:
-                count === 1
-                  ? t`${count}x de ${formatCurrency(installmentValue, currentOrder?.currency || 'BRL')} sem acréscimo`
-                  : t`${count}x de ${formatCurrency(installmentValue, currentOrder?.currency || 'BRL')} com acréscimo`,
-            };
-          })}
-          mb="md"
-        />
+        {/* Seleção de Parcelas */}
+        <Stack gap="md" mb="xl">
+          <Select
+            label={<Text fw={500} size="sm" mb={4}>{t`Número de Parcelas`}</Text>}
+            placeholder={t`Selecione o número de parcelas`}
+            value={installmentCount.toString()}
+            onChange={(value) => {
+              const newCount = parseInt(value || "1");
+              // Garante que não exceda o máximo permitido
+              if (newCount <= maxInstallments) {
+                setInstallmentCount(newCount);
+              } else {
+                setInstallmentCount(maxInstallments);
+              }
+            }}
+            data={Array.from({ length: maxInstallments }, (_, i) => {
+              const count = i + 1;
+              const surcharge = installmentSurcharges[count] || 0;
+              const installmentValue = currentOrder?.total_gross 
+                ? calculateInstallmentValue(currentOrder.total_gross, count)
+                : 0;
+              
+              return {
+                value: count.toString(),
+                label:
+                  count === 1
+                    ? t`${count}x de ${formatCurrency(installmentValue, currentOrder?.currency || 'BRL')} sem acréscimo`
+                    : t`${count}x de ${formatCurrency(installmentValue, currentOrder?.currency || 'BRL')} com acréscimo`,
+              };
+            })}
+            size="md"
+          />
+        </Stack>
 
+        {/* Resumo de Valores */}
         {installmentCalculation &&
           installmentCount > 1 &&
           installmentCalculation.surcharge_percentage > 0 && (
-            <Alert color="blue" mb="md">
-              <Stack gap="xs">
-                <Group justify="space-between">
-                  <Text size="sm" fw={500}>{t`Valor original:`}</Text>
-                  <Text size="sm">
+            <Card withBorder padding="md" mb="xl" style={{ backgroundColor: 'var(--mantine-color-blue-0)' }}>
+              <Stack gap="sm">
+                <Text size="sm" fw={600} mb={4}>{t`Resumo do Pagamento`}</Text>
+                <Group justify="space-between" align="center">
+                  <Text size="sm" c="dimmed">{t`Valor original:`}</Text>
+                  <Text size="sm" fw={500}>
                     {formatCurrency(
                       currentOrder?.total_gross || 0,
                       currentOrder?.currency || "BRL",
                     )}
                   </Text>
                 </Group>
-                <Group justify="space-between">
-                  <Text
-                    size="sm"
-                    fw={500}
-                  >{t`Acréscimo (${installmentCalculation.surcharge_percentage.toFixed(2)}%):`}</Text>
-                  <Text size="sm" c="red">
-                    +
-                    {formatCurrency(
+                <Group justify="space-between" align="center">
+                  <Text size="sm" c="dimmed">
+                    {t`Acréscimo (${installmentCalculation.surcharge_percentage.toFixed(2)}%):`}
+                  </Text>
+                  <Text size="sm" fw={500} c="red">
+                    +{formatCurrency(
                       installmentCalculation.surcharge_amount,
                       currentOrder?.currency || "BRL",
                     )}
                   </Text>
                 </Group>
-                <Divider />
-                <Group justify="space-between">
-                  <Text size="sm" fw={700}>{t`Valor total:`}</Text>
-                  <Text size="sm" fw={700}>
+                <Divider my="xs" />
+                <Group justify="space-between" align="center">
+                  <Text size="md" fw={700}>{t`Valor total:`}</Text>
+                  <Text size="md" fw={700}>
                     {formatCurrency(
                       installmentCalculation.total_value,
                       currentOrder?.currency || "BRL",
                     )}
                   </Text>
                 </Group>
-                <Group justify="space-between">
-                  <Text size="sm">{t`Valor por parcela:`}</Text>
-                  <Text size="sm" fw={500}>
+                <Group justify="space-between" align="center" mt={4}>
+                  <Text size="sm" c="dimmed">{t`Valor por parcela:`}</Text>
+                  <Text size="sm" fw={600}>
                     {formatCurrency(
                       installmentCalculation.installment_value,
                       currentOrder?.currency || "BRL",
@@ -504,11 +512,12 @@ export const AsaasCreditCardPaymentMethod = ({
                   </Text>
                 </Group>
               </Stack>
-            </Alert>
+            </Card>
           )}
 
+        {/* Alertas de Status */}
         {isProcessing && (
-          <Alert color="blue" mb="md">
+          <Alert color="blue" mb="xl" radius="md">
             <Stack gap="xs">
               <Text size="sm" fw={500}>{t`Processando pagamento...`}</Text>
               <Text size="xs" c="dimmed">{t`Por favor, aguarde enquanto processamos seu pagamento. Não feche esta página.`}</Text>
@@ -520,7 +529,7 @@ export const AsaasCreditCardPaymentMethod = ({
           paymentStatus !== "CONFIRMED" &&
           paymentStatus !== "RECEIVED" &&
           !isProcessing && (
-            <Alert color="yellow" mb="md">
+            <Alert color="yellow" mb="xl" radius="md">
               {paymentStatus === "PENDING" &&
                 t`Pagamento está sendo processado. Por favor, aguarde...`}
               {paymentStatus === "AWAITING_RISK_ANALYSIS" &&
@@ -530,7 +539,11 @@ export const AsaasCreditCardPaymentMethod = ({
             </Alert>
           )}
 
-        <Stack gap="md">
+        {/* Divisor antes do formulário */}
+        <Divider label={<Text size="sm" fw={500} c="dimmed">{t`Dados do Cartão`}</Text>} labelPosition="center" mb="xl" />
+
+        {/* Formulário */}
+        <Stack gap="lg">
           <TextInput
             label={t`CPF ou CNPJ`}
             placeholder={t`000.000.000-00 ou 00.000.000/0000-00`}
@@ -543,6 +556,7 @@ export const AsaasCreditCardPaymentMethod = ({
             error={errors.cpfCnpj}
             required
             maxLength={18}
+            size="md"
           />
 
           <TextInput
@@ -555,6 +569,7 @@ export const AsaasCreditCardPaymentMethod = ({
             }}
             error={errors.holderName}
             required
+            size="md"
           />
 
           <TextInput
@@ -569,6 +584,7 @@ export const AsaasCreditCardPaymentMethod = ({
             error={errors.cardNumber}
             required
             maxLength={19}
+            size="md"
           />
 
           <Group grow>
@@ -584,6 +600,7 @@ export const AsaasCreditCardPaymentMethod = ({
               error={errors.expiryMonth}
               required
               maxLength={2}
+              size="md"
             />
             <TextInput
               label={t`Ano de Expiração`}
@@ -597,6 +614,7 @@ export const AsaasCreditCardPaymentMethod = ({
               error={errors.expiryYear}
               required
               maxLength={4}
+              size="md"
             />
             <TextInput
               label={t`CVV`}
@@ -610,6 +628,7 @@ export const AsaasCreditCardPaymentMethod = ({
               error={errors.ccv}
               required
               maxLength={4}
+              size="md"
             />
           </Group>
 
@@ -625,6 +644,7 @@ export const AsaasCreditCardPaymentMethod = ({
             error={errors.postalCode}
             required
             maxLength={9}
+            size="md"
           />
 
           <Group grow>
@@ -633,6 +653,7 @@ export const AsaasCreditCardPaymentMethod = ({
               placeholder={t`Ex: Rua das Flores`}
               value={addressComplement}
               onChange={(e) => setAddressComplement(e.target.value)}
+              size="md"
             />
             <TextInput
               label={t`Número do Endereço`}
@@ -644,6 +665,7 @@ export const AsaasCreditCardPaymentMethod = ({
               }}
               error={errors.addressNumber}
               required
+              size="md"
             />
           </Group>
 
@@ -658,14 +680,18 @@ export const AsaasCreditCardPaymentMethod = ({
             }}
             error={errors.phone}
             required
+            size="md"
           />
 
+          <Divider my="md" />
+          
           <Button
             onClick={handleSubmit}
             loading={isProcessing}
             fullWidth
-            mt="md"
+            size="lg"
             disabled={isProcessing}
+            style={{ marginTop: 'var(--mantine-spacing-md)' }}
           >
             {isProcessing ? t`Processando...` : t`Pagar Agora`}
           </Button>
