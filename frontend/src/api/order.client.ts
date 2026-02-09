@@ -179,6 +179,7 @@ export const orderClientPublic = {
         address_complement?: string,
         phone: string,
         mobile_phone?: string,
+        installment_count?: number,
     }) => {
         const response = await publicApi.post<{
             payment_id: string,
@@ -186,6 +187,21 @@ export const orderClientPublic = {
             credit_card_number?: string,
             credit_card_brand?: string,
         }>(`events/${eventId}/order/${orderShortId}/asaas/credit-card-payment`, cardData);
+        return response.data;
+    },
+
+    calculateInstallment: async (originalValue: number, installmentCount: number) => {
+        const response = await publicApi.post<{
+            original_value: number,
+            installment_count: number,
+            surcharge_percentage: number,
+            surcharge_amount: number,
+            total_value: number,
+            installment_value: number,
+        }>(`asaas/calculate-installment`, {
+            original_value: originalValue,
+            installment_count: installmentCount,
+        });
         return response.data;
     },
 

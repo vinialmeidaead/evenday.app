@@ -18,6 +18,7 @@ class AsaasCreditCardPaymentCreationService
         private readonly AsaasClientFactory $asaasClientFactory,
         private readonly LoggerInterface     $logger,
         private readonly DatabaseManager      $databaseManager,
+        private readonly InstallmentCalculationService $installmentCalculationService,
     )
     {
     }
@@ -67,16 +68,50 @@ class AsaasCreditCardPaymentCreationService
                 'customer_name' => $customer['name'] ?? null,
             ]);
 
+            // Calcula valores de parcelamento se necessário
+            $originalValue = $requestDTO->amount->toFloat();
+            $installmentCount = $requestDTO->installmentCount ?? 1;
+            
+            $this->logger->info('AsaasCreditCardPaymentCreationService: Calculating installment values', [
+                'original_value' => $originalValue,
+                'installment_count' => $installmentCount,
+            ]);
+
             // Primeiro cria a cobrança
             $paymentData = [
                 'customer' => $customer['id'],
                 'billingType' => 'CREDIT_CARD',
-                'value' => $requestDTO->amount->toFloat(),
                 'dueDate' => Carbon::now()->addDays(1)->format('Y-m-d'),
                 'description' => sprintf('Pedido #%s - %s', $requestDTO->order->getShortId(), $requestDTO->order->getEventId()),
                 'externalReference' => $requestDTO->order->getShortId(),
                 'notificationDisabled' => false,
             ];
+
+            // Se for parcelamento (2x ou mais), usa os campos de parcelamento
+            if ($installmentCount > 1) {
+                $installmentCalculation = $this->installmentCalculationService->calculate(
+                    $originalValue,
+                    $installmentCount
+                );
+                
+                $paymentData['installmentCount'] = $installmentCount;
+                // Usa totalValue conforme documentação do Asaas - a diferença será compensada na última parcela
+                $paymentData['totalValue'] = $installmentCalculation->totalValue;
+                
+                $this->logger->info('AsaasCreditCardPaymentCreationService: Using installment payment', [
+                    'installment_count' => $installmentCount,
+                    'total_value' => $installmentCalculation->totalValue,
+                    'installment_value' => $installmentCalculation->installmentValue,
+                    'surcharge_percentage' => $installmentCalculation->surchargePercentage,
+                ]);
+            } else {
+                // Para 1x, usa apenas o campo value
+                $paymentData['value'] = $originalValue;
+                
+                $this->logger->info('AsaasCreditCardPaymentCreationService: Using single payment', [
+                    'value' => $originalValue,
+                ]);
+            }
 
             $this->logger->info('AsaasCreditCardPaymentCreationService: Creating credit card payment in Asaas', [
                 'payment_data' => $paymentData,

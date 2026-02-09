@@ -127,6 +127,7 @@ readonly class CreateCreditCardPaymentHandler
                 'addressComplement' => $cardData['address_complement'] ?? null,
                 'phone' => preg_replace('/\D/', '', $cardData['phone']),
                 'mobilePhone' => isset($cardData['mobile_phone']) ? preg_replace('/\D/', '', $cardData['mobile_phone']) : null,
+                'installmentCount' => isset($cardData['installment_count']) ? (int)$cardData['installment_count'] : 1,
             ])
         );
 

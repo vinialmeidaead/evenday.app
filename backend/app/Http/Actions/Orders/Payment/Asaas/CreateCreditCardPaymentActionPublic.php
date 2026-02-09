@@ -44,6 +44,7 @@ class CreateCreditCardPaymentActionPublic extends BaseAction
                 'address_complement' => ['nullable', 'string', 'max:255'],
                 'phone' => ['required', 'string', 'regex:/^[0-9]{10,11}$/'],
                 'mobile_phone' => ['nullable', 'string', 'regex:/^[0-9]{10,11}$/'],
+                'installment_count' => ['nullable', 'integer', 'min:1', 'max:12'],
             ], [
                 'cpf_cnpj.required' => __('CPF or CNPJ is required for credit card payments.'),
                 'cpf_cnpj.regex' => __('CPF must have 11 digits or CNPJ must have 14 digits.'),
@@ -61,6 +62,9 @@ class CreateCreditCardPaymentActionPublic extends BaseAction
                 'address_number.required' => __('Address number is required.'),
                 'phone.required' => __('Phone is required.'),
                 'phone.regex' => __('Invalid phone format.'),
+                'installment_count.integer' => __('Installment count must be an integer.'),
+                'installment_count.min' => __('Installment count must be at least 1.'),
+                'installment_count.max' => __('Installment count cannot exceed 12.'),
             ]);
 
             // Remove caracteres não numéricos

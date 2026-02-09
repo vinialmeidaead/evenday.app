@@ -23,6 +23,7 @@ class CreateCreditCardPaymentRequestDTO extends BaseDTO
         public readonly ?string           $addressComplement,
         public readonly string            $phone,
         public readonly ?string           $mobilePhone,
+        public readonly int                $installmentCount = 1,
     )
     {
     }
