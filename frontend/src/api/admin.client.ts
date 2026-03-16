@@ -104,6 +104,11 @@ export const adminClient = {
         return response.data;
     },
 
+    blockUser: async (userId: IdParam) => {
+        const response = await api.post<{ message: string }>(`admin/users/${userId}/block`);
+        return response.data;
+    },
+
     startImpersonation: async (userId: IdParam, accountId: IdParam) => {
         const response = await api.post<StartImpersonationResponse>(
             `admin/impersonate/${userId}`,

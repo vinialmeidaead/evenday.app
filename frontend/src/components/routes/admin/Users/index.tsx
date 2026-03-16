@@ -4,6 +4,7 @@ import {IconSearch} from "@tabler/icons-react";
 import {useState, useEffect} from "react";
 import {useGetAllUsers} from "../../../../queries/useGetAllUsers";
 import {useStartImpersonation} from "../../../../mutations/useStartImpersonation";
+import {useBlockUser} from "../../../../mutations/useBlockUser";
 import AdminUsersTable from "../../../common/AdminUsersTable";
 import {showError, showSuccess} from "../../../../utilites/notifications";
 import {IdParam} from "../../../../types";
@@ -22,6 +23,7 @@ const Users = () => {
     });
 
     const startImpersonationMutation = useStartImpersonation();
+    const blockUserMutation = useBlockUser();
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -51,6 +53,24 @@ const Users = () => {
         });
     };
 
+    const handleBlockUser = (userId: IdParam) => {
+        if (!userId) {
+            return;
+        }
+
+        blockUserMutation.mutate(userId, {
+            onSuccess: (response) => {
+                showSuccess(response.message || t`User blocked and active events archived.`);
+            },
+            onError: (error: any) => {
+                showError(
+                    error?.response?.data?.message ||
+                    t`Failed to block user. Please try again.`
+                );
+            }
+        });
+    };
+
     return (
         <Container size="xl" p="xl">
             <Stack gap="lg">
@@ -73,7 +93,8 @@ const Users = () => {
                     <AdminUsersTable
                         users={usersData?.data || []}
                         onImpersonate={handleImpersonate}
-                        isLoading={startImpersonationMutation.isPending}
+                        isLoading={startImpersonationMutation.isPending || blockUserMutation.isPending}
+                        onBlockUser={handleBlockUser}
                     />
                 )}
 

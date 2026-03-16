@@ -158,6 +158,7 @@ use HiEvents\Http\Actions\Admin\Accounts\GetAllAccountsAction;
 use HiEvents\Http\Actions\Admin\Events\GetUpcomingEventsAction;
 use HiEvents\Http\Actions\Admin\Stats\GetAdminStatsAction;
 use HiEvents\Http\Actions\Admin\Users\GetAllUsersAction;
+use HiEvents\Http\Actions\Admin\Users\BlockUserAction;
 use HiEvents\Http\Actions\Admin\Users\StartImpersonationAction;
 use HiEvents\Http\Actions\Admin\Users\StopImpersonationAction;
 use HiEvents\Http\Actions\Webhooks\CreateWebhookAction;
@@ -381,6 +382,7 @@ $router->prefix('/admin')->middleware(['auth:api'])->group(
         $router->get('/events/upcoming', GetUpcomingEventsAction::class);
         $router->post('/impersonate/{user_id}', StartImpersonationAction::class);
         $router->post('/stop-impersonation', StopImpersonationAction::class);
+        $router->post('/users/{user_id}/block', BlockUserAction::class);
     }
 );
 

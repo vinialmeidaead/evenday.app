@@ -1,4 +1,4 @@
-import {Badge, Button, Menu, Stack, Text} from "@mantine/core";
+import {Badge, Button, Group, Menu, Stack, Text} from "@mantine/core";
 import {t} from "@lingui/macro";
 import {AdminUser} from "../../../api/admin.client";
 import {IconChevronDown, IconCalendar, IconWorld} from "@tabler/icons-react";
@@ -9,9 +9,10 @@ interface AdminUsersTableProps {
     users: AdminUser[];
     onImpersonate: (userId: IdParam, accountId: IdParam) => void;
     isLoading?: boolean;
+    onBlockUser?: (userId: IdParam) => void;
 }
 
-const AdminUsersTable = ({users, onImpersonate, isLoading}: AdminUsersTableProps) => {
+const AdminUsersTable = ({users, onImpersonate, isLoading, onBlockUser}: AdminUsersTableProps) => {
     if (!users || users.length === 0) {
         return (
             <div className={classes.emptyState}>
@@ -71,54 +72,72 @@ const AdminUsersTable = ({users, onImpersonate, isLoading}: AdminUsersTableProps
                                 <span className={classes.userEmail}>{user.email}</span>
                             </div>
                             <div className={classes.cardActions}>
-                                {!userIsSuperAdmin && impersonatableAccounts.length > 0 && (
-                                    <>
-                                        {impersonatableAccounts.length === 1 ? (
-                                            <Button
-                                                size="xs"
-                                                variant="light"
-                                                onClick={() => handleImpersonate(user)}
-                                                disabled={isLoading}
-                                                className={classes.impersonateBtn}
-                                            >
-                                                {t`Impersonate`}
-                                            </Button>
-                                        ) : (
-                                            <Menu shadow="md" width={200}>
-                                                <Menu.Target>
-                                                    <Button
-                                                        size="xs"
-                                                        variant="light"
-                                                        rightSection={<IconChevronDown size={14} />}
-                                                        disabled={isLoading}
-                                                        className={classes.impersonateBtn}
-                                                    >
-                                                        {t`Impersonate`}
-                                                    </Button>
-                                                </Menu.Target>
-                                                <Menu.Dropdown>
-                                                    <Menu.Label>{t`Select Account`}</Menu.Label>
-                                                    {impersonatableAccounts.map((account) => (
-                                                        <Menu.Item
-                                                            key={account.id}
-                                                            onClick={() => onImpersonate(user.id, account.id)}
+                                <Group gap="xs">
+                                    {user.status && (
+                                        <Badge size="xs" color={user.status === 'INACTIVE' ? 'red' : 'green'}>
+                                            {user.status}
+                                        </Badge>
+                                    )}
+                                    {!userIsSuperAdmin && impersonatableAccounts.length > 0 && (
+                                        <>
+                                            {impersonatableAccounts.length === 1 ? (
+                                                <Button
+                                                    size="xs"
+                                                    variant="light"
+                                                    onClick={() => handleImpersonate(user)}
+                                                    disabled={isLoading || user.status === 'INACTIVE'}
+                                                    className={classes.impersonateBtn}
+                                                >
+                                                    {t`Impersonate`}
+                                                </Button>
+                                            ) : (
+                                                <Menu shadow="md" width={200}>
+                                                    <Menu.Target>
+                                                        <Button
+                                                            size="xs"
+                                                            variant="light"
+                                                            rightSection={<IconChevronDown size={14} />}
+                                                            disabled={isLoading || user.status === 'INACTIVE'}
+                                                            className={classes.impersonateBtn}
                                                         >
-                                                            <Stack gap={4}>
-                                                                <Text size="sm">{account.name}</Text>
-                                                                <Badge
-                                                                    size="xs"
-                                                                    color={getRoleBadgeColor(account.role)}
-                                                                >
-                                                                    {account.role}
-                                                                </Badge>
-                                                            </Stack>
-                                                        </Menu.Item>
-                                                    ))}
-                                                </Menu.Dropdown>
-                                            </Menu>
-                                        )}
-                                    </>
-                                )}
+                                                            {t`Impersonate`}
+                                                        </Button>
+                                                    </Menu.Target>
+                                                    <Menu.Dropdown>
+                                                        <Menu.Label>{t`Select Account`}</Menu.Label>
+                                                        {impersonatableAccounts.map((account) => (
+                                                            <Menu.Item
+                                                                key={account.id}
+                                                                onClick={() => onImpersonate(user.id, account.id)}
+                                                            >
+                                                                <Stack gap={4}>
+                                                                    <Text size="sm">{account.name}</Text>
+                                                                    <Badge
+                                                                        size="xs"
+                                                                        color={getRoleBadgeColor(account.role)}
+                                                                    >
+                                                                        {account.role}
+                                                                    </Badge>
+                                                                </Stack>
+                                                            </Menu.Item>
+                                                        ))}
+                                                    </Menu.Dropdown>
+                                                </Menu>
+                                            )}
+                                        </>
+                                    )}
+                                    {onBlockUser && user.status !== 'INACTIVE' && (
+                                        <Button
+                                            size="xs"
+                                            variant="outline"
+                                            color="red"
+                                            onClick={() => onBlockUser(user.id)}
+                                            disabled={isLoading}
+                                        >
+                                            {t`Block user`}
+                                        </Button>
+                                    )}
+                                </Group>
                             </div>
                         </div>
 

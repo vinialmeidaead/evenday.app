@@ -30,6 +30,7 @@ class AdminUserResource extends BaseResource
             'locale' => $this->resource->locale,
             'is_email_verified' => $this->resource->email_verified_at !== null,
             'created_at' => $this->resource->created_at,
+            'status' => $this->resource->status ?? null,
             'accounts' => $accounts,
         ];
     }
