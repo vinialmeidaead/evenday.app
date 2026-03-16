@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace HiEvents\Services\Application\Handlers\Admin;
 
 use HiEvents\DomainObjects\Status\EventStatus;
-use HiEvents\Models\User;
+use HiEvents\Models\AccountUser;
 use HiEvents\Repository\Interfaces\EventRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Admin\DTO\BlockUserDTO;
 use Illuminate\Database\DatabaseManager;
@@ -25,8 +25,8 @@ class BlockUserHandler
     public function handle(BlockUserDTO $dto): void
     {
         $this->databaseManager->transaction(function () use ($dto) {
-            // Mark user as inactive (blocked)
-            User::where('id', $dto->userId)
+            // Mark all account relationships for this user as inactive (blocked)
+            AccountUser::where('user_id', $dto->userId)
                 ->update(['status' => 'INACTIVE']);
 
             // Archive all active (live) events created by this user

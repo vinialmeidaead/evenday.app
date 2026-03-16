@@ -73,11 +73,6 @@ const AdminUsersTable = ({users, onImpersonate, isLoading, onBlockUser}: AdminUs
                             </div>
                             <div className={classes.cardActions}>
                                 <Group gap="xs">
-                                    {user.status && (
-                                        <Badge size="xs" color={user.status === 'INACTIVE' ? 'red' : 'green'}>
-                                            {user.status}
-                                        </Badge>
-                                    )}
                                     {!userIsSuperAdmin && impersonatableAccounts.length > 0 && (
                                         <>
                                             {impersonatableAccounts.length === 1 ? (
@@ -85,7 +80,7 @@ const AdminUsersTable = ({users, onImpersonate, isLoading, onBlockUser}: AdminUs
                                                     size="xs"
                                                     variant="light"
                                                     onClick={() => handleImpersonate(user)}
-                                                    disabled={isLoading || user.status === 'INACTIVE'}
+                                                    disabled={isLoading}
                                                     className={classes.impersonateBtn}
                                                 >
                                                     {t`Impersonate`}
@@ -126,7 +121,7 @@ const AdminUsersTable = ({users, onImpersonate, isLoading, onBlockUser}: AdminUs
                                             )}
                                         </>
                                     )}
-                                    {onBlockUser && user.status !== 'INACTIVE' && (
+                                    {onBlockUser && (
                                         <Button
                                             size="xs"
                                             variant="outline"
