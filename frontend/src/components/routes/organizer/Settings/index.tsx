@@ -2,12 +2,20 @@ import {SeoSettings} from "./Sections/SeoSettings";
 import BasicSettings from "./Sections/BasicSettings";
 import {SocialLinks} from "./Sections/SocialLinks";
 import {AddressSettings} from "./Sections/AddressSettings";
+import {OrganizerFiscalSettings} from "./Sections/OrganizerFiscalSettings";
 import EmailTemplateSettings from "./Sections/EmailTemplateSettings";
 import {PageBody} from "../../../common/PageBody";
 import {PageTitle} from "../../../common/PageTitle";
 import {t} from "@lingui/macro";
 import {Box, Group, NavLink as MantineNavLink, Stack} from "@mantine/core";
-import {IconBrandGoogleAnalytics, IconInfoCircle, IconMapPin, IconShare, IconMail} from "@tabler/icons-react";
+import {
+    IconBrandGoogleAnalytics,
+    IconFileInvoice,
+    IconInfoCircle,
+    IconMail,
+    IconMapPin,
+    IconShare,
+} from "@tabler/icons-react";
 import {useMediaQuery} from "@mantine/hooks";
 import {useState} from "react";
 import {Card} from "../../../common/Card";
@@ -22,6 +30,12 @@ const Settings = () => {
             label: t`Basic Information`,
             icon: IconInfoCircle,
             component: BasicSettings
+        },
+        {
+            id: 'fiscal-settings',
+            label: t`CPF/CNPJ and PIX`,
+            icon: IconFileInvoice,
+            component: OrganizerFiscalSettings
         },
         {
             id: 'address-settings',

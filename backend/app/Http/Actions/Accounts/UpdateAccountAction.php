@@ -25,12 +25,20 @@ class UpdateAccountAction extends BaseAction
 
         $authUser = $this->getAuthenticatedUser();
 
-        $payload = array_merge($request->validated(), [
+        $validated = $request->validated();
+
+        $payload = array_merge($validated, [
             'account_id' => $this->getAuthenticatedAccountId(),
             'updated_by_user_id' => $authUser->getId(),
         ]);
 
-        $account = $this->updateAccountHandler->handle(UpdateAccountDTO::fromArray($payload));
+        $fiscalKeys = ['organizer_tax_id_type', 'organizer_tax_id', 'pix_key_type', 'pix_key_value'];
+        $fiscalAttributes = array_intersect_key($validated, array_flip($fiscalKeys));
+
+        $account = $this->updateAccountHandler->handle(
+            UpdateAccountDTO::fromArray($payload),
+            $fiscalAttributes,
+        );
 
         return $this->resourceResponse(AccountResource::class, $account);
     }

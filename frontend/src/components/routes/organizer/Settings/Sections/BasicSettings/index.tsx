@@ -94,8 +94,9 @@ const Settings = () => {
                     <InputGroup>
                         <TextInput
                             {...form.getInputProps('phone')}
-                            label={t`Phone`}
-                            placeholder={t`+1 234 567 890`}
+                            label={t`Telefone / WhatsApp`}
+                            description={t`Mesmo número informado no cadastro da conta; usado como contato do organizador.`}
+                            placeholder={t`(11) 98765-4321`}
                         />
                         <TextInput
                             {...form.getInputProps('website')}

@@ -19,14 +19,28 @@ class UpdateAccountHanlder
         $this->logger = $logger;
     }
 
-    public function handle(UpdateAccountDTO $data): AccountDomainObject
+    /**
+     * @param array<string, mixed> $fiscalAttributes organizer_tax_id_type, organizer_tax_id, pix_key_type, pix_key_value
+     */
+    public function handle(UpdateAccountDTO $data, array $fiscalAttributes = []): AccountDomainObject
     {
+        $fiscalAttributes = array_map(static function (mixed $v): mixed {
+            if ($v === '') {
+                return null;
+            }
+
+            return $v;
+        }, $fiscalAttributes);
+
         $this->accountRepository->updateWhere(
-            attributes: [
-                'name' => $data->name,
-                'currency_code' => $data->currency_code,
-                'timezone' => $data->timezone,
-            ],
+            attributes: array_merge(
+                [
+                    'name' => $data->name,
+                    'currency_code' => $data->currency_code,
+                    'timezone' => $data->timezone,
+                ],
+                $fiscalAttributes,
+            ),
             where: [
                 'id' => $data->account_id,
             ],

@@ -124,8 +124,14 @@ export interface Account {
     is_saas_mode_enabled?: boolean;
     configuration?: AccountConfiguration;
     requires_manual_verification?: boolean;
-    stripe_platform: string;
+    stripe_platform?: string;
     stripe_hi_events_primary_platform?: string;
+    /** CPF ou CNPJ do organizador (conta) */
+    organizer_tax_id_type?: 'CPF' | 'CNPJ' | null;
+    organizer_tax_id?: string | null;
+    pix_key_type?: string | null;
+    pix_key_value?: string | null;
+    registration_declaration_accepted_at?: string | null;
 }
 
 export interface AccountConfiguration {
