@@ -20,6 +20,8 @@
 .leftPanel {
   flex: 1;
   min-width: 0;
+  // Permite o painel respeitar a altura do split (100vh) e rolar o conteúdo em vez de “cortar” o topo
+  min-height: 0;
   position: relative;
   background: transparent;
   overflow-y: auto;
@@ -141,12 +143,14 @@
   flex-direction: column;
   background: transparent;
   box-sizing: border-box;
-  height: 100vh;
-  padding: 0 20px;
+  // min-height em vez de height: evita centralizar um bloco maior que a viewport (corta nome/e-mail no cadastro)
+  min-height: 100%;
+  width: 100%;
+  padding: 1.5rem 20px 2.5rem;
   min-width: 250px;
 
   @include mixins.respond-below(md) {
-    height: auto;
+    min-height: unset;
   }
 
   .logo {
