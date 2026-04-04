@@ -22,6 +22,11 @@ abstract class AccountDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     final public const SHORT_ID = 'short_id';
     final public const ACCOUNT_VERIFIED_AT = 'account_verified_at';
     final public const IS_MANUALLY_VERIFIED = 'is_manually_verified';
+    final public const ORGANIZER_TAX_ID_TYPE = 'organizer_tax_id_type';
+    final public const ORGANIZER_TAX_ID = 'organizer_tax_id';
+    final public const PIX_KEY_TYPE = 'pix_key_type';
+    final public const PIX_KEY_VALUE = 'pix_key_value';
+    final public const REGISTRATION_DECLARATION_ACCEPTED_AT = 'registration_declaration_accepted_at';
 
     protected int $id;
     protected ?int $account_configuration_id = null;
@@ -35,6 +40,11 @@ abstract class AccountDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     protected string $short_id;
     protected ?string $account_verified_at = null;
     protected bool $is_manually_verified = false;
+    protected ?string $organizer_tax_id_type = null;
+    protected ?string $organizer_tax_id = null;
+    protected ?string $pix_key_type = null;
+    protected ?string $pix_key_value = null;
+    protected ?string $registration_declaration_accepted_at = null;
 
     public function toArray(): array
     {
@@ -51,6 +61,11 @@ abstract class AccountDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
                     'short_id' => $this->short_id ?? null,
                     'account_verified_at' => $this->account_verified_at ?? null,
                     'is_manually_verified' => $this->is_manually_verified ?? null,
+                    'organizer_tax_id_type' => $this->organizer_tax_id_type ?? null,
+                    'organizer_tax_id' => $this->organizer_tax_id ?? null,
+                    'pix_key_type' => $this->pix_key_type ?? null,
+                    'pix_key_value' => $this->pix_key_value ?? null,
+                    'registration_declaration_accepted_at' => $this->registration_declaration_accepted_at ?? null,
                 ];
     }
 
@@ -184,5 +199,60 @@ abstract class AccountDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     public function getIsManuallyVerified(): bool
     {
         return $this->is_manually_verified;
+    }
+
+    public function setOrganizerTaxIdType(?string $organizer_tax_id_type): self
+    {
+        $this->organizer_tax_id_type = $organizer_tax_id_type;
+        return $this;
+    }
+
+    public function getOrganizerTaxIdType(): ?string
+    {
+        return $this->organizer_tax_id_type;
+    }
+
+    public function setOrganizerTaxId(?string $organizer_tax_id): self
+    {
+        $this->organizer_tax_id = $organizer_tax_id;
+        return $this;
+    }
+
+    public function getOrganizerTaxId(): ?string
+    {
+        return $this->organizer_tax_id;
+    }
+
+    public function setPixKeyType(?string $pix_key_type): self
+    {
+        $this->pix_key_type = $pix_key_type;
+        return $this;
+    }
+
+    public function getPixKeyType(): ?string
+    {
+        return $this->pix_key_type;
+    }
+
+    public function setPixKeyValue(?string $pix_key_value): self
+    {
+        $this->pix_key_value = $pix_key_value;
+        return $this;
+    }
+
+    public function getPixKeyValue(): ?string
+    {
+        return $this->pix_key_value;
+    }
+
+    public function setRegistrationDeclarationAcceptedAt(?string $registration_declaration_accepted_at): self
+    {
+        $this->registration_declaration_accepted_at = $registration_declaration_accepted_at;
+        return $this;
+    }
+
+    public function getRegistrationDeclarationAcceptedAt(): ?string
+    {
+        return $this->registration_declaration_accepted_at;
     }
 }

@@ -490,5 +490,19 @@
     "You have received a new message from": "Recebeu uma nova mensagem de",
     "Reply to :name": "Responder a :name",
     "This message was sent via your organizer contact form.": "Esta mensagem foi enviada através do seu formulário de contato de organizador.",
-    "Your email confirmation code is:": "O seu código de confirmação de email é:"
+    "Your email confirmation code is:": "O seu código de confirmação de email é:",
+    "WhatsApp": "WhatsApp",
+    "Instagram": "Instagram",
+    "CPF/CNPJ": "CPF/CNPJ",
+    "Tipo de documento": "Tipo de documento",
+    "Tipo de chave PIX": "Tipo de chave PIX",
+    "Chave PIX": "Chave PIX",
+    "CEP": "CEP",
+    "Endereço": "Endereço",
+    "Cidade": "Cidade",
+    "Estado": "Estado",
+    "País": "País",
+    "Declaração": "Declaração",
+    "O CPF deve conter exatamente 11 dígitos.": "O CPF deve conter exatamente 11 dígitos.",
+    "O CNPJ deve conter exatamente 14 dígitos.": "O CNPJ deve conter exatamente 14 dígitos."
 }

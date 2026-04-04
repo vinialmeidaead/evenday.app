@@ -38,8 +38,32 @@ export interface AcceptInvitationRequest {
     password_confirmation: string;
 }
 
-export interface RegisterAccountRequest extends AcceptInvitationRequest {
+export interface RegisterAccountRequest {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
     locale: SupportedLocales;
+    timezone?: string;
+    invite_token?: string;
+    currency_code?: string;
+    phone: string;
+    instagram: string;
+    organizer_tax_id_type: "CPF" | "CNPJ";
+    organizer_tax_id: string;
+    pix_key_type: string;
+    pix_key_value: string;
+    location_details: {
+        zip_or_postal_code: string;
+        address_line_1: string;
+        address_line_2?: string;
+        city: string;
+        state_or_region: string;
+        country: string;
+        venue_name?: string;
+    };
+    declaration_accepted: boolean;
 }
 
 export interface ResetPasswordRequest {

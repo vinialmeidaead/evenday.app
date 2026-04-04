@@ -6,6 +6,7 @@ namespace Tests\Feature\Auth;
 
 use HiEvents\Models\Account;
 use HiEvents\Models\AccountConfiguration;
+use HiEvents\Models\Organizer;
 use HiEvents\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -31,17 +32,9 @@ class RegisterTest extends TestCase
         ]);
     }
 
-    public function test_register_user(): void
+    private function registrationPayload(User $user, Account $account, string $password, ?string $inviteToken = null): array
     {
-        $password = fake()->password(16);
-        $user = User::factory()->password($password)->make([
-            'email' => fake()->unique()->safeEmail()
-        ]);
-        $account = Account::factory()->make();
-
-        Config::set('app.disable_registration', false);
-
-        $response = $this->post(self::REGISTER_ROUTE, [
+        return [
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $user->email,
@@ -50,8 +43,38 @@ class RegisterTest extends TestCase
             'timezone' => $user->timezone,
             'currency_code' => $account->currency_code,
             'locale' => $user->locale,
-            'invite_token' => null,
+            'invite_token' => $inviteToken,
+            'phone' => '11987654321',
+            'instagram' => 'meu_evento',
+            'organizer_tax_id_type' => 'CPF',
+            'organizer_tax_id' => '52998224725',
+            'pix_key_type' => 'EMAIL',
+            'pix_key_value' => 'pix@example.com',
+            'location_details' => [
+                'zip_or_postal_code' => '01310100',
+                'address_line_1' => 'Av. Paulista 1000',
+                'address_line_2' => 'Sala 1',
+                'city' => 'São Paulo',
+                'state_or_region' => 'SP',
+                'country' => 'BR',
+                'venue_name' => 'Meu espaço',
+            ],
+            'declaration_accepted' => true,
+        ];
+    }
+
+    public function test_register_user(): void
+    {
+        $password = fake()->password(16);
+        $user = User::factory()->password($password)->make([
+            'email' => fake()->unique()->safeEmail(),
+            'last_name' => 'Silva',
         ]);
+        $account = Account::factory()->make();
+
+        Config::set('app.disable_registration', false);
+
+        $response = $this->post(self::REGISTER_ROUTE, $this->registrationPayload($user, $account, $password));
 
         $response->assertStatus(201);
 
@@ -66,6 +89,17 @@ class RegisterTest extends TestCase
             'user_id' => $userFromDB->id,
         ]);
 
+        $this->assertDatabaseHas('accounts', [
+            'id' => $accountFromDB->id,
+            'organizer_tax_id_type' => 'CPF',
+            'organizer_tax_id' => '52998224725',
+            'pix_key_type' => 'EMAIL',
+        ]);
+
+        $organizer = Organizer::where('account_id', $accountFromDB->id)->first();
+        $this->assertNotNull($organizer);
+        $this->assertSame('11987654321', $organizer->phone);
+
         // registered user got logged in
         $response->assertCookie('token');
         $response->assertHeader('X-Auth-Token');
@@ -74,42 +108,22 @@ class RegisterTest extends TestCase
     public function test_registration_disabled(): void
     {
         $password = fake()->password(16);
-        $user = User::factory()->make();
+        $user = User::factory()->make(['last_name' => 'Silva']);
         $account = Account::factory()->make();
 
         Config::set('app.disable_registration', true);
 
-        $response = $this->post(self::REGISTER_ROUTE, [
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'password' => $password,
-            'password_confirmation' => $password,
-            'timezone' => $user->timezone,
-            'currency_code' => $account->currency_code,
-            'locale' => $user->locale,
-            'invite_token' => null,
-        ]);
+        $response = $this->post(self::REGISTER_ROUTE, $this->registrationPayload($user, $account, $password));
 
         $response->assertStatus(403);
     }
 
     public function test_register_user_with_duplicate_data(): void
     {
-        $user = User::factory()->make();
+        $user = User::factory()->make(['last_name' => 'Silva']);
         $account = Account::factory()->make();
         $password = fake()->password(16);
-        $data = [
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'password' => $password,
-            'password_confirmation' => $password,
-            'timezone' => $user->timezone,
-            'currency_code' => $account->currency_code,
-            'locale' => $user->locale,
-            'invite_token' => null,
-        ];
+        $data = $this->registrationPayload($user, $account, $password);
 
         Config::set('app.disable_registration', false);
 
@@ -126,19 +140,10 @@ class RegisterTest extends TestCase
 
     public function test_register_user_with_invalid_data(): void
     {
-        $user = User::factory()->make();
+        $user = User::factory()->make(['last_name' => 'Silva']);
         $account = Account::factory()->make();
         $password = fake()->password(16);
-        $data = [
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'password' => $password,
-            'password_confirmation' => $password,
-            'timezone' => $user->timezone,
-            'currency_code' => $account->currency_code,
-            'locale' => $user->locale,
-        ];
+        $data = $this->registrationPayload($user, $account, $password);
         Config::set('app.disable_registration', false);
 
         // valid currency code but not supported by application (north corean won)

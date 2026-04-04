@@ -21,17 +21,29 @@ class CreateOrganizerHandler
     }
 
     /**
+     * @param array<string, string|null>|null $initialSocialMediaHandles
+     * @param array<string, string|null>|null $initialLocationDetails
      * @throws Throwable
      */
-    public function handle(CreateOrganizerDTO $organizerData): OrganizerDomainObject
-    {
+    public function handle(
+        CreateOrganizerDTO $organizerData,
+        ?array $initialSocialMediaHandles = null,
+        ?array $initialLocationDetails = null,
+    ): OrganizerDomainObject {
         return $this->databaseManager->transaction(
-            fn() => $this->createOrganizer($organizerData)
+            fn() => $this->createOrganizer($organizerData, $initialSocialMediaHandles, $initialLocationDetails)
         );
     }
 
-    private function createOrganizer(CreateOrganizerDTO $organizerData): OrganizerDomainObject
-    {
+    /**
+     * @param array<string, string|null>|null $initialSocialMediaHandles
+     * @param array<string, string|null>|null $initialLocationDetails
+     */
+    private function createOrganizer(
+        CreateOrganizerDTO $organizerData,
+        ?array $initialSocialMediaHandles = null,
+        ?array $initialLocationDetails = null,
+    ): OrganizerDomainObject {
         $organizer = $this->organizerRepository->create([
             'name' => $organizerData->name,
             'email' => $organizerData->email,
@@ -43,7 +55,11 @@ class CreateOrganizerHandler
             'currency' => $organizerData->currency,
         ]);
 
-        $this->createDefaultOrganizerSettingsService->createOrganizerSettings($organizer);
+        $this->createDefaultOrganizerSettingsService->createOrganizerSettings(
+            $organizer,
+            $initialSocialMediaHandles,
+            $initialLocationDetails,
+        );
 
         return $this->organizerRepository
             ->loadRelation(ImageDomainObject::class)

@@ -14,5 +14,12 @@
 }
 
 .registerCard {
-  max-width: 500px;
+  max-width: 560px;
+
+  footer {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--mantine-color-dimmed);
+  }
 }

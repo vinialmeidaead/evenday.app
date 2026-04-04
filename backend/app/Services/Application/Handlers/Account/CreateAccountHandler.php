@@ -17,6 +17,8 @@ use HiEvents\Repository\Interfaces\UserRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Account\DTO\CreateAccountDTO;
 use HiEvents\Services\Application\Handlers\Account\Exceptions\AccountConfigurationDoesNotExist;
 use HiEvents\Services\Application\Handlers\Account\Exceptions\AccountRegistrationDisabledException;
+use HiEvents\Services\Application\Handlers\Organizer\CreateOrganizerHandler;
+use HiEvents\Services\Application\Handlers\Organizer\DTO\CreateOrganizerDTO;
 use HiEvents\Services\Domain\Account\AccountUserAssociationService;
 use HiEvents\Services\Domain\User\EmailConfirmationService;
 use Illuminate\Config\Repository;
@@ -39,6 +41,7 @@ class CreateAccountHandler
         private readonly AccountUserRepositoryInterface          $accountUserRepository,
         private readonly AccountConfigurationRepositoryInterface $accountConfigurationRepository,
         private readonly LoggerInterface                         $logger,
+        private readonly CreateOrganizerHandler                  $createOrganizerHandler,
     )
     {
     }
@@ -59,13 +62,20 @@ class CreateAccountHandler
             $account = $this->accountRepository->create([
                 'timezone' => $this->getTimezone($accountData),
                 'currency_code' => $this->getCurrencyCode($accountData),
-                'name' => $accountData->first_name . ($accountData->last_name ? ' ' . $accountData->last_name : ''),
+                'name' => $this->formatAccountDisplayName($accountData),
                 'email' => strtolower($accountData->email),
                 'short_id' => IdHelper::shortId(IdHelper::ACCOUNT_PREFIX),
                 // If the app is not running in SaaS mode, we can immediately verify the account.
                 // Same goes for the email verification below.
                 'account_verified_at' => $isSaasMode ? null : now()->toDateTimeString(),
                 'account_configuration_id' => $this->getAccountConfigurationId($accountData),
+                'organizer_tax_id_type' => $accountData->organizer_tax_id_type,
+                'organizer_tax_id' => $accountData->organizer_tax_id,
+                'pix_key_type' => $accountData->pix_key_type,
+                'pix_key_value' => $accountData->pix_key_value,
+                'registration_declaration_accepted_at' => $accountData->declaration_accepted
+                    ? now()->toDateTimeString()
+                    : null,
             ]);
 
             $user = $this->getExistingUser($accountData) ?? $this->userRepository->create([
@@ -88,8 +98,55 @@ class CreateAccountHandler
 
             $this->emailConfirmationService->sendConfirmation($user, $account->getId());
 
+            $organizerName = $this->formatAccountDisplayName($accountData);
+            $socialHandles = $accountData->instagram !== ''
+                ? ['instagram' => $accountData->instagram]
+                : null;
+
+            $this->createOrganizerHandler->handle(
+                organizerData: CreateOrganizerDTO::fromArray([
+                    'name' => $organizerName,
+                    'email' => strtolower($accountData->email),
+                    'account_id' => $account->getId(),
+                    'timezone' => $this->getTimezone($accountData),
+                    'currency' => $this->getCurrencyCode($accountData),
+                    'phone' => $accountData->phone,
+                    'website' => null,
+                    'description' => null,
+                    'logo' => null,
+                ]),
+                initialSocialMediaHandles: $socialHandles,
+                initialLocationDetails: $this->normalizeLocationDetails($accountData->location_details),
+            );
+
             return $account;
         });
+    }
+
+    private function formatAccountDisplayName(CreateAccountDTO $accountData): string
+    {
+        return trim($accountData->first_name . ' ' . $accountData->last_name);
+    }
+
+    /**
+     * @param array<string, string|null> $details
+     * @return array<string, string|null>
+     */
+    private function normalizeLocationDetails(array $details): array
+    {
+        $out = [];
+        foreach ($details as $key => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                continue;
+            }
+            $out[$key] = $key === 'country' ? strtoupper($trimmed) : $trimmed;
+        }
+
+        return $out;
     }
 
     private function getTimezone(CreateAccountDTO $accountData): ?string

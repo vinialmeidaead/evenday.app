@@ -50,6 +50,14 @@ class CreateAccountAction extends BaseAuthAction
                     ? $request->validated('locale')
                     : $this->localeService->getLocaleOrDefault($request->getPreferredLanguage()),
                 'invite_token' => $request->validated('invite_token'),
+                'phone' => $request->validated('phone'),
+                'instagram' => $request->validated('instagram'),
+                'organizer_tax_id_type' => $request->validated('organizer_tax_id_type'),
+                'organizer_tax_id' => $request->validated('organizer_tax_id'),
+                'pix_key_type' => $request->validated('pix_key_type'),
+                'pix_key_value' => $request->validated('pix_key_value'),
+                'location_details' => $request->validated('location_details'),
+                'declaration_accepted' => (bool) $request->validated('declaration_accepted'),
             ]));
         } catch (EmailAlreadyExists $e) {
             throw ValidationException::withMessages([
