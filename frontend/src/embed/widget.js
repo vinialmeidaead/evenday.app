@@ -68,11 +68,21 @@
                     }
 
                     const { type, height, iframeId: messageIframeId } = event.data;
-                    if (type === 'resize' && height && messageIframeId === iframeId) {
-                        const targetIframe = document.getElementById(messageIframeId);
-                        if (targetIframe) {
-                            targetIframe.style.height = `${height}px`;
-                        }
+                    if (messageIframeId !== iframeId) {
+                        return;
+                    }
+
+                    const targetIframe = document.getElementById(messageIframeId);
+                    if (!targetIframe) {
+                        return;
+                    }
+
+                    if (type === 'resize' && height) {
+                        targetIframe.style.height = `${height}px`;
+                    }
+
+                    if (type === 'scrollIntoView') {
+                        targetIframe.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 });
             }

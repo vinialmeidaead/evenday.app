@@ -6,7 +6,6 @@ import {
     Collapse,
     Group,
     Input,
-    Modal,
     Spoiler,
     TextInput,
     UnstyledButton
@@ -39,23 +38,26 @@ import {Constants} from "../../../../constants.ts";
 
 const AFFILIATE_EXPIRY_DAYS = 30;
 
-const sendHeightToIframeWidgets = () => {
-    const height = document.documentElement.scrollHeight;
-    const widgetHeight = document.querySelector('.hi-product-widget-container')?.getBoundingClientRect().height || 0;
-    const urlParams = new URLSearchParams(window.location.search);
-    const iframeId = urlParams.get('iframeId');
+const getIframeId = () => new URLSearchParams(window.location.search).get('iframeId');
 
-    const finalHeight = Math.max(height, widgetHeight);
-
+const postMessageToParentWidget = (payload: Record<string, unknown>) => {
+    const iframeId = getIframeId();
     if (!iframeId) {
         return;
     }
 
-    window.parent.postMessage({
+    window.parent.postMessage({...payload, iframeId}, '*');
+};
+
+const sendHeightToIframeWidgets = () => {
+    const height = document.documentElement.scrollHeight;
+    const widgetHeight = document.querySelector('.hi-product-widget-container')?.getBoundingClientRect().height || 0;
+    const finalHeight = Math.max(height, widgetHeight);
+
+    postMessageToParentWidget({
         type: 'resize',
         height: finalHeight,
-        iframeId: iframeId
-    }, '*');
+    });
 };
 
 interface SelectProductsProps {
@@ -91,6 +93,14 @@ const SelectProducts = (props: SelectProductsProps) => {
     const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
 
     useEffect(() => sendHeightToIframeWidgets(), [resizeObserverRect.height]);
+
+    useEffect(() => {
+        if (!orderInProcessOverlayVisible) {
+            return;
+        }
+
+        postMessageToParentWidget({type: 'scrollIntoView'});
+    }, [orderInProcessOverlayVisible]);
 
     useEffect(() => {
         const storageKey = 'affiliate_code_' + eventId;
@@ -312,47 +322,32 @@ const SelectProducts = (props: SelectProductsProps) => {
                 </div>
             )}
             {orderInProcessOverlayVisible && (
-                <Modal
-                    withCloseButton={false}
-                    opened={true}
-                    onClose={() => setOrderInProcessOverlayVisible(false)}
-                    styles={{
-                        body: {
-                            padding: '30px 24px'
-                        },
-                        content: {
-                            borderRadius: '8px',
-                            backgroundColor: props.colors?.background || 'white'
-                        }
-                    }}
+                <div
+                    className="hi-order-in-process-overlay"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="hi-order-in-process-title"
                 >
-                    <div style={{
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '16px',
-                        color: props.colors?.primaryText || 'inherit'
-                    }}>
-                        <div style={{width: '100%'}}>
-                            <h3 style={{
-                                margin: '0 0 12px 0',
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: props.colors?.primaryText || 'inherit'
-                            }}>
-                                {t`Please continue in the new tab`}
-                            </h3>
+                    <div
+                        className="hi-order-in-process-backdrop"
+                        onClick={() => setOrderInProcessOverlayVisible(false)}
+                    />
+                    <div
+                        className="hi-order-in-process-panel"
+                        style={{
+                            backgroundColor: props.colors?.background || 'white',
+                            color: props.colors?.primaryText || 'inherit',
+                        }}
+                    >
+                        <h3 id="hi-order-in-process-title">
+                            {t`Please continue in the new tab`}
+                        </h3>
 
-                            <p style={{
-                                margin: '0 0 20px 0',
-                                fontSize: '15px',
-                                lineHeight: '1.5',
-                                color: props.colors?.primaryText || 'inherit'
-                            }}>
-                                {t`If a new tab did not open automatically, please click the button below to continue to checkout.`}
-                            </p>
+                        <p>
+                            {t`If a new tab did not open automatically, please click the button below to continue to checkout.`}
+                        </p>
 
+                        <div className="hi-order-in-process-actions">
                             <Button
                                 component="a"
                                 href={'/checkout/' + eventId + '/' + productMutation.data?.data.short_id + '/details' + '?session_identifier=' + productMutation.data?.data.session_identifier}
@@ -365,7 +360,6 @@ const SelectProducts = (props: SelectProductsProps) => {
                                         backgroundColor: props.colors?.secondary || '#228be6',
                                         color: props.colors?.secondaryText || 'white',
                                         fontWeight: 600,
-                                        marginBottom: '12px',
                                         '&:hover': {
                                             backgroundColor: props.colors?.secondary || '#1c7ed6',
                                         }
@@ -393,7 +387,7 @@ const SelectProducts = (props: SelectProductsProps) => {
                             </Button>
                         </div>
                     </div>
-                </Modal>
+                </div>
             )}
             {(event && productAreAvailable) && (
                 <form target={'__blank'} onSubmit={form.onSubmit(handleProductSelection as any)}>
